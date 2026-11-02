@@ -40,6 +40,23 @@ struct DraftJob: Identifiable {
         }
     }
 
+    /// Rebuilds a draft from a saved job, for editing an entry.
+    init(job: MaintenanceJob) {
+        jobKey = job.jobKey
+        customName = job.customName
+        categoryKey = job.categoryKey
+        priceText = job.unitPrice == 0 ? "" : job.unitPrice.plain(Locale.current, maxDigits: 2)
+        qtyText = job.quantity.plain(Locale.current, maxDigits: 2)
+        if job.ruleKm > 0 && job.ruleMonths > 0 { mode = .both }
+        else if job.ruleKm > 0 { mode = .km }
+        else if job.ruleMonths > 0 { mode = .months }
+        else { mode = .never }
+        kmText = job.ruleKm > 0 ? String(job.ruleKm) : ""
+        monthsText = job.ruleMonths > 0 ? String(job.ruleMonths) : ""
+        source = Catalog.job(job.jobKey)?.source ?? RuleSource.none
+        expanded = false
+    }
+
     var ruleKm: Int { (mode == .km || mode == .both) ? parseInt(kmText) : 0 }
     var ruleMonths: Int { (mode == .months || mode == .both) ? parseInt(monthsText) : 0 }
     var total: Double { (parseDecimal(priceText) ?? 0) * (parseDecimal(qtyText) ?? 1) }
@@ -49,6 +66,7 @@ struct DraftJob: Identifiable {
 
 struct MaintenanceEntryView: View {
     let vehicle: Vehicle
+    var editing: MaintenanceEntry? = nil
     var onSaved: () -> Void = {}
     @Environment(\.modelContext) private var context
     @Environment(\.locale) private var locale
@@ -73,8 +91,14 @@ struct MaintenanceEntryView: View {
         return Array(seen.prefix(3))
     }
 
+    private var eyebrowKey: LocalizedStringKey? {
+        editing == nil ? LocalizedStringKey("Nuova registrazione") : nil
+    }
+
     var body: some View {
-        FormScaffold(title: "Manutenzione", eyebrow: "Nuova registrazione", saveTitle: "Salva la manutenzione", canSave: canSave, onSave: save) {
+        FormScaffold(title: "Manutenzione", eyebrow: eyebrowKey,
+                     saveTitle: editing == nil ? "Salva la manutenzione" : "Salva modifiche",
+                     canSave: canSave, modal: editing != nil, onDelete: deleteAction, onSave: save) {
             Text("Interventi eseguiti").eyebrow()
             VStack(spacing: Space.s2) {
                 ForEach($drafts) { $d in
@@ -100,7 +124,9 @@ struct MaintenanceEntryView: View {
             Text("Dettagli del registro").eyebrow().padding(.top, Space.s1)
             VStack(alignment: .leading, spacing: Space.s1) {
                 LineField(label: "Contachilometri", text: $odoText, unit: "km", keyboard: .numberPad, size: 40)
-                Text("Ultima lettura: \(vehicle.currentOdometer.grouped(locale)) km").eyebrow()
+                if editing == nil {
+                    Text("Ultima lettura: \(vehicle.currentOdometer.grouped(locale)) km").eyebrow()
+                }
             }
             VStack(alignment: .leading, spacing: Space.s1) {
                 LineField(label: "Officina", text: $workshop, keyboard: .default, size: 22, placeholder: "Chi ha fatto il lavoro?")
@@ -124,6 +150,14 @@ struct MaintenanceEntryView: View {
         .onAppear {
             guard !prefilled else { return }
             prefilled = true
+            if let e = editing {
+                odoText = String(e.odometer)
+                workshop = e.workshop
+                note = e.note
+                date = e.date
+                drafts = e.jobs.map { DraftJob(job: $0) }
+                return
+            }
             odoText = String(vehicle.currentOdometer)
         }
         .sheet(isPresented: $showPicker) {
@@ -149,11 +183,21 @@ struct MaintenanceEntryView: View {
 
     private func save() {
         guard canSave else { return }
-        let entry = MaintenanceEntry(date: date, odometer: odo,
+        let entry: MaintenanceEntry
+        if let e = editing {
+            entry = e
+            entry.date = date
+            entry.odometer = odo
+            entry.workshop = workshop.trimmingCharacters(in: .whitespaces)
+            entry.note = note.trimmingCharacters(in: .whitespaces)
+            for old in Array(entry.jobs) { context.delete(old) }
+        } else {
+            entry = MaintenanceEntry(date: date, odometer: odo,
                                      workshop: workshop.trimmingCharacters(in: .whitespaces),
                                      note: note.trimmingCharacters(in: .whitespaces))
-        context.insert(entry)
-        entry.vehicle = vehicle
+            context.insert(entry)
+            entry.vehicle = vehicle
+        }
         for d in drafts {
             let job = MaintenanceJob(jobKey: d.jobKey, customName: d.customName, categoryKey: d.categoryKey,
                                      unitPrice: parseDecimal(d.priceText) ?? 0, quantity: parseDecimal(d.qtyText) ?? 1,
@@ -165,6 +209,24 @@ struct MaintenanceEntryView: View {
         Haptics.success()
         DataSignal.fire()
         onSaved()
+    }
+
+    private var deleteAction: (() -> Void)? {
+        guard editing != nil else { return nil }
+        return { deleteEntry() }
+    }
+
+    /// Closes the sheet first, then removes the entry so the row is seen leaving the list.
+    private func deleteEntry() {
+        guard let e = editing else { return }
+        onSaved()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            withAnimation(Motion.bounce) {
+                context.delete(e)
+                try? context.save()
+            }
+            DataSignal.fire()
+        }
     }
 }
 
@@ -219,6 +281,7 @@ struct JobCard: View {
                     Image(systemName: draft.expanded ? "chevron.up" : "chevron.down").foregroundStyle(Theme.muted)
                 }
                 .padding(Space.s2)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
@@ -371,6 +434,7 @@ struct MaintenancePicker: View {
                             Spacer()
                         }
                         .padding(.vertical, Space.s2)
+                        .contentShape(Rectangle())
                         .overlay(alignment: .top) { Hairline() }
                     }
                     .buttonStyle(.plain)
@@ -433,6 +497,7 @@ struct MaintenancePicker: View {
                         Image(systemName: open ? "chevron.up" : "chevron.down").foregroundStyle(open ? accent : Theme.muted)
                     }
                     .padding(.vertical, Space.s2)
+                    .contentShape(Rectangle())
                     .overlay(alignment: .top) { Hairline() }
                 }
                 .buttonStyle(.plain)
@@ -456,6 +521,7 @@ struct MaintenancePicker: View {
             }
             .padding(.vertical, Space.s2)
             .padding(.leading, Space.s5)
+            .contentShape(Rectangle())
             .overlay(alignment: .top) { Hairline().padding(.leading, Space.s5) }
         }
         .buttonStyle(.plain)

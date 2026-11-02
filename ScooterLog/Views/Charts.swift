@@ -73,6 +73,7 @@ struct ConsumptionChart: View {
         }
         .chartYScale(domain: lo...hi)
         .chartXSelection(value: $selected)
+        .blocksSwipeBack()
         .chartXAxis {
             AxisMarks { _ in
                 AxisGridLine().foregroundStyle(Theme.line)
@@ -124,6 +125,7 @@ struct PriceChart: View {
         }
         .chartYScale(domain: lo...hi)
         .chartXSelection(value: $selected)
+        .blocksSwipeBack()
         .chartXAxis {
             AxisMarks { _ in
                 AxisGridLine().foregroundStyle(Theme.line)

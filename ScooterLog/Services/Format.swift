@@ -16,6 +16,10 @@ extension Double {
     func decimal(_ digits: Int, _ locale: Locale) -> String {
         self.formatted(.number.precision(.fractionLength(digits)).locale(locale))
     }
+    /// For pre-filling an input: no thousands separator, no trailing zeros.
+    func plain(_ locale: Locale, maxDigits: Int = 3) -> String {
+        self.formatted(.number.grouping(.never).precision(.fractionLength(0...maxDigits)).locale(locale))
+    }
 }
 
 extension Int {

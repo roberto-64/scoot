@@ -3,6 +3,7 @@ import SwiftData
 
 struct GarageView: View {
     @Environment(\.locale) private var locale
+    @Environment(\.appAccent) private var accent
     @AppStorage("language") private var language = "it"
     @Query(sort: \Vehicle.createdAt) private var vehicles: [Vehicle]
     @State private var showNew = false
@@ -71,6 +72,7 @@ struct GarageView: View {
                 }
                 .padding(Space.s2)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
             .buttonStyle(PressStyle())
             Hairline()
@@ -83,14 +85,27 @@ struct GarageView: View {
 
     @ViewBuilder
     private var upcomingSection: some View {
-        let items = Upcoming.items(for: vehicles, lang: language)
-        if !items.isEmpty {
+        let items = Upcoming.dueSoon(Upcoming.items(for: vehicles, lang: language))
+        if !vehicles.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
-                Text("In arrivo").eyebrow().padding(.bottom, Space.s1)
+                HStack(spacing: Space.s1) {
+                    Text("In arrivo").eyebrow()
+                    Text("entro 30 giorni").eyebrow()
+                }
+                .padding(.bottom, Space.s1)
+                if items.isEmpty {
+                    Text("Niente in scadenza nei prossimi 30 giorni.")
+                        .font(AppFont.sans(15)).foregroundStyle(Theme.muted)
+                        .padding(.vertical, Space.s2)
+                        .overlay(alignment: .top) { Hairline() }
+                }
                 ForEach(items) { it in
                     HStack(alignment: .top, spacing: Space.s2) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(verbatim: it.title).font(AppFont.serif(17)).foregroundStyle(Theme.ink)
+                            HStack(spacing: Space.s1) {
+                                Text(verbatim: it.title).font(AppFont.serif(17)).foregroundStyle(Theme.ink)
+                                if it.isPiaggio { piaggioBadge }
+                            }
                             if vehicles.count > 1 {
                                 Text(verbatim: it.vehicleName).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
                             }
@@ -106,13 +121,23 @@ struct GarageView: View {
         }
     }
 
+    /// Small tag for maintenance whose interval comes from the official Piaggio schedule.
+    private var piaggioBadge: some View {
+        Text(verbatim: "PIAGGIO")
+            .font(AppFont.sans(11, .semibold)).tracking(0.5)
+            .foregroundStyle(accent)
+            .padding(.horizontal, Space.s1).frame(height: Space.s3)
+            .background(accent.opacity(0.14), in: RoundedRectangle(cornerRadius: Radius.base, style: .continuous))
+    }
+
     @ViewBuilder
     private func countdown(_ it: UpcomingItem) -> some View {
         if let d = it.days {
             Text(verbatim: d < 0 ? Loc.tr("Scaduta", language) : "\(d) \(Loc.tr("gg", language))")
-                .font(AppFont.serif(17)).foregroundStyle(d < 0 ? Theme.ink : Theme.ink).monospacedDigit()
+                .font(AppFont.serif(17)).foregroundStyle(Theme.ink).monospacedDigit()
         } else if let k = it.kmLeft {
-            Text(verbatim: "\(max(k, 0).grouped(locale)) km").font(AppFont.serif(17)).foregroundStyle(Theme.ink).monospacedDigit()
+            Text(verbatim: k <= 0 ? Loc.tr("Scaduta", language) : "\(k.grouped(locale)) km")
+                .font(AppFont.serif(17)).foregroundStyle(Theme.ink).monospacedDigit()
         }
     }
 }

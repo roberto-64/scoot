@@ -63,24 +63,30 @@ SwiftUI clamps to half the shorter side, so 48-high items read as full pills. Do
 
 ## Effects: no gradients or shadows unless listed here
 
-Only these three exist. Everything else is flat.
+Only these five exist. Everything else is flat.
 
 1. **Header glow.** One radial gradient, `glow` fading to transparent, from the top-left, at most 300 pt tall, behind the top of root tab screens (Home, Garage, Fuel, Profile). Not on sheets or forms.
-2. **Frosted tab pills.** The tab bar and the + button: `surface` at 55% over a background blur, 1 pt border of `surface` at 70%.
-3. **Card shadow.** y 8, blur 24, `ink` at 12%. Allowed on cards, chips, tab pills, icon squares and the primary button. Nowhere else.
+2. **Frosted tab pill.** The tab capsule: `surface` at 55% over a background blur, 1 pt border of `surface` at 70%.
+3. **Card shadow.** y 8, blur 24, `ink` at 12%. Allowed on cards, chips, icon squares and the primary button. Nowhere else.
+4. **Bar shadow.** A stronger two-layer shadow for the floating menu bar only (tab capsule and + button): y 14, blur 36, `ink` at 30%, plus y 3, blur 8, `ink` at 18%.
+5. **Toggle knob shadow.** A soft shadow under the toggle knob only: y 2, blur 6, `ink` at 25%.
 
 ## Layout rules
 
-- **Home:** date, greeting (serif 32), status line in `accent`, monthly spend (serif 56) with six month bars, vehicle card, recent activity.
+- **Home:** date, greeting (serif 32), status line in `accent`, monthly spend (serif 56) with six month bars, vehicle card (tap opens the vehicle page), recent activity.
+- **New-entry sheet:** 32 pt of space above the title and 32 pt between the title row and the tiles, so the title clears the sheet's drag handle and rounded corners.
+- **Entries (all four types):** tap an entry in any list to open the same form, pre-filled; the form opens as a sheet with a close cross, "Salva modifiche" at the bottom and an "Elimina registrazione" button (ink text, trash icon) that asks for confirmation. Press-and-hold shows "Elimina", also with confirmation. Swipe left on a row to show a full-height `accent` block with a `surface` trash icon; tapping it asks for confirmation, then deletes.
+- **Going back:** on any screen opened from another, swipe from left to right anywhere to go back (the built-in edge swipe also works). Charts you drag across to read values, and a row that is swiped open, are excluded.
 - **Vehicle:** back, make and model, quoted nickname (serif 32), year and fuel, odometer, cost per month, average consumption, deadline chips, history grouped by month.
 - **Forms (fill-up, maintenance, vehicle):** back button and title, underlined fields with serif numbers, calculated cost, one `accent` button pinned at the bottom. No tab bar on forms.
 - **Fill-up form:** quantity, price per litre, calculated cost, odometer, date. No full/partial switch and no extra optional taps. One entry per stop, with the total litres.
 - **Consumption figures** are estimates: distance from first to last reading over litres added after the first, shown with a margin ("41,8 km/L ± 4%, stima"). Charts use a rolling average over at least 400 km. Never show per-fill km/L as a headline.
-- **Garage:** title and add button, one card per vehicle with odometer and three deadline cells (RCA, Bollo, Revisione), then "In arrivo".
+- **Garage:** title and add button, one card per vehicle with odometer and three deadline cells (RCA, Bollo, Revisione), then "In arrivo". The whole upper part of the vehicle card opens the vehicle page; the deadline cells have their own taps.
+- **"In arrivo" (Garage):** only items due within 30 days from today, plus anything already overdue. A job that depends only on distance appears once it is estimated to fall inside the window (this needs about two weeks of odometer entries) or when its distance has passed. Maintenance whose interval comes from the official Piaggio schedule carries a small **PIAGGIO** tag next to its name. When nothing is due the section says so in one line.
 - **Maintenance:** a picker sheet with search, recents, expandable categories and multi-select, then an entry form with one card per job. Each job card has price, quantity and its own next-service rule (km, months, both or never). Defaults carry a source tag ("Piaggio" for official values, none for typical ones). Car-only jobs are hidden unless the switch is on.
 - **Deadline setup:** a sheet per deadline with a calculated, editable due date and an alerts row. Renewing moves the old date into a renewal history and calculates the next one.
 - **Settings** (Profile, top-right gear): colour, language (Italiano / English), alerts, Face ID, export.
-- **Tab bar:** four icon tabs in one frosted capsule, selected tab filled with `accent`, plus a separate **+** button that opens the new-entry sheet. Labels are not shown. The Garage header has its own accent-filled **+** (add vehicle); the two are never the same style.
+- **Tab bar:** four icon tabs in one frosted capsule, selected tab filled with `accent`, plus a separate **+** button, filled with `accent` with a `surface` plus, that opens the new-entry sheet. Labels are not shown. The Garage header has its own accent-filled **+** (add vehicle); the two are never the same style.
 - **Cards:** `surface`, 1 pt `line` border, card shadow. **Buttons:** 48 to 56 high, `accent`, label in `surface`, semibold 17.
 
 ## Status and destructive states
@@ -94,7 +100,7 @@ There is no red and no other status colour. State is shown by shape and word as 
 | Soon (30 days or fewer) | `accent` fill, `surface` text | `12 gg` |
 | Overdue | `ink` fill, `surface` text | `Scaduta` |
 
-- Destructive actions (remove, delete): `ink` text with a trash icon, always behind a confirmation.
+- Destructive actions (remove, delete): `ink` text with a trash icon, always behind a confirmation. The swipe-to-delete block is the one place `accent` marks a delete; it still asks for confirmation.
 - Deadline alerts go out at 9:00. Revisione: 60, 30, 7 and 1 days before, so there is time to book. RCA and Bollo: 30, 7 and 1 days before.
 - Lists of upcoming items (Garage, "In arrivo") are always sorted by due date, deadlines and service items together.
 
@@ -114,7 +120,13 @@ Every empty screen says what is missing in one sentence, why it matters, and off
 
 ## Motion and haptics
 
-Restrained. Springs only (response about 0.35). Press-down on buttons. Numbers roll when they change. Sheets slide natively.
+Playful, springs only. Everyday spring: response 0.32, damping 0.68. Pop spring (new entries, save, toggle knob): response 0.4, damping 0.52. Press-down spring: response 0.26, damping 0.55.
+- Taps: buttons and cards squash to 94% and bounce back; list rows to 98%.
+- Toggles: the knob stretches while pressed and bounces into place.
+- Lists: a new entry pops in (scale from 92%), a deleted one slides out to the left.
+- Tabs: the highlight pill bounces to the new tab. The screen content change keeps the original calm fade (response 0.35, damping 0.85) and must not be changed.
+- Save: the Save button gives a small pop (105%) just before the screen closes.
+- Numbers roll when they change. Sheets slide natively.
 One haptic per action: selection tick on tabs, success on save, warning on invalid odometer.
 Respect Reduce Motion and the Settings switch for animations and haptics.
 
@@ -127,7 +139,7 @@ Italian is the default, English is switchable. Every user-facing string lives in
 - [ ] Only the five tokens (plus derived `line` and `glow`) appear.
 - [ ] Every spacing value is on the 8px scale.
 - [ ] Every corner is radius 24.
-- [ ] No gradient or shadow outside the three listed above.
+- [ ] No gradient or shadow outside the five listed above.
 - [ ] Fonts are New York and SF Pro only.
 - [ ] Changing the accent in Settings recolours every accent element on this screen.
 - [ ] Both languages tested.

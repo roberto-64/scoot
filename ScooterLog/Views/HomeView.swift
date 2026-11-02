@@ -159,6 +159,7 @@ struct HomeView: View {
                 if !done { Image(systemName: "chevron.right").foregroundStyle(Theme.muted) }
             }
             .padding(.vertical, Space.s2)
+            .contentShape(Rectangle())
             .overlay(alignment: .top) { Hairline() }
         }
         .buttonStyle(.plain)
@@ -212,20 +213,27 @@ struct HomeView: View {
     }
 
     private func vehicleCard(_ v: Vehicle) -> some View {
-        VStack(alignment: .leading, spacing: Space.s3) {
-            HStack(spacing: Space.s2) {
-                VehicleBadge()
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: "\(v.make) \(v.model)").font(AppFont.sans(13)).foregroundStyle(Theme.muted)
-                    Text(verbatim: v.displayName).font(AppFont.serif(22)).foregroundStyle(Theme.ink)
+        NavigationLink {
+            VehicleDetailView(vehicle: v)
+        } label: {
+            VStack(alignment: .leading, spacing: Space.s3) {
+                HStack(spacing: Space.s2) {
+                    VehicleBadge()
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: "\(v.make) \(v.model)").font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                        Text(verbatim: v.displayName).font(AppFont.serif(22)).foregroundStyle(Theme.ink)
+                    }
+                    Spacer()
+                }
+                HStack(alignment: .firstTextBaseline, spacing: Space.s1) {
+                    Text(v.currentOdometer.grouped(locale)).font(AppFont.serif(40)).foregroundStyle(Theme.ink).monospacedDigit()
+                    Text(verbatim: "km").font(AppFont.sans(15)).foregroundStyle(Theme.muted)
                 }
             }
-            HStack(alignment: .firstTextBaseline, spacing: Space.s1) {
-                Text(v.currentOdometer.grouped(locale)).font(AppFont.serif(40)).foregroundStyle(Theme.ink).monospacedDigit()
-                Text(verbatim: "km").font(AppFont.sans(15)).foregroundStyle(Theme.muted)
-            }
+            .card()
+            .contentShape(Rectangle())
         }
-        .card()
+        .buttonStyle(PressStyle())
         .padding(.top, Space.s3)
     }
 
@@ -234,9 +242,10 @@ struct HomeView: View {
         return VStack(alignment: .leading, spacing: 0) {
             if !recent.isEmpty {
                 Text("Attività recente").eyebrow().padding(.top, Space.s3)
-                ForEach(recent) { e in HistoryRow(entry: e, showVehicle: vehicles.count > 1) }
+                ForEach(recent) { e in HistoryRow(entry: e, showVehicle: vehicles.count > 1).rowTransition() }
             }
         }
+        .animation(Motion.bounce, value: recent.map { $0.id })
     }
 }
 

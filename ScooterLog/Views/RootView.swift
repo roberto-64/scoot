@@ -28,6 +28,7 @@ struct RootView: View {
                 case .profile: ProfileView()
                 }
             }
+            .animation(Motion.fade, value: tab)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             FloatingBar(tab: $tab, onNew: { showNew = true })
         }
@@ -81,9 +82,10 @@ struct FloatingBar: View {
             Button(action: onNew) {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(Theme.ink)
+                    .foregroundStyle(Theme.surface)
                     .frame(width: Space.s7, height: Space.s7)
-                    .frosted()
+                    .background(accent, in: RoundedRectangle(cornerRadius: Radius.base, style: .continuous))
+                    .barShadow()
             }
             .buttonStyle(PressStyle())
         }
@@ -109,7 +111,7 @@ struct FloatingBar: View {
                     }
                 }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressStyle())
     }
 }
 
@@ -125,7 +127,7 @@ struct NewEntrySheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: Space.s3) {
+                VStack(alignment: .leading, spacing: Space.s4) {
                     HStack {
                         Text("Nuova registrazione").font(AppFont.serif(28)).foregroundStyle(Theme.ink)
                         Spacer()
@@ -159,7 +161,7 @@ struct NewEntrySheet: View {
                     }
                 }
                 .padding(.horizontal, Space.s2)
-                .padding(.top, Space.s2)
+                .padding(.top, Space.s4)
             }
             .screenBackground()
             .toolbar(.hidden, for: .navigationBar)

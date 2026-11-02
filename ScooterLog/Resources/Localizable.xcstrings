@@ -791,12 +791,32 @@
         }
       }
     },
+    "Elimina registrazione": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete entry"
+          }
+        }
+      }
+    },
     "Elimina veicolo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Delete vehicle"
+          }
+        }
+      }
+    },
+    "Eliminare questa registrazione?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this entry?"
           }
         }
       }
@@ -1441,6 +1461,16 @@
         }
       }
     },
+    "Niente in scadenza nei prossimi 30 giorni.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing due in the next 30 days."
+          }
+        }
+      }
+    },
     "Nome": {
       "localizations": {
         "en": {
@@ -1887,6 +1917,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Save maintenance"
+          }
+        }
+      }
+    },
+    "Salva modifiche": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save changes"
           }
         }
       }
@@ -2387,6 +2427,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "since"
+          }
+        }
+      }
+    },
+    "entro 30 giorni": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "within 30 days"
           }
         }
       }

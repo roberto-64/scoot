@@ -157,12 +157,95 @@ enum HistoryEntry: Identifiable {
     }
 }
 
+/// Lighter press-down for full-width rows.
+struct RowPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .animation(Motion.press, value: configuration.isPressed)
+    }
+}
+
+extension View {
+    /// How list rows pop in and slide away.
+    func rowTransition() -> some View {
+        transition(.asymmetric(
+            insertion: .scale(scale: 0.92).combined(with: .opacity),
+            removal: .move(edge: .leading).combined(with: .opacity)))
+    }
+}
+
+/// Swipe left to show an accent-coloured trash block at the right edge. Tapping the block calls `onTrash`
+/// (the caller asks for confirmation before deleting).
+struct SwipeToDelete<Content: View>: View {
+    @Environment(\.appAccent) private var accent
+    @Binding var isOpen: Bool
+    var onTrash: () -> Void
+    @ViewBuilder let content: () -> Content
+    @State private var drag: CGFloat = 0
+    @State private var dragging = false
+
+    private let reveal: CGFloat = Space.s8 + Space.s1
+
+    private var offset: CGFloat {
+        let raw = (isOpen ? -reveal : 0) + drag
+        return min(0, max(raw, -(reveal + Space.s3)))
+    }
+
+    var body: some View {
+        content()
+            .offset(x: offset)
+            .background(alignment: .trailing) {
+                Button { onTrash() } label: {
+                    accent
+                        .overlay(alignment: .trailing) {
+                            Image(systemName: "trash")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundStyle(Theme.surface)
+                                .frame(width: reveal)
+                        }
+                        .frame(width: max(0, -offset))
+                        .clipped()
+                }
+                .buttonStyle(.plain)
+                .allowsHitTesting(isOpen)
+            }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 16)
+                    .onChanged { v in
+                        if !dragging {
+                            // Only a mostly sideways drag counts; up and down stays with scrolling.
+                            guard abs(v.translation.width) > abs(v.translation.height) * 1.5 else { return }
+                            dragging = true
+                        }
+                        drag = v.translation.width
+                    }
+                    .onEnded { v in
+                        let wasDragging = dragging
+                        let final = (isOpen ? -reveal : 0) + v.translation.width
+                        let willOpen = final < -reveal * 0.4
+                        if wasDragging && willOpen && !isOpen { Haptics.tick() }
+                        withAnimation(Motion.spring) {
+                            if wasDragging { isOpen = willOpen }
+                            drag = 0
+                        }
+                        dragging = false
+                    }
+            )
+            .blocksSwipeBack(isOpen || dragging)
+    }
+}
+
 struct HistoryRow: View {
     @Environment(\.locale) private var locale
     @Environment(\.modelContext) private var context
     @AppStorage("language") private var language = "it"
     let entry: HistoryEntry
     var showVehicle: Bool = false
+    @State private var editing = false
+    @State private var confirmDelete = false
+    @State private var swipeOpen = false
 
     private var parts: (symbol: String, title: String, subtitle: String, amount: Double?, vehicle: String) {
         switch entry {
@@ -185,8 +268,39 @@ struct HistoryRow: View {
     }
 
     var body: some View {
+        SwipeToDelete(isOpen: $swipeOpen, onTrash: { confirmDelete = true }) {
+            Button {
+                if swipeOpen {
+                    withAnimation(Motion.spring) { swipeOpen = false }
+                } else {
+                    editing = true
+                }
+            } label: {
+                rowContent
+            }
+            .buttonStyle(RowPressStyle())
+        }
+        .contextMenu {
+            Button(role: .destructive) { confirmDelete = true } label: {
+                Label("Elimina", systemImage: "trash")
+            }
+        }
+        .confirmationDialog("Eliminare questa registrazione?", isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("Elimina registrazione", role: .destructive) { delete() }
+            Button("Annulla", role: .cancel) { withAnimation(Motion.spring) { swipeOpen = false } }
+        }
+        .sheet(isPresented: $editing) {
+            EntryEditSheet(entry: entry)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(Radius.base)
+                .presentationBackground(Theme.bg)
+        }
+    }
+
+    private var rowContent: some View {
         let p = parts
-        HStack(alignment: .top, spacing: Space.s2) {
+        return HStack(alignment: .top, spacing: Space.s2) {
             Image(systemName: p.symbol)
                 .font(.system(size: 20))
                 .foregroundStyle(Theme.muted)
@@ -198,6 +312,7 @@ struct HistoryRow: View {
                     Text(verbatim: p.vehicle).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
                 }
                 Text(verbatim: p.subtitle).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                    .multilineTextAlignment(.leading)
             }
             Spacer(minLength: Space.s1)
             if let a = p.amount {
@@ -205,22 +320,22 @@ struct HistoryRow: View {
             }
         }
         .padding(.vertical, Space.s2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
         .overlay(alignment: .top) { Hairline() }
-        .contextMenu {
-            Button(role: .destructive) { delete() } label: {
-                Label("Elimina", systemImage: "trash")
-            }
-        }
     }
 
     private func delete() {
-        switch entry {
-        case .fuel(let x): context.delete(x)
-        case .maint(let x): context.delete(x)
-        case .expense(let x): context.delete(x)
-        case .reading(let x): context.delete(x)
+        withAnimation(Motion.bounce) {
+            swipeOpen = false
+            switch entry {
+            case .fuel(let x): context.delete(x)
+            case .maint(let x): context.delete(x)
+            case .expense(let x): context.delete(x)
+            case .reading(let x): context.delete(x)
+            }
+            try? context.save()
         }
-        try? context.save()
         DataSignal.fire()
     }
 }
@@ -271,6 +386,7 @@ struct DeadlineCells: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Space.s2)
                     .padding(.vertical, Space.s2)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(PressStyle())
                 if i < DeadlineKind.allCases.count - 1 {

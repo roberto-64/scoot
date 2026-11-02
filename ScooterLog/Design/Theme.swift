@@ -90,8 +90,21 @@ enum Motion {
         let on = d.object(forKey: "animations") == nil ? true : d.bool(forKey: "animations")
         return on && !UIAccessibility.isReduceMotionEnabled
     }
+    /// Everyday spring: quick, with a small visible bounce.
     static var spring: Animation? {
+        enabled ? .spring(response: 0.32, dampingFraction: 0.68) : nil
+    }
+    /// Playful spring for pops: new entries, save, toggle knob.
+    static var bounce: Animation? {
+        enabled ? .spring(response: 0.4, dampingFraction: 0.52) : nil
+    }
+    /// The original calm spring. Kept for the tab content fade, which stays as it was.
+    static var fade: Animation? {
         enabled ? .spring(response: 0.35, dampingFraction: 0.85) : nil
+    }
+    /// Quick spring for press-down.
+    static var press: Animation? {
+        enabled ? .spring(response: 0.26, dampingFraction: 0.55) : nil
     }
 }
 
@@ -133,6 +146,15 @@ struct HeaderGlow: View {
     }
 }
 
+/// Stronger two-layer shadow for the floating menu bar and its + button.
+struct BarShadow: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: Theme.ink.opacity(0.30), radius: 18, x: 0, y: 14)
+            .shadow(color: Theme.ink.opacity(0.18), radius: 4, x: 0, y: 3)
+    }
+}
+
 struct FrostedBackground: ViewModifier {
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
@@ -140,7 +162,7 @@ struct FrostedBackground: ViewModifier {
             .background(.ultraThinMaterial, in: shape)
             .background(Theme.surface.opacity(0.55), in: shape)
             .overlay(shape.stroke(Theme.surface.opacity(0.7), lineWidth: 1))
-            .shadow(color: Theme.ink.opacity(0.12), radius: 12, x: 0, y: 8)
+            .modifier(BarShadow())
     }
 }
 
@@ -181,6 +203,7 @@ struct EyebrowStyle: ViewModifier {
 
 extension View {
     func cardShadow() -> some View { modifier(CardShadow()) }
+    func barShadow() -> some View { modifier(BarShadow()) }
     func frosted() -> some View { modifier(FrostedBackground()) }
     func screenBackground(glow: Bool = false) -> some View { modifier(ScreenBackground(glow: glow)) }
     func card(padding: CGFloat = Space.s2) -> some View { modifier(CardStyle(padding: padding)) }
@@ -192,9 +215,9 @@ extension View {
 struct PressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .opacity(configuration.isPressed ? 0.85 : 1)
-            .animation(Motion.enabled ? Animation.spring(response: 0.25, dampingFraction: 0.7) : nil, value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .opacity(configuration.isPressed ? 0.88 : 1)
+            .animation(Motion.press, value: configuration.isPressed)
     }
 }
 
@@ -207,9 +230,18 @@ struct PrimaryButton: View {
     let title: LocalizedStringKey
     var enabled: Bool = true
     let action: () -> Void
+    @State private var pop = false
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            guard !pop else { return }
+            withAnimation(Motion.bounce) { pop = true }
+            // A short beat so the pop is seen before the screen closes.
+            DispatchQueue.main.asyncAfter(deadline: .now() + (Motion.enabled ? 0.16 : 0)) {
+                action()
+                pop = false
+            }
+        } label: {
             Text(title)
                 .font(AppFont.sans(17, .semibold))
                 .foregroundStyle(Theme.surface)
@@ -218,6 +250,7 @@ struct PrimaryButton: View {
                 .background(accent.opacity(enabled ? 1 : 0.4),
                             in: RoundedRectangle(cornerRadius: Radius.base, style: .continuous))
                 .cardShadow()
+                .scaleEffect(pop ? 1.05 : 1)
         }
         .buttonStyle(PressStyle())
         .disabled(!enabled)
@@ -268,10 +301,12 @@ struct BackHeader: View {
     @Environment(\.dismiss) private var dismiss
     let title: LocalizedStringKey
     var eyebrow: LocalizedStringKey? = nil
+    /// True when the form is shown as a sheet: the button closes it and shows a cross.
+    var modal: Bool = false
 
     var body: some View {
         HStack(spacing: Space.s2) {
-            Button { dismiss() } label: { IconSquare(systemName: "chevron.left") }
+            Button { dismiss() } label: { IconSquare(systemName: modal ? "xmark" : "chevron.left") }
                 .buttonStyle(PressStyle())
             VStack(alignment: .leading, spacing: 0) {
                 if let e = eyebrow { Text(e).eyebrow() }
@@ -353,25 +388,56 @@ struct Segmented<T: Hashable>: View {
 }
 
 struct AccentToggleStyle: ToggleStyle {
-    @Environment(\.appAccent) private var accent
-
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: Space.s2) {
             configuration.label
             Spacer(minLength: Space.s2)
-            ZStack(alignment: configuration.isOn ? .trailing : .leading) {
-                RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
-                    .fill(configuration.isOn ? accent : Theme.line)
-                    .frame(width: Space.s6, height: Space.s4)
-                Circle().fill(Theme.surface)
-                    .frame(width: Space.s3, height: Space.s3)
-                    .padding(.horizontal, Space.s1)
-            }
-            .onTapGesture {
-                withAnimation(Motion.spring) { configuration.isOn.toggle() }
-                Haptics.tick()
-            }
+            SwitchControl(isOn: configuration.$isOn)
         }
+    }
+}
+
+/// iOS-style pill switch: large white knob with a soft shadow, light outlined track when off,
+/// accent track when on. The knob stretches while pressed.
+struct SwitchControl: View {
+    @Environment(\.appAccent) private var accent
+    @Binding var isOn: Bool
+    @State private var pressed = false
+
+    private let trackWidth: CGFloat = Space.s7
+    private let trackHeight: CGFloat = Space.s4
+    private let inset: CGFloat = 2
+
+    var body: some View {
+        let knobHeight = trackHeight - inset * 2
+        let knobWidth = pressed ? knobHeight + Space.s1 : knobHeight
+        ZStack(alignment: isOn ? .trailing : .leading) {
+            Capsule()
+                .fill(isOn ? accent : Theme.bg)
+                .overlay(Capsule().stroke(isOn ? accent : Theme.line, lineWidth: 1))
+                .frame(width: trackWidth, height: trackHeight)
+            Capsule()
+                .fill(Theme.surface)
+                .frame(width: knobWidth, height: knobHeight)
+                .shadow(color: Theme.ink.opacity(0.25), radius: 3, x: 0, y: 2)
+                .padding(.horizontal, inset)
+        }
+        .animation(Motion.bounce, value: isOn)
+        .animation(Motion.press, value: pressed)
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in if !pressed { pressed = true } }
+                .onEnded { _ in
+                    pressed = false
+                    isOn.toggle()
+                    Haptics.tick()
+                }
+        )
+        .accessibilityElement()
+        .accessibilityAddTraits(.isButton)
+        .accessibilityValue(isOn ? "On" : "Off")
+        .accessibilityAction { isOn.toggle() }
     }
 }
 
@@ -425,17 +491,6 @@ struct StatusPill: View {
         }
         .font(AppFont.sans(13, .semibold))
         .fixedSize()
-    }
-}
-
-// Keeps the swipe-back gesture working when the navigation bar is hidden.
-extension UINavigationController: UIGestureRecognizerDelegate {
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-        interactivePopGestureRecognizer?.delegate = self
-    }
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        viewControllers.count > 1
     }
 }
 

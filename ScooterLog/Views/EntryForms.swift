@@ -16,19 +16,35 @@ struct DateRow: View {
     }
 }
 
+/// Shared frame of every entry form. When `onDelete` is set (editing an existing entry)
+/// a "Delete" button appears at the bottom and asks for confirmation.
 struct FormScaffold<Content: View>: View {
     let title: LocalizedStringKey
     var eyebrow: LocalizedStringKey? = nil
     let saveTitle: LocalizedStringKey
     let canSave: Bool
+    var modal: Bool = false
+    var onDelete: (() -> Void)? = nil
     let onSave: () -> Void
     @ViewBuilder let content: () -> Content
+    @State private var confirmDelete = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.s3) {
-                BackHeader(title: title, eyebrow: eyebrow)
+                BackHeader(title: title, eyebrow: eyebrow, modal: modal)
                 content()
+                if onDelete != nil {
+                    Button { confirmDelete = true } label: {
+                        HStack(spacing: Space.s1) {
+                            Image(systemName: "trash")
+                            Text("Elimina registrazione")
+                        }
+                        .font(AppFont.sans(15, .semibold))
+                        .foregroundStyle(Theme.ink)
+                    }
+                    .buttonStyle(PressStyle())
+                }
             }
             .padding(.horizontal, Space.s2)
             .padding(.top, Space.s2)
@@ -41,7 +57,31 @@ struct FormScaffold<Content: View>: View {
                 .padding(.horizontal, Space.s2)
                 .padding(.bottom, Space.s1)
         }
+        .confirmationDialog("Eliminare questa registrazione?", isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("Elimina registrazione", role: .destructive) { onDelete?() }
+            Button("Annulla", role: .cancel) {}
+        }
         .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+// MARK: - Edit sheet (opens when an entry in a list is tapped)
+
+struct EntryEditSheet: View {
+    let entry: HistoryEntry
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        switch entry {
+        case .fuel(let e):
+            if let v = e.vehicle { FuelFormView(vehicle: v, editing: e, onSaved: { dismiss() }) }
+        case .maint(let e):
+            if let v = e.vehicle { MaintenanceEntryView(vehicle: v, editing: e, onSaved: { dismiss() }) }
+        case .expense(let e):
+            if let v = e.vehicle { ExpenseFormView(vehicle: v, editing: e, onSaved: { dismiss() }) }
+        case .reading(let e):
+            if let v = e.vehicle { OdometerFormView(vehicle: v, editing: e, onSaved: { dismiss() }) }
+        }
     }
 }
 
@@ -49,6 +89,7 @@ struct FormScaffold<Content: View>: View {
 
 struct FuelFormView: View {
     let vehicle: Vehicle
+    var editing: FuelEntry? = nil
     var onSaved: () -> Void = {}
     @Environment(\.modelContext) private var context
     @Environment(\.locale) private var locale
@@ -63,12 +104,14 @@ struct FuelFormView: View {
     private var odo: Int { parseInt(odoText) }
     private var total: Double { liters * price }
     private var lastOdo: Int { vehicle.currentOdometer }
-    private var odoTooLow: Bool { odo > 0 && odo < lastOdo }
+    private var odoTooLow: Bool { editing == nil && odo > 0 && odo < lastOdo }
     private var overTank: Bool { vehicle.tankLiters > 0 && liters > vehicle.tankLiters * 1.05 }
     private var canSave: Bool { liters > 0 && price > 0 && odo > 0 }
 
     var body: some View {
-        FormScaffold(title: "Rifornimento", saveTitle: "Salva registrazione", canSave: canSave, onSave: save) {
+        FormScaffold(title: "Rifornimento", saveTitle: editing == nil ? "Salva registrazione" : "Salva modifiche",
+                     canSave: canSave, modal: editing != nil,
+                     onDelete: deleteAction, onSave: save) {
             HStack(alignment: .top, spacing: Space.s3) {
                 LineField(label: "Quantità", text: $litersText, unit: "L")
                 LineField(label: "Prezzo per L", text: $priceText, unit: "€")
@@ -93,7 +136,7 @@ struct FuelFormView: View {
                 LineField(label: "Contachilometri", text: $odoText, unit: "km", keyboard: .numberPad, size: 40)
                 if odoTooLow {
                     Text("Il valore è inferiore all’ultima lettura.").font(AppFont.sans(13, .semibold)).foregroundStyle(Theme.ink)
-                } else {
+                } else if editing == nil {
                     Text("Ultima lettura: \(lastOdo.grouped(locale)) km").eyebrow()
                 }
             }
@@ -103,6 +146,13 @@ struct FuelFormView: View {
         .onAppear {
             guard !prefilled else { return }
             prefilled = true
+            if let e = editing {
+                litersText = e.liters.plain(locale)
+                priceText = e.pricePerLiter.plain(locale)
+                odoText = String(e.odometer)
+                date = e.date
+                return
+            }
             odoText = String(vehicle.currentOdometer)
             if let last = vehicle.fuelEntries.sorted(by: { $0.date > $1.date }).first {
                 priceText = last.pricePerLiter.decimal(3, locale)
@@ -113,13 +163,38 @@ struct FuelFormView: View {
 
     private func save() {
         guard canSave else { return }
-        let e = FuelEntry(date: date, odometer: odo, liters: liters, pricePerLiter: price)
-        context.insert(e)
-        e.vehicle = vehicle
+        if let e = editing {
+            e.date = date
+            e.odometer = odo
+            e.liters = liters
+            e.pricePerLiter = price
+        } else {
+            let e = FuelEntry(date: date, odometer: odo, liters: liters, pricePerLiter: price)
+            context.insert(e)
+            e.vehicle = vehicle
+        }
         try? context.save()
         Haptics.success()
         DataSignal.fire()
         onSaved()
+    }
+
+    private var deleteAction: (() -> Void)? {
+        guard editing != nil else { return nil }
+        return { deleteEntry() }
+    }
+
+    /// Closes the sheet first, then removes the entry so the row is seen leaving the list.
+    private func deleteEntry() {
+        guard let e = editing else { return }
+        onSaved()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            withAnimation(Motion.bounce) {
+                context.delete(e)
+                try? context.save()
+            }
+            DataSignal.fire()
+        }
     }
 }
 
@@ -127,19 +202,24 @@ struct FuelFormView: View {
 
 struct ExpenseFormView: View {
     let vehicle: Vehicle
+    var editing: ExpenseEntry? = nil
     var onSaved: () -> Void = {}
     @Environment(\.modelContext) private var context
+    @Environment(\.locale) private var locale
     @State private var category: ExpenseCategory = .parking
     @State private var title = ""
     @State private var amountText = ""
     @State private var odoText = ""
     @State private var date = Date()
+    @State private var prefilled = false
 
     private var amount: Double { parseDecimal(amountText) ?? 0 }
     private var canSave: Bool { amount > 0 }
 
     var body: some View {
-        FormScaffold(title: "Spesa", saveTitle: "Salva registrazione", canSave: canSave, onSave: save) {
+        FormScaffold(title: "Spesa", saveTitle: editing == nil ? "Salva registrazione" : "Salva modifiche",
+                     canSave: canSave, modal: editing != nil,
+                     onDelete: deleteAction, onSave: save) {
             VStack(alignment: .leading, spacing: Space.s1) {
                 Text("Categoria").eyebrow()
                 HStack(spacing: Space.s1) {
@@ -163,18 +243,55 @@ struct ExpenseFormView: View {
             LineField(label: "Contachilometri", text: $odoText, unit: "km", keyboard: .numberPad, size: 22, placeholder: "Facoltativo")
             DateRow(label: "Data", date: $date)
         }
+        .onAppear {
+            guard !prefilled else { return }
+            prefilled = true
+            if let e = editing {
+                category = e.category
+                title = e.title
+                amountText = e.amount.plain(locale, maxDigits: 2)
+                odoText = e.odometer > 0 ? String(e.odometer) : ""
+                date = e.date
+            }
+        }
     }
 
     private func save() {
         guard canSave else { return }
-        let e = ExpenseEntry(date: date, odometer: parseInt(odoText), category: category,
-                             title: title.trimmingCharacters(in: .whitespaces), amount: amount, coverMonths: 1)
-        context.insert(e)
-        e.vehicle = vehicle
+        if let e = editing {
+            e.date = date
+            e.odometer = parseInt(odoText)
+            e.categoryRaw = category.rawValue
+            e.title = title.trimmingCharacters(in: .whitespaces)
+            e.amount = amount
+        } else {
+            let e = ExpenseEntry(date: date, odometer: parseInt(odoText), category: category,
+                                 title: title.trimmingCharacters(in: .whitespaces), amount: amount, coverMonths: 1)
+            context.insert(e)
+            e.vehicle = vehicle
+        }
         try? context.save()
         Haptics.success()
         DataSignal.fire()
         onSaved()
+    }
+
+    private var deleteAction: (() -> Void)? {
+        guard editing != nil else { return nil }
+        return { deleteEntry() }
+    }
+
+    /// Closes the sheet first, then removes the entry so the row is seen leaving the list.
+    private func deleteEntry() {
+        guard let e = editing else { return }
+        onSaved()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            withAnimation(Motion.bounce) {
+                context.delete(e)
+                try? context.save()
+            }
+            DataSignal.fire()
+        }
     }
 }
 
@@ -182,6 +299,7 @@ struct ExpenseFormView: View {
 
 struct OdometerFormView: View {
     let vehicle: Vehicle
+    var editing: OdometerReading? = nil
     var onSaved: () -> Void = {}
     @Environment(\.modelContext) private var context
     @Environment(\.locale) private var locale
@@ -190,16 +308,18 @@ struct OdometerFormView: View {
     @State private var prefilled = false
 
     private var odo: Int { parseInt(odoText) }
-    private var tooLow: Bool { odo > 0 && odo < vehicle.currentOdometer }
+    private var tooLow: Bool { editing == nil && odo > 0 && odo < vehicle.currentOdometer }
     private var canSave: Bool { odo > 0 }
 
     var body: some View {
-        FormScaffold(title: "Aggiorna contachilometri", saveTitle: "Salva registrazione", canSave: canSave, onSave: save) {
+        FormScaffold(title: "Aggiorna contachilometri", saveTitle: editing == nil ? "Salva registrazione" : "Salva modifiche",
+                     canSave: canSave, modal: editing != nil,
+                     onDelete: deleteAction, onSave: save) {
             VStack(alignment: .leading, spacing: Space.s1) {
                 LineField(label: "Contachilometri", text: $odoText, unit: "km", keyboard: .numberPad, size: 56)
                 if tooLow {
                     Text("Il valore è inferiore all’ultima lettura.").font(AppFont.sans(13, .semibold)).foregroundStyle(Theme.ink)
-                } else {
+                } else if editing == nil {
                     Text("Ultima lettura: \(vehicle.currentOdometer.grouped(locale)) km").eyebrow()
                 }
             }
@@ -208,6 +328,11 @@ struct OdometerFormView: View {
         .onAppear {
             guard !prefilled else { return }
             prefilled = true
+            if let e = editing {
+                odoText = String(e.odometer)
+                date = e.date
+                return
+            }
             odoText = String(vehicle.currentOdometer)
         }
         .onChange(of: tooLow) { _, bad in if bad { Haptics.warning() } }
@@ -215,12 +340,35 @@ struct OdometerFormView: View {
 
     private func save() {
         guard canSave else { return }
-        let r = OdometerReading(date: date, odometer: odo)
-        context.insert(r)
-        r.vehicle = vehicle
+        if let e = editing {
+            e.date = date
+            e.odometer = odo
+        } else {
+            let r = OdometerReading(date: date, odometer: odo)
+            context.insert(r)
+            r.vehicle = vehicle
+        }
         try? context.save()
         Haptics.success()
         DataSignal.fire()
         onSaved()
+    }
+
+    private var deleteAction: (() -> Void)? {
+        guard editing != nil else { return nil }
+        return { deleteEntry() }
+    }
+
+    /// Closes the sheet first, then removes the entry so the row is seen leaving the list.
+    private func deleteEntry() {
+        guard let e = editing else { return }
+        onSaved()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            withAnimation(Motion.bounce) {
+                context.delete(e)
+                try? context.save()
+            }
+            DataSignal.fire()
+        }
     }
 }

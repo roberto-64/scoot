@@ -163,6 +163,7 @@ struct ProfileView: View {
                         .font(.system(size: 13, weight: .semibold))
                 }
                 .foregroundStyle(accent)
+                .contentShape(Rectangle())
             }
             .buttonStyle(PressStyle())
             .padding(.top, Space.s1)

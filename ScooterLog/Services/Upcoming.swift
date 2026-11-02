@@ -10,6 +10,8 @@ struct UpcomingItem: Identifiable {
     let kmLeft: Int?
     let dueDate: Date?
     let isDeadline: Bool
+    /// True when the interval comes from the official Piaggio schedule.
+    var isPiaggio: Bool = false
     var state: DueState { DueState.from(days: days) }
 }
 
@@ -21,6 +23,16 @@ enum Upcoming {
         let km = last.km - first.km
         guard days >= 14, km > 0 else { return nil }
         return Double(km) / Double(days)
+    }
+
+    /// What is due within the next `window` days, or already overdue. A job that depends only on
+    /// distance appears once it is estimated to fall inside the window (or its distance has passed).
+    static func dueSoon(_ items: [UpcomingItem], window: Int = 30) -> [UpcomingItem] {
+        items.filter { it in
+            if let d = it.days { return d <= window }
+            if let k = it.kmLeft { return k <= 0 }
+            return false
+        }
     }
 
     static func items(for vehicles: [Vehicle], lang: String, now: Date = Date()) -> [UpcomingItem] {
@@ -56,7 +68,8 @@ enum Upcoming {
                         id: "sv.\(v.uid).\(key)", vehicleUID: v.uid.uuidString, vehicleName: v.displayName,
                         title: Catalog.displayName(jobKey: j.jobKey, custom: j.customName, lang: lang),
                         subtitle: parts.joined(separator: " " + Loc.tr("o", lang) + " "),
-                        days: days, kmLeft: kmLeft, dueDate: dueDate, isDeadline: false))
+                        days: days, kmLeft: kmLeft, dueDate: dueDate, isDeadline: false,
+                        isPiaggio: Catalog.job(j.jobKey)?.source == .piaggio))
                 }
             }
         }

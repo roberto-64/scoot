@@ -46,10 +46,11 @@ struct FuelView: View {
                             Text(verbatim: String(fills.count)).eyebrow()
                         }
                         .padding(.top, Space.s4)
-                        ForEach(fills) { e in HistoryRow(entry: e, showVehicle: vehicles.count > 1) }
+                        ForEach(fills) { e in HistoryRow(entry: e, showVehicle: vehicles.count > 1).rowTransition() }
                     }
                 }
             }
+            .animation(Motion.bounce, value: fills.map { $0.id })
             .padding(.horizontal, Space.s2)
             .padding(.top, Space.s2)
         }
