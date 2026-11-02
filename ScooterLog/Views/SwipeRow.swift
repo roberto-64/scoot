@@ -83,7 +83,9 @@ final class SwipeBridgeView: UIView, UIGestureRecognizerDelegate {
 
     // MARK: sideways drag
 
-    func gestureRecognizerShouldBegin(_ g: UIGestureRecognizer) -> Bool {
+    // UIView already has a method with this name, so this one must say `override`.
+    // It also answers the same question when our pan or tap asks its delegate.
+    override func gestureRecognizerShouldBegin(_ g: UIGestureRecognizer) -> Bool {
         guard window != nil else { return false }
         if g === tap { return true }
         guard let pan = g as? UIPanGestureRecognizer else { return false }
