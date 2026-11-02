@@ -44,6 +44,7 @@ struct SettingsView: View {
             .padding(.top, Space.s2)
             .padding(.bottom, Space.s4)
         }
+        .safeAreaInset(edge: .bottom) { Color.clear.frame(height: Space.s8 + Space.s2) }
         .screenBackground()
         .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $shareItem) { item in

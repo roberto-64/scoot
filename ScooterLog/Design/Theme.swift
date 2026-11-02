@@ -98,6 +98,10 @@ enum Motion {
     static var bounce: Animation? {
         enabled ? .spring(response: 0.4, dampingFraction: 0.52) : nil
     }
+    /// Settling after a swipe: lively, with a visible overshoot.
+    static var snap: Animation? {
+        enabled ? .spring(response: 0.36, dampingFraction: 0.6) : nil
+    }
     /// The original calm spring. Kept for the tab content fade, which stays as it was.
     static var fade: Animation? {
         enabled ? .spring(response: 0.35, dampingFraction: 0.85) : nil

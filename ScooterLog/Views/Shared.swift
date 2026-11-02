@@ -176,7 +176,9 @@ extension View {
     }
 }
 
-/// Swipe left to show an accent-coloured trash block at the right edge. Tapping the block calls `onTrash`
+/// Swipe left to show an accent-coloured trash block at the right edge, WhatsApp style: the page
+/// does not scroll while the row is dragged sideways, a flick opens or closes it, pulling past the
+/// end stretches with resistance, and it settles with a bounce. Tapping the block calls `onTrash`
 /// (the caller asks for confirmation before deleting).
 struct SwipeToDelete<Content: View>: View {
     @Environment(\.appAccent) private var accent
@@ -185,12 +187,26 @@ struct SwipeToDelete<Content: View>: View {
     @ViewBuilder let content: () -> Content
     @State private var drag: CGFloat = 0
     @State private var dragging = false
+    @State private var armed = false
 
     private let reveal: CGFloat = Space.s8 + Space.s1
 
-    private var offset: CGFloat {
-        let raw = (isOpen ? -reveal : 0) + drag
-        return min(0, max(raw, -(reveal + Space.s3)))
+    /// Resistance when pulling past the end of the trash block.
+    private func rubber(_ x: CGFloat) -> CGFloat {
+        let c: CGFloat = 0.55, d: CGFloat = 120
+        return (c * x * d) / (d + c * x)
+    }
+
+    private func position(_ raw: CGFloat) -> CGFloat {
+        if raw >= 0 { return 0 }
+        if -raw <= reveal { return raw }
+        return -(reveal + rubber(-raw - reveal))
+    }
+
+    private var offset: CGFloat { position((isOpen ? -reveal : 0) + drag) }
+
+    private func close() {
+        withAnimation(Motion.snap) { isOpen = false; drag = 0 }
     }
 
     var body: some View {
@@ -203,6 +219,8 @@ struct SwipeToDelete<Content: View>: View {
                             Image(systemName: "trash")
                                 .font(.system(size: 20, weight: .semibold))
                                 .foregroundStyle(Theme.surface)
+                                .scaleEffect(-offset >= reveal * 0.5 ? 1 : 0.7)
+                                .animation(Motion.bounce, value: -offset >= reveal * 0.5)
                                 .frame(width: reveal)
                         }
                         .frame(width: max(0, -offset))
@@ -211,27 +229,29 @@ struct SwipeToDelete<Content: View>: View {
                 .buttonStyle(.plain)
                 .allowsHitTesting(isOpen)
             }
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 16)
-                    .onChanged { v in
-                        if !dragging {
-                            // Only a mostly sideways drag counts; up and down stays with scrolling.
-                            guard abs(v.translation.width) > abs(v.translation.height) * 1.5 else { return }
-                            dragging = true
-                        }
-                        drag = v.translation.width
-                    }
-                    .onEnded { v in
-                        let wasDragging = dragging
-                        let final = (isOpen ? -reveal : 0) + v.translation.width
-                        let willOpen = final < -reveal * 0.4
-                        if wasDragging && willOpen && !isOpen { Haptics.tick() }
-                        withAnimation(Motion.spring) {
-                            if wasDragging { isOpen = willOpen }
+            .background(
+                SwipeBridge(
+                    isOpen: isOpen,
+                    onBegan: { dragging = true; armed = isOpen },
+                    onChanged: { dx in
+                        drag = dx
+                        // One tick when the drag crosses the point where the row will stay open.
+                        let nowArmed = ((isOpen ? -reveal : 0) + dx) < -reveal * 0.5
+                        if nowArmed != armed { armed = nowArmed; Haptics.tick() }
+                    },
+                    onEnded: { dx, vx in
+                        let raw = (isOpen ? -reveal : 0) + dx
+                        // Where the row would land if it kept moving for a moment: a flick counts.
+                        let projected = raw + vx * 0.2
+                        let willOpen = projected < -reveal * 0.5
+                        withAnimation(Motion.snap) {
+                            isOpen = willOpen
                             drag = 0
                         }
                         dragging = false
-                    }
+                    },
+                    onClose: { close() }
+                )
             )
             .blocksSwipeBack(isOpen || dragging)
     }

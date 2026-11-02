@@ -75,7 +75,7 @@ Only these five exist. Everything else is flat.
 
 - **Home:** date, greeting (serif 32), status line in `accent`, monthly spend (serif 56) with six month bars, vehicle card (tap opens the vehicle page), recent activity.
 - **New-entry sheet:** 32 pt of space above the title and 32 pt between the title row and the tiles, so the title clears the sheet's drag handle and rounded corners.
-- **Entries (all four types):** tap an entry in any list to open the same form, pre-filled; the form opens as a sheet with a close cross, "Salva modifiche" at the bottom and an "Elimina registrazione" button (ink text, trash icon) that asks for confirmation. Press-and-hold shows "Elimina", also with confirmation. Swipe left on a row to show a full-height `accent` block with a `surface` trash icon; tapping it asks for confirmation, then deletes.
+- **Entries (all four types):** tap an entry in any list to open the same form, pre-filled; the form opens as a sheet with a close cross, "Salva modifiche" at the bottom and an "Elimina registrazione" button (ink text, trash icon) that asks for confirmation. Press-and-hold shows "Elimina", also with confirmation. Swipe left on a row to show a full-height `accent` block with a `surface` trash icon; tapping it asks for confirmation, then deletes. The swipe behaves like WhatsApp's: the row follows the finger, the page cannot scroll while a row is dragged sideways, a flick opens or closes it, pulling past the end stretches with resistance, it settles with a bounce, the trash icon pops in and a haptic tick marks the point where it will stay open. Only one row is open at a time; scrolling the page or tapping elsewhere slides an open row back.
 - **Going back:** on any screen opened from another, swipe from left to right anywhere to go back (the built-in edge swipe also works). Charts you drag across to read values, and a row that is swiped open, are excluded.
 - **Vehicle:** back, make and model, quoted nickname (serif 32), year and fuel, odometer, cost per month, average consumption, deadline chips, history grouped by month.
 - **Forms (fill-up, maintenance, vehicle):** back button and title, underlined fields with serif numbers, calculated cost, one `accent` button pinned at the bottom. No tab bar on forms.
@@ -86,7 +86,8 @@ Only these five exist. Everything else is flat.
 - **Maintenance:** a picker sheet with search, recents, expandable categories and multi-select, then an entry form with one card per job. Each job card has price, quantity and its own next-service rule (km, months, both or never). Defaults carry a source tag ("Piaggio" for official values, none for typical ones). Car-only jobs are hidden unless the switch is on.
 - **Deadline setup:** a sheet per deadline with a calculated, editable due date and an alerts row. Renewing moves the old date into a renewal history and calculates the next one.
 - **Settings** (Profile, top-right gear): colour, language (Italiano / English), alerts, Face ID, export.
-- **Tab bar:** four icon tabs in one frosted capsule, selected tab filled with `accent`, plus a separate **+** button, filled with `accent` with a `surface` plus, that opens the new-entry sheet. Labels are not shown. The Garage header has its own accent-filled **+** (add vehicle); the two are never the same style.
+- **Tab bar:** four icon tabs in one frosted capsule, selected tab filled with `accent`, plus a separate **+** button, filled with `accent` with a `surface` plus, that opens the new-entry sheet. Labels are not shown. Each tab's tap area is its whole quarter of the bar and the full 56 pt height, not just the icon. The Garage header has its own accent-filled **+** (add vehicle); the two are never the same style.
+- **Bottom buffer:** every screen that scrolls under the floating bar (the four tabs and every screen opened from them) ends with 72 pt of empty space so the last item stops above the bar.
 - **Cards:** `surface`, 1 pt `line` border, card shadow. **Buttons:** 48 to 56 high, `accent`, label in `surface`, semibold 17.
 
 ## Status and destructive states
@@ -120,7 +121,7 @@ Every empty screen says what is missing in one sentence, why it matters, and off
 
 ## Motion and haptics
 
-Playful, springs only. Everyday spring: response 0.32, damping 0.68. Pop spring (new entries, save, toggle knob): response 0.4, damping 0.52. Press-down spring: response 0.26, damping 0.55.
+Playful, springs only. Everyday spring: response 0.32, damping 0.68. Pop spring (new entries, save, toggle knob): response 0.4, damping 0.52. Swipe settle spring: response 0.36, damping 0.6. Press-down spring: response 0.26, damping 0.55.
 - Taps: buttons and cards squash to 94% and bounce back; list rows to 98%.
 - Toggles: the knob stretches while pressed and bounces into place.
 - Lists: a new entry pops in (scale from 92%), a deleted one slides out to the left.

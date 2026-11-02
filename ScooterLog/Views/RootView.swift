@@ -76,7 +76,7 @@ struct FloatingBar: View {
                 tabButton(.fuel) { Image(systemName: "fuelpump").font(.system(size: 20, weight: .medium)) }
                 tabButton(.profile) { Image(systemName: "person").font(.system(size: 20, weight: .medium)) }
             }
-            .padding(Space.s1)
+            .padding(.horizontal, Space.s1)
             .frosted()
 
             Button(action: onNew) {
@@ -110,6 +110,9 @@ struct FloatingBar: View {
                             .matchedGeometryEffect(id: "pill", in: ns)
                     }
                 }
+                // The tap area is the whole quarter of the bar, top to bottom (56 pt), not just the icon.
+                .padding(.vertical, Space.s1)
+                .contentShape(Rectangle())
         }
         .buttonStyle(PressStyle())
     }
