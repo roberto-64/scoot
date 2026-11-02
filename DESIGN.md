@@ -1,0 +1,133 @@
+# DESIGN.md — Scooter Log
+
+**Read this whole file before touching any UI.** Every screen is built from these rules and nothing else.
+If a screen needs something that isn't defined here, add it here first, then use it.
+Never hard-code a colour, size, radius, shadow or gradient in a view. Use the tokens below.
+
+## Direction
+
+Warm Paper. Soft, warm, bookish: cream pages, brown ink, one amber accent.
+Light only. Dark mode is parked, not forgotten: do not add dark values yet.
+
+## Font
+
+- **Serif: New York** (system serif). SwiftUI: `.system(size:, weight: .bold, design: .serif)`. Used for headlines, big numbers, row titles.
+- **Sans: SF Pro** (system). Used for labels, body, buttons, captions.
+- No bundled fonts. (Source Serif and Inter from the first build are removed.)
+- Figures: serif bold, lining and tabular (`.monospacedDigit()`).
+- Labels above values ("eyebrows"): sans 13, +0.04 em tracking, `muted`, **sentence case, never uppercase**.
+- Type sizes: 11, 13, 15, 17, 22, 28, 32, 40, 56. Nothing else.
+
+## Palette: five tokens
+
+| Token | Hex | Use |
+|---|---|---|
+| `bg` | `#F8F1E4` | Screen background |
+| `surface` | `#FFFDF8` | Cards, chips, tab pills, inputs, text on accent |
+| `ink` | `#4A2F20` | Primary text, selected states |
+| `muted` | `#7A634F` | Secondary text, labels, inactive icons |
+| `accent` | `#B85C10` (default) | Buttons, active tab, key figures, status text, glow |
+
+Derived values (not extra tokens):
+- `line` = `ink` at 14% opacity. Hairlines, card borders, dividers.
+- `glow` = `accent` at 24% opacity.
+- Text on `accent` is always `surface`.
+- Chart series: `accent` at 100%, 55% and 28%. Use these, in this order, for stacked bars and split bars. No other chart colours exist.
+
+### Accent is the one user-changeable token
+
+Settings → "Colore principale" offers exactly these six presets. `bg`, `surface`, `ink`, `muted` never change.
+Stored as a preset id in `@AppStorage("accent")`, default `amber`. Views read it from the environment, never from a hex.
+
+| Id | Name | Hex | Button text contrast | Accent-as-text contrast |
+|---|---|---|---|---|
+| `amber` | Ambra | `#B85C10` | 4.5 | 4.1 |
+| `terracotta` | Terracotta | `#C8452C` | 4.8 | 4.3 |
+| `forest` | Bosco | `#2F7A55` | 5.1 | 4.6 |
+| `sea` | Mare | `#2F6DB5` | 5.2 | 4.7 |
+| `plum` | Prugna | `#8E3F7B` | 6.6 | 5.9 |
+| `graphite` | Grafite | `#4F5560` | 7.4 | 6.7 |
+
+Rules: any new preset must reach 4.5:1 for `surface` text on it. Accent as text only at 17 pt semibold or larger, or as icons and graphics.
+
+## Spacing: 8px scale
+
+`8, 16, 24, 32, 40, 48, 56, 64`. Every padding, gap, margin and frame size is one of these.
+Screen edge padding 16. Gap between sections 24 to 32. Tap targets 40 minimum, 48 preferred.
+Hairlines are 1 pt. No 4, 12, 20 or other off-scale values.
+
+## Radius: one
+
+**24.** Cards, buttons, chips, inputs, icon squares, swatches, toggles, tab pills, sheets.
+SwiftUI clamps to half the shorter side, so 48-high items read as full pills. Do not invent other radii.
+
+## Effects: no gradients or shadows unless listed here
+
+Only these three exist. Everything else is flat.
+
+1. **Header glow.** One radial gradient, `glow` fading to transparent, from the top-left, at most 300 pt tall, behind the top of root tab screens (Home, Garage, Fuel, Profile). Not on sheets or forms.
+2. **Frosted tab pills.** The tab bar and the + button: `surface` at 55% over a background blur, 1 pt border of `surface` at 70%.
+3. **Card shadow.** y 8, blur 24, `ink` at 12%. Allowed on cards, chips, tab pills, icon squares and the primary button. Nowhere else.
+
+## Layout rules
+
+- **Home:** date, greeting (serif 32), status line in `accent`, monthly spend (serif 56) with six month bars, vehicle card, recent activity.
+- **Vehicle:** back, make and model, quoted nickname (serif 32), year and fuel, odometer, cost per month, average consumption, deadline chips, history grouped by month.
+- **Forms (fill-up, maintenance, vehicle):** back button and title, underlined fields with serif numbers, calculated cost, one `accent` button pinned at the bottom. No tab bar on forms.
+- **Fill-up form:** quantity, price per litre, calculated cost, odometer, date. No full/partial switch and no extra optional taps. One entry per stop, with the total litres.
+- **Consumption figures** are estimates: distance from first to last reading over litres added after the first, shown with a margin ("41,8 km/L ± 4%, stima"). Charts use a rolling average over at least 400 km. Never show per-fill km/L as a headline.
+- **Garage:** title and add button, one card per vehicle with odometer and three deadline cells (RCA, Bollo, Revisione), then "In arrivo".
+- **Maintenance:** a picker sheet with search, recents, expandable categories and multi-select, then an entry form with one card per job. Each job card has price, quantity and its own next-service rule (km, months, both or never). Defaults carry a source tag ("Piaggio" for official values, none for typical ones). Car-only jobs are hidden unless the switch is on.
+- **Deadline setup:** a sheet per deadline with a calculated, editable due date and an alerts row. Renewing moves the old date into a renewal history and calculates the next one.
+- **Settings** (Profile, top-right gear): colour, language (Italiano / English), alerts, Face ID, export.
+- **Tab bar:** four icon tabs in one frosted capsule, selected tab filled with `accent`, plus a separate **+** button that opens the new-entry sheet. Labels are not shown. The Garage header has its own accent-filled **+** (add vehicle); the two are never the same style.
+- **Cards:** `surface`, 1 pt `line` border, card shadow. **Buttons:** 48 to 56 high, `accent`, label in `surface`, semibold 17.
+
+## Status and destructive states
+
+There is no red and no other status colour. State is shown by shape and word as well as fill:
+
+| State | Look | Label |
+|---|---|---|
+| Not set | dashed `muted` outline | `+ Imposta` |
+| OK (more than 30 days) | `accent` outline, check icon | `OK` |
+| Soon (30 days or fewer) | `accent` fill, `surface` text | `12 gg` |
+| Overdue | `ink` fill, `surface` text | `Scaduta` |
+
+- Destructive actions (remove, delete): `ink` text with a trash icon, always behind a confirmation.
+- Deadline alerts go out at 9:00. Revisione: 60, 30, 7 and 1 days before, so there is time to book. RCA and Bollo: 30, 7 and 1 days before.
+- Lists of upcoming items (Garage, "In arrivo") are always sorted by due date, deadlines and service items together.
+
+## Icons
+
+- Interface icons are SF Symbols, template-rendered in `ink`, `muted` or `accent`. Nothing else.
+- The Garage tab uses a front-view car icon (matching the one in OdoKeep: mirrors, two headlight dots, wheel stubs) at the same 1.8 pt line weight as the other tab icons, in all states. It is shipped as a vector template asset (`car-front.pdf`, source `car-front.svg`), because the SF Symbol `car` is a side view and does not match. Source shape: the open-source Lucide `car-front` icon (ISC licence).
+- The custom scooter (`scooter.svg`, a solid silhouette traced from the approved icon, shipped as a vector template asset) appears only on vehicle cards and the first-launch card. It is not used in the tab bar: simplified and outline versions were tried and rejected.
+- Custom icons take `accent` or `ink` like any icon and are never given a colour of their own. The SF Symbol `scooter` is never used.
+
+## Empty states
+
+Every empty screen says what is missing in one sentence, why it matters, and offers one primary action. Never show a blank chart or a bare zero without a hint.
+- **First launch:** greeting without a name, one card "Aggiungi il tuo primo veicolo" with a single accent button, and a quiet "Ho già un backup: importa" link.
+- **Vehicle, no entries:** a "Per iniziare" checklist of three steps (add vehicle, first fill-up, set deadlines). Steps are tappable, done steps are struck through, and the card disappears when all are done. Monthly spend shows muted `0,00 €` with a hint.
+- **Not enough data for a chart:** a dashed `line` outline card with a faint dashed line, a title saying what unlocks it, and how many entries are missing. Figures that cannot be computed show a muted `—`.
+
+## Motion and haptics
+
+Restrained. Springs only (response about 0.35). Press-down on buttons. Numbers roll when they change. Sheets slide natively.
+One haptic per action: selection tick on tabs, success on save, warning on invalid odometer.
+Respect Reduce Motion and the Settings switch for animations and haptics.
+
+## Language
+
+Italian is the default, English is switchable. Every user-facing string lives in the string catalogue in both languages. No hard-coded text in views.
+
+## Before shipping any screen
+
+- [ ] Only the five tokens (plus derived `line` and `glow`) appear.
+- [ ] Every spacing value is on the 8px scale.
+- [ ] Every corner is radius 24.
+- [ ] No gradient or shadow outside the three listed above.
+- [ ] Fonts are New York and SF Pro only.
+- [ ] Changing the accent in Settings recolours every accent element on this screen.
+- [ ] Both languages tested.

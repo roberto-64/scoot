@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Warm Paper, versione combinata</title>
+<style>
+:root{--bg:#f5f5f2;--fg:#111;--mut:#666;--line:#d0d0ca;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141416;--fg:#f2f2ee;--mut:#9a9a9e;--line:#2c2c30}}
+:root[data-theme="dark"]{--bg:#141416;--fg:#f2f2ee;--mut:#9a9a9e;--line:#2c2c30}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 -apple-system,system-ui,sans-serif;padding:16px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px}
+.ctl button{font:inherit;font-size:13px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--fg)}
+.ctl button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.ph{--b:#F8F1E4;--s:#FFFDF8;--i:#4A2F20;--m:#7A634F;--a:#B85C10;--r:24px;--fh:ui-serif,"New York",Georgia,serif;--fb:-apple-system,system-ui,sans-serif;--ln:color-mix(in srgb,var(--i) 14%,transparent);--sh:0 8px 24px color-mix(in srgb,var(--i) 12%,transparent);position:relative;width:100%;max-width:360px;height:790px;margin:16px auto 0;overflow:hidden;border-radius:32px;padding:24px 16px;box-sizing:border-box;background:var(--b);color:var(--i);font-family:var(--fb)}
+.ph::before{content:"";position:absolute;left:0;right:0;top:0;height:300px;background:radial-gradient(90% 70% at 15% 0%,color-mix(in srgb,var(--a) 24%,transparent),transparent 70%);pointer-events:none}
+.scr{display:none;position:relative}.scr.on{display:block}
+.h{font-family:var(--fh);font-weight:700;letter-spacing:-.01em}
+.eb{font-size:13px;letter-spacing:.04em;color:var(--m)}
+.num{font-family:var(--fh);font-weight:700;font-variant-numeric:lining-nums tabular-nums}
+.tk{margin:16px -16px 0;padding:8px 16px;border-block:1px solid var(--ln);color:var(--a);font-size:14px;font-weight:600}
+.big{font-size:56px;line-height:1.1;margin-top:8px}.big span{color:var(--m);font-size:36px}
+.bars{display:flex;gap:8px;align-items:flex-end;height:56px;margin-top:16px}
+.bars i{flex:1;background:var(--ln);height:4px;border-radius:2px}.bars i.t{height:100%;border-radius:8px}.bars i.n{background:var(--i);height:6px}
+.lt{display:flex;gap:8px;font-size:11px;color:var(--m);margin:8px 0 24px}.lt span{flex:1;text-align:center}
+.card{background:var(--s);border:1px solid var(--ln);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.ci{display:flex;gap:16px;align-items:center}
+.ic{width:48px;height:48px;border-radius:var(--r);background:var(--a);color:var(--s);display:flex;align-items:center;justify-content:center;flex:none}
+.card small,.row small{font-size:13px;color:var(--m);display:block}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 0;border-top:1px solid var(--ln)}
+.row b{font-family:var(--fh);font-weight:700;font-size:17px;display:block}
+.hdr{display:flex;align-items:center;gap:8px}
+.sq{width:40px;height:40px;border-radius:var(--r);background:var(--s);border:1px solid var(--ln);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:var(--sh)}
+.sq.a{background:var(--a);border-color:var(--a);color:var(--s)}
+.sp{display:flex;gap:16px;background:var(--s);border:1px solid var(--ln);border-radius:var(--r);padding:0 16px;height:40px;align-items:center;box-shadow:var(--sh)}
+.rule{border-top:1px solid var(--ln);margin:24px 0 0}
+.two{display:flex;gap:16px;margin-top:16px}.two>div{flex:1}
+.two .num{font-size:28px;display:block;margin-top:4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.chip{display:flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:var(--r);background:var(--s);border:1px solid var(--ln);font-size:14px;box-shadow:var(--sh)}
+.chip.ok{color:var(--a);font-weight:600}.chip.no{color:var(--m)}
+.fld{border-bottom:1px solid var(--ln);padding-bottom:8px;margin-top:8px;display:flex;justify-content:space-between;align-items:baseline}
+.fld .num{font-size:32px}.fld span{color:var(--m);font-size:14px}
+.typ{display:flex;margin-top:16px}.typ div{flex:1;text-align:center;padding-bottom:8px;border-bottom:2px solid var(--ln);color:var(--m);font-size:15px}
+.typ .on{color:var(--i);font-weight:600;border-color:var(--a)}
+.cta{position:absolute;left:16px;right:16px;bottom:24px;height:56px;border:0;border-radius:var(--r);background:var(--a);color:var(--s);font:600 17px var(--fb);box-shadow:var(--sh)}
+.nav{position:absolute;left:16px;right:16px;bottom:24px;display:flex;gap:8px;align-items:center}
+.cap{flex:1;display:flex;border-radius:var(--r);padding:4px;height:48px;box-sizing:border-box;background:color-mix(in srgb,var(--s) 55%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid color-mix(in srgb,var(--s) 70%,transparent);box-shadow:var(--sh)}
+.cap div,.pen{display:flex;align-items:center;justify-content:center;flex:1;border-radius:var(--r);color:var(--m)}
+.cap .on{background:var(--a);color:var(--s)}
+.pen{flex:none;width:48px;height:48px;background:color-mix(in srgb,var(--s) 55%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid color-mix(in srgb,var(--s) 70%,transparent);color:var(--i);box-shadow:var(--sh)}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ph{--t2:color-mix(in srgb,var(--a) 55%,transparent);--t3:color-mix(in srgb,var(--a) 28%,transparent)}
+.scroll{height:600px;overflow-y:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 96px}.scroll::-webkit-scrollbar{display:none}
+.rg{display:flex;gap:8px;margin-top:24px}
+.rg button{height:40px;padding:0 16px;border-radius:var(--r);border:1px solid var(--ln);background:var(--s);color:var(--m);font:500 14px var(--fb);box-shadow:var(--sh)}
+.rg button.on{background:var(--a);border-color:var(--a);color:var(--s)}
+.g2{display:grid;grid-template-columns:1fr 1fr;margin-top:24px;border-top:1px solid var(--ln)}
+.g2>div{padding:16px 0;border-bottom:1px solid var(--ln)}.g2>div:nth-child(even){padding-left:16px;border-left:1px solid var(--ln)}
+.g2 b{display:block;font-family:var(--fh);font-weight:700;font-size:24px;margin-top:8px}
+.mb{display:flex;gap:8px;align-items:flex-end;height:104px;margin-top:16px}
+.mb div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
+.mb i{display:block;border-radius:var(--r)}
+.sp1{display:flex;height:16px;gap:2px;margin-top:16px}.sp1 i{display:block;border-radius:var(--r)}
+.lg{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;font-size:13px}.lg span{display:flex;align-items:center;gap:8px}.lg u{width:8px;height:8px;border-radius:var(--r);display:inline-block}
+.sec2{margin-top:32px}
+.est{margin-top:32px;background:var(--s);border:1px solid var(--ln);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.jc{background:var(--s);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh);margin-top:16px}
+.jt{display:flex;align-items:center;gap:16px;padding:16px}.jt b{font-family:var(--fh);font-weight:700;font-size:17px;display:block}.jt small{font-size:13px;color:var(--m)}
+.jb{padding:0 16px 16px;border-top:1px solid var(--ln)}
+.src{font-size:11px;padding:2px 8px;border-radius:var(--r);background:color-mix(in srgb,var(--a) 14%,transparent);color:var(--a);font-weight:600;margin-left:8px}
+.btn2{display:flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:var(--r);border:1px solid var(--ln);font-size:14px;font-weight:600}
+.srch{display:flex;align-items:center;gap:8px;height:48px;padding:0 16px;border-radius:var(--r);background:var(--s);border:1px solid var(--ln);color:var(--m);box-shadow:var(--sh);margin-top:16px}
+.cath{display:flex;align-items:center;gap:16px;padding:16px 0;border-top:1px solid var(--ln);font-size:17px}
+.cath .h{font-size:17px;flex:1}.cath em{font-style:normal;color:var(--m);font-size:14px}
+.pr{display:flex;align-items:center;gap:16px;padding:16px 0 16px 40px;border-top:1px solid var(--ln);font-size:16px}
+.pr span{flex:1}
+.ck{width:24px;height:24px;border-radius:var(--r);border:1.5px solid var(--m);display:flex;align-items:center;justify-content:center;color:var(--s);flex:none}
+.ck.on{background:var(--a);border-color:var(--a)}.ck svg{width:16px;height:16px;display:none}.ck.on svg{display:block}
+.dl3{display:grid;grid-template-columns:1fr 1fr 1fr;margin:24px -16px 0;border-top:1px solid var(--ln)}
+.dl3>div{padding:16px 16px 0;border-left:1px solid var(--ln);font-size:13px;color:var(--m)}.dl3>div:first-child{border-left:0}
+.dl3 b{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:8px;font-weight:600}
+.pl{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:var(--r);font-size:12px;font-weight:600;white-space:nowrap}
+.pl.ok{border:1px solid var(--a);color:var(--a)}.pl.soon{background:var(--a);color:var(--s)}.pl.late{background:var(--i);color:var(--s)}.pl.no{border:1px dashed var(--m);color:var(--m)}
+.pl svg{width:14px;height:14px}
+.calc{background:var(--s);border:1px solid var(--ln);border-radius:var(--r);padding:16px;margin-top:24px;box-shadow:var(--sh)}
+.dlv{display:none}.dlv.on{display:block}
+.ac{display:flex;gap:8px;margin-top:16px}
+.ac button{width:40px;height:40px;border-radius:var(--r);border:0;padding:0;display:flex;align-items:center;justify-content:center;color:var(--s);flex:none}
+.ac button svg{display:none;width:18px;height:18px}
+.ac button.on{outline:2px solid var(--i);outline-offset:2px}.ac button.on svg{display:block}
+.seg{display:flex;background:color-mix(in srgb,var(--i) 6%,transparent);border-radius:var(--r);padding:4px;margin-top:16px}
+.seg div{flex:1;text-align:center;padding:8px 0;border-radius:var(--r);color:var(--m);font-size:15px}
+.seg .on{background:var(--s);color:var(--i);font-weight:600;box-shadow:var(--sh)}
+.st{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--ln);font-size:16px}
+.tg{width:48px;height:32px;border-radius:var(--r);background:var(--ln);position:relative}
+.tg::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:var(--r);background:var(--s);box-shadow:var(--sh)}
+.tg.on{background:var(--a)}.tg.on::after{left:20px}
+.sw{display:flex;gap:8px;flex-wrap:wrap;max-width:360px;margin:16px auto 0}
+.sw div{flex:1;min-width:60px;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:11px;color:var(--mut)}
+.sw i{display:block;height:32px}.sw span{display:block;padding:4px 6px}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="scoot" viewBox="0 0 1377 974"><path fill="currentColor" stroke="none" fill-rule="evenodd" d="M286 961C281 961 275 960 272 959C268 958 262 957 258 956C254 955 250 954 248 954C247 953 243 952 240 951C238 950 229 947 222 943C174 920 140 879 126 828C122 814 118 815 179 815C238 815 234 814 243 825C261 848 291 858 315 850C333 845 350 834 356 824C362 814 358 815 418 815C468 815 471 815 472 817C475 819 474 823 472 830C470 833 469 837 469 840C468 845 456 869 449 880C437 897 414 920 397 932C388 937 366 949 360 950C358 951 354 952 353 953C351 954 345 955 340 956C334 957 326 959 322 959C314 961 297 962 286 961ZM1174 961C1167 960 1162 959 1142 955C1105 948 1061 917 1039 884C1029 869 1017 845 1014 834C1014 832 1013 828 1012 826C1011 823 1009 816 1009 811C1009 806 1008 798 1007 794C1007 787 1007 786 1008 784C1011 781 1021 777 1026 776C1028 776 1035 775 1040 773C1044 772 1051 770 1055 769C1071 764 1074 764 1083 761C1088 759 1093 758 1094 758C1095 758 1100 757 1104 755C1117 751 1120 752 1117 763C1114 776 1115 796 1119 807C1124 820 1139 836 1151 843C1186 863 1225 852 1247 817C1252 809 1254 805 1256 793C1259 769 1253 749 1238 732C1228 722 1229 719 1246 716C1251 715 1257 713 1259 713C1260 712 1265 711 1268 710C1272 709 1277 708 1279 707C1282 706 1287 705 1290 704C1293 703 1299 702 1302 701C1306 699 1311 698 1312 698C1313 698 1318 697 1323 695C1332 692 1338 691 1342 693C1345 695 1355 719 1357 728C1358 730 1359 736 1360 740C1366 755 1366 811 1360 824C1359 826 1358 831 1357 834C1352 854 1337 881 1322 898C1295 927 1262 948 1232 955C1207 961 1189 962 1174 961ZM31 781C23 778 16 772 14 767C12 763 12 762 13 743C14 729 14 722 16 717C17 713 18 707 19 702C19 698 20 693 21 692C22 691 23 685 25 679C28 667 32 656 35 650C36 648 37 645 37 644C40 634 64 591 75 575C118 518 163 481 220 455C244 445 243 445 252 449C255 450 262 453 270 454C282 457 282 457 440 457C616 457 601 456 600 464C600 467 599 471 598 474C597 477 596 482 595 487C594 491 593 498 592 502C590 507 589 512 589 514C589 516 588 522 587 526C585 537 585 556 587 564C588 568 588 574 589 578C590 589 599 611 607 625C616 640 635 660 648 669C671 683 697 691 728 690C738 690 747 689 750 689C754 688 761 687 766 686C790 683 823 668 847 648C876 625 894 600 913 555C916 547 922 535 925 527C928 520 931 514 931 513C931 513 932 509 934 505C936 501 937 497 937 496C937 495 938 490 940 485C943 476 943 475 943 461C942 450 942 445 940 440C939 437 938 430 937 426C936 422 935 416 934 413C933 409 932 403 931 399C930 395 929 389 928 385C927 382 926 376 925 372C925 368 923 362 922 359C921 356 919 350 919 346C918 341 917 335 916 331C915 328 914 322 913 319C913 316 911 309 910 304C908 299 907 293 907 291C907 289 906 284 905 279C903 275 902 267 901 263C900 259 899 252 898 249C897 246 895 240 895 236C894 231 893 226 892 223C891 220 890 215 889 210C889 206 887 200 886 196C885 192 884 186 883 181C882 177 881 171 880 168C879 165 877 159 877 155C876 151 875 144 873 140C872 135 871 130 871 128C871 126 870 121 869 117C867 113 866 107 865 104C863 94 867 95 811 95C757 95 755 95 749 89C745 86 741 77 741 73C741 71 742 68 744 64C747 59 748 58 753 55C760 52 760 52 852 51L944 50L953 44C968 34 994 23 1010 20C1013 20 1019 18 1022 17C1028 15 1050 13 1062 13C1075 13 1083 17 1088 27C1090 32 1090 32 1091 78C1091 109 1091 126 1090 130C1088 143 1080 150 1068 152C1059 153 1034 152 1027 149C1024 148 1018 147 1013 146C1009 145 1005 144 1003 144C1002 143 998 141 994 141C991 140 984 137 978 135C967 130 963 130 959 134C953 140 954 142 976 188C978 192 985 207 992 220C998 234 1010 260 1018 278C1026 295 1038 320 1044 333C1050 346 1058 362 1061 369C1072 391 1082 413 1082 413C1082 414 1085 420 1088 427C1091 434 1096 443 1098 448C1107 466 1111 475 1112 478C1112 480 1113 485 1115 489C1117 495 1117 498 1117 504C1116 514 1114 516 1107 517C1103 518 1092 522 1080 526C1078 527 1073 529 1071 530C1056 536 1025 554 1010 568C990 584 966 610 956 628C952 634 948 640 947 641C943 647 939 656 937 660C936 662 933 670 930 676C928 683 925 690 925 692C924 695 923 700 921 704C920 708 919 712 919 714C919 716 918 721 917 725C916 728 915 734 915 738C915 747 914 749 905 758C897 765 880 776 877 776C876 776 872 777 867 779C860 781 860 781 447 782C103 782 34 782 31 781ZM960 754C948 746 946 738 952 720C954 717 955 712 955 710C955 709 956 706 957 704C957 701 959 696 961 692C971 665 980 650 999 626C1013 609 1032 591 1048 581C1051 579 1055 576 1058 575C1066 569 1099 554 1103 554C1104 554 1108 553 1113 551C1118 549 1124 548 1127 548C1130 547 1136 546 1140 545C1151 541 1192 541 1207 544C1213 545 1220 547 1224 547C1227 548 1234 549 1238 551C1243 553 1248 554 1249 554C1251 554 1281 567 1290 572C1309 584 1327 598 1345 618C1357 630 1359 636 1353 645C1348 653 1344 654 1320 660C1316 661 1310 663 1306 664C1303 665 1297 667 1292 668C1288 669 1283 670 1281 671C1279 672 1272 674 1254 679C1250 679 1243 681 1238 683C1233 685 1226 687 1222 687C1209 691 1203 692 1194 695C1189 697 1182 698 1178 699C1175 700 1169 702 1166 703C1162 704 1156 705 1152 707C1149 708 1143 709 1139 710C1136 711 1131 712 1127 713C1124 715 1120 716 1118 716C1116 716 1112 717 1109 718C1106 719 1100 721 1096 722C1091 723 1085 725 1082 726C1079 727 1075 728 1074 728C1072 728 1067 729 1063 731C1058 733 1053 734 1052 734C1051 734 1046 735 1041 737C1036 739 1030 740 1029 740C1028 740 1024 741 1020 743C1017 744 1011 745 1008 746C1005 747 1000 748 997 749C993 751 988 752 985 752C982 753 978 754 975 755C969 758 965 758 960 754ZM521 726C525 723 525 719 524 709C523 703 521 697 520 694C519 692 517 688 517 685C511 665 490 629 470 607C450 584 409 556 383 548C380 547 375 545 372 544C361 540 351 537 342 536C337 535 330 534 326 533C312 530 290 530 272 533C263 535 253 536 250 536C247 537 243 538 242 539C240 539 236 541 232 542C216 545 206 551 206 557C206 565 213 567 224 563C236 558 244 556 249 555C252 554 260 553 268 551C285 547 314 547 327 551C332 552 340 554 344 554C349 554 354 556 357 557C359 558 363 559 366 560C368 560 373 562 376 563C378 565 381 566 382 566C383 566 406 578 413 582C444 602 467 627 485 658C494 672 504 699 505 707C506 710 507 715 509 718C512 726 516 729 521 726ZM273 421C250 412 243 406 234 388C229 378 229 378 229 362C230 346 230 346 233 339C242 321 254 311 272 306C283 303 283 303 429 303C576 303 576 303 586 306C591 308 598 311 601 313C613 321 623 337 625 351C626 360 625 379 623 384C622 385 620 390 619 394C618 398 616 404 615 408C614 412 612 416 612 417C612 418 610 420 609 421C605 423 278 422 273 421Z"/></symbol></svg>
+<div class="ctl">
+<button data-s="home" aria-pressed="true">Home</button>
+<button data-s="veh" aria-pressed="false">Veicolo</button>
+<button data-s="fuel" aria-pressed="false">Rifornimento</button>
+<button data-s="set" aria-pressed="false">Impostazioni</button>
+<button data-s="stat" aria-pressed="false">Statistiche</button>
+<button data-s="ft" aria-pressed="false">Carburante</button>
+<button data-s="mnt" aria-pressed="false">Manutenzione</button>
+<button data-s="pick" aria-pressed="false">Scegli intervento</button>
+<button data-s="grg" aria-pressed="false">Garage</button>
+<button data-s="dl" aria-pressed="false">Scadenza</button>
+<button data-s="prof" aria-pressed="false">Profilo</button>
+<button data-s="vf" aria-pressed="false">Dettagli veicolo</button>
+<button data-s="emp" aria-pressed="false">Stati vuoti</button>
+</div>
+<div class="ph" id="ph">
+
+<section class="scr on" id="home">
+<div class="eb">Venerdì 30 ottobre</div>
+<div class="h" style="font-size:32px;margin-top:8px">Ciao, Roberto</div>
+<div class="tk">● Il tuo garage è in regola</div>
+<div style="display:flex;justify-content:space-between;margin-top:24px"><span class="eb">Spesa di ottobre</span><span class="eb" style="color:var(--a);font-weight:600" onclick="document.querySelector('[data-s=stat]').click()">Riepilogo ›</span></div>
+<div class="num big">20,68 <span>€</span></div>
+<div class="bars"><i></i><i></i><i class="t"></i><i></i><i></i><i class="n"></i></div>
+<div class="lt"><span>M</span><span>G</span><span>L</span><span>A</span><span>S</span><span style="color:var(--i)">O</span></div>
+<div class="card">
+<div class="ci"><div class="ic"><svg viewBox="0 0 1377 974" style="width:28px;height:20px"><use href="#scoot"/></svg></div><div><small>Piaggio Liberty 125</small><div class="h" style="font-size:22px">Filippo</div></div></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:24px"><span class="num" style="font-size:40px">33.615 <span style="font-size:15px;color:var(--m);font-family:var(--fb);font-weight:400">km</span></span><span class="eb">2023</span></div>
+</div>
+<div class="eb" style="margin:24px 0 0">Attività recente</div>
+<div class="row" style="border:0;padding-bottom:0"><div><b>Rifornimento</b><small>Filippo · 30 ott 2026</small></div><span class="num" style="font-size:17px">6,00 €</span></div>
+</section>
+
+<section class="scr" id="veh">
+<div class="hdr"><div class="sq"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></div><div style="flex:1"><div class="eb">Piaggio</div><div class="h" style="font-size:22px">Liberty 125</div></div><div class="sp"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></div><div class="sq a"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div></div>
+<div class="h" style="font-size:36px;margin-top:24px">“Filippo”</div>
+<div style="display:flex;gap:16px;align-items:center;margin-top:8px;font-size:17px;font-weight:500"><span>2023</span><span style="width:1px;height:16px;background:var(--ln)"></span><span>Benzina 95</span></div>
+<div class="rule"></div>
+<div class="eb" style="margin-top:16px">Contachilometri</div>
+<div class="num" style="font-size:48px;margin-top:8px">33.615 <span style="font-size:16px;color:var(--m);font-family:var(--fb);font-weight:400">km</span></div>
+<div class="rule" style="margin-top:16px"></div>
+<div class="two"><div><div class="eb">Costo / mese</div><span class="num">131,08 €</span></div><div><div class="eb">Consumo medio</div><span class="num">41,8 km/L</span></div></div>
+<div class="rule"></div>
+<div class="eb" style="margin-top:16px">Scadenze</div>
+<div class="chips"><div class="chip ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>RCA</div><div class="chip no">+ Bollo</div><div class="chip no">+ Revisione</div></div>
+<div class="eb" style="margin-top:24px">Storico · 6</div>
+<div class="row" style="border:0;padding-bottom:8px"><div><b>Rifornimento</b><small>3 L · 1,999 €/L · 30 ott</small></div><span class="num" style="font-size:17px">6,00 €</span></div>
+<div class="row"><div><b>Rifornimento</b><small>3,015 L · 1,990 €/L · 28 ott</small></div><span class="num" style="font-size:17px">6,00 €</span></div>
+</section>
+
+<section class="scr" id="fuel">
+<div class="hdr" style="gap:16px"><div class="sq"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></div><div class="h" style="font-size:28px">Rifornimento</div></div>
+<div style="display:flex;gap:24px;margin-top:32px"><div style="flex:1"><div class="eb">Quantità</div><div class="fld"><span class="num" style="font-size:32px;color:var(--i)">3,00</span><span>L</span></div></div><div style="flex:1"><div class="eb">Prezzo per L</div><div class="fld"><span class="num" style="font-size:32px;color:var(--i)">1,999</span><span>€</span></div></div></div>
+<div class="eb" style="margin-top:32px">Costo calcolato</div>
+<div class="num big" style="font-size:56px">6,00 <span>€</span></div>
+<div class="eb" style="margin-top:32px">Contachilometri</div>
+<div class="fld"><span class="num" style="font-size:44px;color:var(--i)">33.615</span><span>km</span></div>
+<div class="eb" style="margin-top:8px">Ultima lettura: 33.615 km</div>
+<div class="eb" style="margin-top:32px;max-width:280px">Una voce per sosta: somma tutti i litri, anche dopo i ritocchi.</div>
+<button class="cta">Salva registrazione</button>
+</section>
+
+<section class="scr" id="set">
+<div class="hdr" style="gap:16px"><div class="sq"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></div><div class="h" style="font-size:28px">Impostazioni</div></div>
+<div class="eb" style="margin-top:32px">Colore principale</div>
+<div class="ac" id="ac">
+<button data-c="#B85C10" data-n="Ambra" class="on" style="background:#B85C10" aria-label="Ambra"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></button>
+<button data-c="#C8452C" data-n="Terracotta" style="background:#C8452C" aria-label="Terracotta"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></button>
+<button data-c="#2F7A55" data-n="Bosco" style="background:#2F7A55" aria-label="Bosco"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></button>
+<button data-c="#2F6DB5" data-n="Mare" style="background:#2F6DB5" aria-label="Mare"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></button>
+<button data-c="#8E3F7B" data-n="Prugna" style="background:#8E3F7B" aria-label="Prugna"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></button>
+<button data-c="#4F5560" data-n="Grafite" style="background:#4F5560" aria-label="Grafite"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></button>
+</div>
+<div class="eb" id="acName" style="margin-top:16px">Ambra</div>
+<div class="eb" style="margin-top:32px">Lingua</div>
+<div class="seg"><div class="on">Italiano</div><div>English</div></div>
+<div class="eb" style="margin-top:32px">Avvisi e sicurezza</div>
+<div class="st" style="margin-top:8px">Avvisi scadenze<div class="tg on"></div></div>
+<div class="st">Blocco con Face ID<div class="tg"></div></div>
+<div class="st">Esporta dati<span class="eb">CSV · JSON</span></div>
+</section>
+
+<section class="scr" id="stat">
+<div class="hdr"><div class="sq"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></div><div class="h" style="font-size:28px;flex:1">Riepilogo</div><div class="sp" style="gap:8px;font-size:15px;font-weight:600">Filippo<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+<div class="scroll">
+<div class="rg" id="rg"><button data-k="3">3M</button><button data-k="6" class="on">6M</button><button data-k="12">1A</button><button data-k="0">Tutto</button></div>
+<div class="eb" style="margin-top:24px">Spesa totale</div>
+<div class="num big" style="font-size:48px"><span id="sT" style="color:var(--i);font-size:48px">768,68</span> <span>€</span></div>
+<div class="eb" style="margin-top:8px">Confronto con il periodo prima: disponibile dopo 12 mesi di dati</div>
+<div class="g2"><div><span class="eb">Al mese</span><b id="sM">128,11 €</b></div><div><span class="eb">Al km</span><b id="sK">0,14 €</b></div><div><span class="eb">Distanza</span><b id="sX">5.515 km</b></div><div><span class="eb">Consumo medio</span><b>41,8 km/L</b><span class="eb" style="display:block;margin-top:8px">± 4%, stima</span></div></div>
+<div class="sec2"><div class="h" style="font-size:20px">Spesa mensile</div>
+<div class="mb" id="mb"></div>
+<div class="lt" style="margin:8px 0 0"><span>M</span><span>G</span><span>L</span><span>A</span><span>S</span><span style="color:var(--i)">O</span></div>
+<div class="st" style="margin-top:16px;padding-bottom:0;border-top:0"><span style="font-size:15px;max-width:230px">Ripartisci assicurazione e bollo sui mesi coperti</span><div class="tg" id="spread"></div></div></div>
+<div class="sec2"><div class="h" style="font-size:20px">Dove vanno i soldi</div>
+<div class="sp1"><i style="width:71%;background:var(--a)"></i><i style="width:27%;background:var(--t2)"></i><i style="width:2%;background:var(--t3)"></i></div>
+<div class="lg"><span><u style="background:var(--a)"></u>Assicurazione 71%</span><span><u style="background:var(--t2)"></u>Manutenzione 27%</span><span><u style="background:var(--t3)"></u>Carburante 2%</span></div></div>
+<div class="sec2"><div class="h" style="font-size:20px">Consumo, km/L</div>
+<svg viewBox="0 0 296 110" style="width:100%;height:auto;margin-top:16px;overflow:visible"><line x1="0" y1="50" x2="296" y2="50" stroke="var(--ln)" stroke-dasharray="4 4"/><polyline points="8,64 64,42 120,69 176,32 232,46 288,52" fill="none" stroke="var(--a)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="288" cy="52" r="5" fill="var(--a)"/><text x="288" y="30" text-anchor="end" font-size="12" fill="var(--i)" stroke="none" font-weight="600">41,3 km/L · 28 ott</text></svg>
+<div class="eb" style="margin-top:8px">Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media.</div>
+<div class="g2" style="margin-top:16px"><div><span class="eb">Miglior tratto</span><b>43,0 km/L</b></div><div><span class="eb">Peggior tratto</span><b>39,8 km/L</b></div></div></div>
+<div class="est"><div class="eb">Stima annua</div><div class="num" style="font-size:32px;margin-top:8px">≈ 1.199 €</div><div class="eb" style="margin-top:8px">748 € di assicurazione + 451 € di spese variabili (media mensile × 12)</div></div>
+</div>
+</section>
+
+<section class="scr" id="ft">
+<div class="hdr"><div class="h" style="font-size:32px;flex:1">Carburante</div><div class="sp" style="gap:8px;font-size:15px;font-weight:600">Filippo<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+<div class="scroll">
+<div class="rg" id="rg2"><button data-k="3">3M</button><button data-k="6" class="on">6M</button><button data-k="12">1A</button><button data-k="0">Tutto</button></div>
+<div class="eb" style="margin-top:24px">Consumo medio</div>
+<div class="num" style="font-size:56px;margin-top:8px"><span id="fC">41,8</span> <span style="font-size:20px;color:var(--m);font-family:var(--fb);font-weight:400">km/L</span></div>
+<div class="eb" id="fE" style="margin-top:8px">± 4%, stima</div>
+<div class="g2"><div><span class="eb">Prezzo medio</span><b>1,99 €/L</b></div><div><span class="eb">Carburante al km</span><b>0,08 €</b></div><div><span class="eb">Litri per sosta</span><b>3,5 L</b></div><div><span class="eb">Km tra le soste</span><b>125 km</b></div></div>
+<div class="seg" id="sg" style="margin-top:32px"><div class="on" data-v="c">Consumo</div><div data-v="p">Prezzo al litro</div></div>
+<svg id="chC" viewBox="0 0 296 110" style="width:100%;height:auto;margin-top:24px;overflow:visible"><line x1="0" y1="50" x2="296" y2="50" stroke="var(--ln)" stroke-dasharray="4 4"/><polyline points="8,64 64,42 120,69 176,32 232,46 288,52" fill="none" stroke="var(--a)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="288" cy="52" r="5" fill="var(--a)"/><text x="288" y="30" text-anchor="end" font-size="12" fill="var(--i)" stroke="none" font-weight="600">41,3 km/L · 28 ott</text></svg>
+<svg id="chP" viewBox="0 0 296 110" style="display:none;width:100%;height:auto;margin-top:24px;overflow:visible"><polyline points="8,85 64,67 120,48 176,29 232,20 288,16" fill="none" stroke="var(--a)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="288" cy="16" r="5" fill="var(--a)"/><text x="288" y="44" text-anchor="end" font-size="12" fill="var(--i)" stroke="none" font-weight="600">1,999 €/L · 30 ott</text></svg>
+<div class="eb" id="chN" style="margin-top:8px">Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media.</div>
+<div style="display:flex;justify-content:space-between;margin-top:32px"><span class="eb">Rifornimenti · 3</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px"><span class="eb" style="color:var(--i);font-weight:600">Ottobre 2026</span><span class="eb">20,68 €</span></div>
+<div class="row" style="padding-bottom:16px"><div><b>Rifornimento</b><small>3 L · 1,999 €/L</small><small>30 ott · 09:23 · 33.615 km · +124 km</small></div><span class="num" style="font-size:17px">6,00 €</span></div>
+<div class="row" style="padding-bottom:16px"><div><b>Rifornimento</b><small>3,015 L · 1,990 €/L</small><small>28 ott · 09:24 · 33.491 km · +126 km</small></div><span class="num" style="font-size:17px">6,00 €</span></div>
+<div class="row"><div><b>Rifornimento</b><small>4,36 L · 1,990 €/L</small><small>26 ott · 12:34 · 33.365 km</small></div><span class="num" style="font-size:17px">8,68 €</span></div>
+</div>
+</section>
+
+<section class="scr" id="mnt">
+<div class="hdr" style="gap:16px"><div class="sq"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></div><div><div class="eb">Nuova registrazione</div><div class="h" style="font-size:28px">Manutenzione</div></div></div>
+<div class="scroll" style="height:620px;margin-top:8px">
+<div class="eb" style="margin-top:24px">Interventi eseguiti</div>
+<div class="jc"><div class="jt"><svg viewBox="0 0 24 24" style="width:24px;height:24px;color:var(--a)"><path d="M12 3c3 4 5 6.500 5 9.500a5 5 0 01-10 0C7 9.500 9 7 12 3z"/></svg><div style="flex:1"><b>Cambio olio motore</b><small>Oli e filtri</small></div><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></div>
+<div class="jb">
+<div style="display:flex;gap:24px;margin-top:16px"><div style="flex:1"><div class="eb">Prezzo unitario</div><div class="fld"><span class="num" style="font-size:28px;color:var(--i)">14,50</span><span>€</span></div></div><div style="flex:1"><div class="eb">Quantità</div><div class="fld"><span class="num" style="font-size:28px;color:var(--i)">1</span></div></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px"><div><div style="font-size:15px;font-weight:600">Prossima manutenzione<span class="src">Piaggio</span></div><div class="eb" style="margin-top:4px">Ogni 10.000 km o 12 mesi</div></div></div>
+<div class="seg" style="margin-top:16px"><div>Km</div><div>Mesi</div><div class="on">Entrambi</div><div>Mai</div></div>
+<div style="display:flex;gap:24px;margin-top:16px"><div class="fld" style="flex:1"><span class="num" style="font-size:22px;color:var(--i)">10.000</span><span>km</span></div><div class="fld" style="flex:1"><span class="num" style="font-size:22px;color:var(--i)">12</span><span>mesi</span></div></div>
+<div class="eb" style="margin-top:8px">Prossima: 43.615 km o 30 ott 2027, quale arriva prima</div>
+<div style="display:flex;gap:16px;margin-top:16px;align-items:center"><div class="btn2">Cambia intervento</div><span style="display:flex;align-items:center;gap:8px;color:var(--i);font-size:14px;font-weight:600"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg>Rimuovi</span></div>
+</div></div>
+<div class="jc"><div class="jt"><svg viewBox="0 0 24 24" style="width:24px;height:24px;color:var(--a)"><path d="M3 9h18M5 9v8m14-8v8M9 13h6"/></svg><div style="flex:1"><b>Cambio filtro aria</b><small>Oli e filtri · 9,00 € · ogni 10.000 km</small></div><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+<div style="display:flex;align-items:center;gap:16px;padding:24px 8px 8px;font-size:17px"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span style="flex:1">Aggiungi intervento</span><span class="num" style="font-size:17px">Totale 23,50 €</span></div>
+<div class="eb" style="margin-top:24px">Dettagli del registro</div>
+<div class="eb" style="margin-top:16px">Contachilometri</div>
+<div class="fld"><span class="num" style="font-size:44px;color:var(--i)">33.615</span><span>km</span></div>
+<div class="eb" style="margin-top:8px">Ultima lettura: 33.615 km</div>
+<div class="eb" style="margin-top:24px">Officina</div>
+<div class="fld"><span style="font-size:18px">Chi ha fatto il lavoro?</span></div>
+<div class="st" style="margin-top:16px;font-size:16px"><span style="color:var(--i)">Oggi · 18:55</span><span class="eb">Note</span></div>
+</div>
+<button class="cta">Salva la manutenzione</button>
+</section>
+
+<section class="scr" id="pick">
+<div style="width:40px;height:4px;border-radius:2px;background:var(--ln);margin:-8px auto 16px"></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><div class="h" style="font-size:28px">Scegli una manutenzione</div></div>
+<div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>Cerca un intervento</div>
+<div class="scroll" style="height:560px">
+<div class="eb" style="margin-top:24px">Usati di recente</div>
+<div class="chips"><div class="chip">Cambio olio motore</div><div class="chip">Filtro aria</div></div>
+<div class="eb" style="margin-top:32px">Tutte le manutenzioni</div>
+<div class="cath" style="margin-top:8px"><svg viewBox="0 0 24 24" style="color:var(--a)"><path d="M12 3c3 4 5 6.500 5 9.500a5 5 0 01-10 0C7 9.500 9 7 12 3z"/></svg><span class="h">Oli e filtri</span><em>4</em><svg viewBox="0 0 24 24" style="color:var(--a)"><path d="M6 15l6-6 6 6"/></svg></div>
+<div class="pr"><span>Cambio olio motore</span><div class="ck on"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></div></div>
+<div class="pr"><span>Cambio filtro olio</span><div class="ck"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></div></div>
+<div class="pr"><span>Cambio filtro aria</span><div class="ck on"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></div></div>
+<div class="pr"><span>Cambio filtro carburante</span><div class="ck"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></div></div>
+<div class="cath"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/></svg><span class="h">Freni</span><em>6</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+<div class="cath"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/></svg><span class="h">Pneumatici</span><em>5</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+<div class="cath"><svg viewBox="0 0 24 24"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg><span class="h">Trasmissione (CVT)</span><em>6</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+<div class="cath"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="9" rx="3"/><path d="M9 8V5h6v3"/></svg><span class="h">Motore e alimentazione</span><em>6</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+<div class="cath"><svg viewBox="0 0 24 24"><path d="M13 3L6 13h5l-1 8 7-10h-5z"/></svg><span class="h">Impianto elettrico</span><em>6</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+<div class="cath"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="16" height="9" rx="3"/><path d="M21 11v3"/></svg><span class="h">Batterie</span><em>2</em><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+<div class="cath"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="h">Altro: intervento personalizzato</span></div>
+<div class="st" style="margin-top:8px"><span style="max-width:230px;font-size:15px">Mostra anche gli interventi da auto</span><div class="tg"></div></div>
+</div>
+<button class="cta">Aggiungi 2 interventi</button>
+</section>
+
+<section class="scr" id="grg">
+<div class="hdr"><div class="h" style="font-size:32px;flex:1">Il mio garage</div><div class="sq a"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div></div>
+<div class="scroll">
+<div class="card" style="margin-top:24px">
+<div class="ci"><div class="ic"><svg viewBox="0 0 1377 974" style="width:28px;height:20px"><use href="#scoot"/></svg></div><div><small>Piaggio Liberty 125</small><div class="h" style="font-size:22px">Filippo</div></div></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:24px"><span class="num" style="font-size:40px">33.615 <span style="font-size:15px;color:var(--m);font-family:var(--fb);font-weight:400">km</span></span><span class="eb">2023</span></div>
+<div class="dl3"><div>RCA<b style="color:var(--a)"><svg viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M5 12l5 5 9-10"/></svg>OK</b></div><div>Bollo<b style="color:var(--m)">+ Imposta</b></div><div>Revisione<b style="color:var(--a)"><svg viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M5 12l5 5 9-10"/></svg>OK</b></div></div>
+</div>
+<div class="eb" style="margin-top:32px">In arrivo</div>
+<div class="row" style="padding-bottom:16px"><div><b>Revisione</b><small>31 gen 2027 · prenotala presto</small></div><span class="num" style="font-size:17px">93 gg</span></div>
+<div class="row" style="padding-bottom:16px"><div><b>Cambio olio motore</b><small>31 mar 2027 o 43.615 km</small></div><span class="num" style="font-size:17px">152 gg</span></div>
+<div class="row" style="padding-bottom:16px"><div><b>Assicurazione RCA</b><small>30 giu 2027</small></div><span class="num" style="font-size:17px">243 gg</span></div>
+<div class="row"><div><b>Liquido freni</b><small>31 mar 2028</small></div><span class="num" style="font-size:17px">518 gg</span></div>
+<div class="eb" style="margin-top:32px">Come si leggono le scadenze</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><span class="pl no">+ Imposta</span><span class="pl ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>OK</span><span class="pl soon">12 gg</span><span class="pl late">Scaduta</span></div>
+<div class="eb" style="margin-top:16px">Imposta: da configurare. OK: oltre 30 giorni. Pieno: entro 30 giorni. Scuro: scaduta.</div>
+</div>
+</section>
+
+<section class="scr" id="dl">
+<div style="width:40px;height:4px;border-radius:2px;background:var(--ln);margin:-8px auto 16px"></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div class="eb">Imposta scadenza</div><div class="h" style="font-size:28px" id="dlT">Assicurazione RCA</div></div><div class="sq"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div></div>
+<div class="rg" id="dlg" style="margin-top:16px"><button data-k="r" class="on">RCA</button><button data-k="b">Bollo</button><button data-k="v">Revisione</button></div>
+<div class="scroll" style="height:560px;margin-top:8px">
+
+<div class="dlv on" id="dl-r">
+<div class="st" style="margin-top:16px"><span style="color:var(--i)">Data di inizio</span><span class="num" style="font-size:17px">1 lug 2026</span></div>
+<div class="st"><span style="color:var(--i)">Durata</span><div class="seg" style="margin:0;width:160px"><div>6 mesi</div><div class="on">12 mesi</div></div></div>
+<div class="st"><span style="color:var(--i)">Importo</span><span class="num" style="font-size:17px">748,00 €</span></div>
+<div class="st"><span style="color:var(--i)">Compagnia</span><span class="eb">Facoltativo</span></div>
+<div class="calc"><div class="eb">Scade il</div><div class="num" style="font-size:32px;margin-top:8px">30 giu 2027</div><div class="eb" style="margin-top:8px">I 15 giorni di tolleranza valgono solo per le polizze annuali. L’app ti avvisa prima, non contarci.</div></div>
+<div class="st" style="margin-top:16px"><span style="color:var(--i);max-width:220px">Aggiungi il costo allo storico</span><div class="tg on"></div></div>
+</div>
+
+<div class="dlv" id="dl-b">
+<div class="st" style="margin-top:16px"><span style="color:var(--i)">Mese di scadenza</span><span class="num" style="font-size:17px">gennaio</span></div>
+<div class="st"><span style="color:var(--i)">Importo</span><span class="eb">0,00 €</span></div>
+<div class="calc"><div class="eb">Da pagare entro</div><div class="num" style="font-size:32px;margin-top:8px">28 feb 2027</div><div class="eb" style="margin-top:8px">Si paga entro la fine del mese dopo la scadenza. L’importo cambia da regione a regione. Conserva la ricevuta per 5 anni.</div></div>
+<div class="st" style="margin-top:16px"><span style="color:var(--i)">Segna come pagato</span><div class="tg"></div></div>
+<div class="st"><span style="color:var(--i);max-width:220px">Aggiungi il costo allo storico</span><div class="tg on"></div></div>
+</div>
+
+<div class="dlv" id="dl-v">
+<div class="st" style="margin-top:16px"><span style="color:var(--i)">Prima immatricolazione</span><span class="num" style="font-size:17px">gen 2023</span></div>
+<div class="st"><span style="color:var(--i)">Ultima revisione</span><span class="eb">Non ancora fatta</span></div>
+<div class="calc"><div class="eb">Scadenza calcolata</div><div class="num" style="font-size:32px;margin-top:8px">31 gen 2027</div><div class="eb" style="margin-top:8px">Prima revisione dopo 4 anni dall’immatricolazione, poi ogni 2. Puoi modificare la data.</div></div>
+<div class="st" style="margin-top:16px"><span style="color:var(--i)">Costo (facoltativo)</span><span class="eb">0,00 €</span></div>
+</div>
+
+<div class="st" style="margin-top:8px"><span style="color:var(--i)">Avvisi<small id="dlA" style="display:block;font-size:13px;color:var(--m)">30, 7 e 1 giorno prima, alle 9:00</small></span><div class="tg on"></div></div>
+</div>
+<button class="cta">Salva scadenza</button>
+</section>
+
+<section class="scr" id="prof">
+<div class="hdr"><div class="h" style="font-size:32px;flex:1">Profilo</div><div class="sq"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.600 5.600l2.100 2.100M16.300 16.300l2.100 2.100M5.600 18.400l2.100-2.100M16.300 7.700l2.100-2.100"/></svg></div></div>
+<div class="scroll">
+<div class="card" style="margin-top:24px;display:flex;gap:16px;align-items:center">
+<div style="width:56px;height:56px;border-radius:var(--r);background:var(--a);color:var(--s);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:700;font-size:26px;flex:none">R</div>
+<div style="flex:1"><div class="h" style="font-size:22px">Roberto</div><small style="font-size:13px;color:var(--m)">6 registrazioni · dal 31 mar 2026</small></div>
+<svg viewBox="0 0 24 24" style="color:var(--m)"><path d="M9 6l6 6-6 6"/></svg>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:32px"><span class="h" style="font-size:20px">La tua attività</span><span class="chip" style="height:32px;padding:0 16px;font-size:13px;font-weight:600">2026<svg viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg></span></div>
+<div class="g2" style="margin-top:16px"><div><span class="eb">Registrazioni</span><b>6</b></div><div><span class="eb">Spesa</span><b>1.048,68 €</b></div><div><span class="eb">Distanza</span><b>6.615 km</b></div><div><span class="eb">Costo / mese</span><b>131,08 €</b></div></div>
+<div class="eb" style="margin-top:24px">Dove vanno i soldi</div>
+<div class="sp1"><i style="width:71%;background:var(--a)"></i><i style="width:27%;background:var(--t2)"></i><i style="width:2%;background:var(--t3)"></i></div>
+<div class="lg"><span><u style="background:var(--a)"></u>Assicurazione 71%</span><span><u style="background:var(--t2)"></u>Manutenzione 27%</span><span><u style="background:var(--t3)"></u>Carburante 2%</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px;color:var(--a);font-weight:600;font-size:15px"><span>Vedi il riepilogo completo</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:32px"><span class="h" style="font-size:20px">I tuoi veicoli</span><span class="eb">1</span></div>
+<div class="row" style="margin-top:8px"><div><b>Filippo</b><small>Piaggio Liberty 125</small></div><span class="num" style="font-size:17px">33.615 km</span></div>
+<div class="row" style="color:var(--a);font-weight:600;font-size:15px;gap:8px;justify-content:flex-start"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Aggiungi veicolo</div>
+<div class="card" style="margin-top:32px"><div class="h" style="font-size:17px">Backup dei dati</div>
+<div class="eb" style="margin-top:8px">Ultimo backup: mai</div>
+<div class="eb" style="margin-top:8px">I dati restano solo su questo telefono. Se l’app va reinstallata, senza un backup li perdi.</div>
+<div class="btn2" style="margin-top:16px;background:var(--a);border-color:var(--a);color:var(--s)">Esporta ora</div></div>
+</div>
+</section>
+
+<section class="scr" id="vf">
+<div style="width:40px;height:4px;border-radius:2px;background:var(--ln);margin:-8px auto 16px"></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div class="eb">Filippo</div><div class="h" style="font-size:28px">Dettagli veicolo</div></div><div class="sq"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div></div>
+<div class="scroll" style="height:580px">
+<div class="eb" style="margin-top:24px">Soprannome</div>
+<div class="fld"><span class="num" style="font-size:26px;color:var(--i)">Filippo</span></div>
+<div style="display:flex;gap:24px;margin-top:24px"><div style="flex:1"><div class="eb">Marca</div><div class="fld"><span class="num" style="font-size:22px;color:var(--i)">Piaggio</span></div></div><div style="flex:1"><div class="eb">Modello</div><div class="fld"><span class="num" style="font-size:22px;color:var(--i)">Liberty 125</span></div></div></div>
+<div style="display:flex;gap:24px;margin-top:24px"><div style="flex:1"><div class="eb">Anno</div><div class="fld"><span class="num" style="font-size:22px;color:var(--i)">2023</span></div></div><div style="flex:1"><div class="eb">Prima immatricolazione</div><div class="fld"><span class="num" style="font-size:22px;color:var(--i)">gen 2023</span></div></div></div>
+<div class="eb" style="margin-top:32px">Tipo di veicolo</div>
+<div class="seg" style="margin-top:8px"><div class="on">Scooter</div><div>Moto</div><div>Auto</div></div>
+<div class="st" style="margin-top:16px"><span style="color:var(--i)">Carburante</span><span style="color:var(--m)">Benzina 95 ›</span></div>
+<div class="eb" style="margin-top:16px">Raffreddamento</div>
+<div class="seg" style="margin-top:8px"><div class="on">Aria</div><div>Liquido</div></div>
+<div class="eb" style="margin-top:24px">Freno posteriore</div>
+<div class="seg" style="margin-top:8px"><div class="on">Tamburo</div><div>Disco</div></div>
+<div style="display:flex;gap:24px;margin-top:24px"><div style="flex:1"><div class="eb">Capienza serbatoio</div><div class="fld"><span class="num" style="font-size:22px;color:var(--i)">6,0</span><span>L</span></div></div><div style="flex:1"><div class="eb">Contachilometri</div><div class="fld"><span class="num" style="font-size:22px;color:var(--i)">33.615</span><span>km</span></div></div></div>
+<div class="st" style="margin-top:24px"><span style="color:var(--i)">Acquisto<small style="display:block;font-size:13px;color:var(--m)">Data e prezzo, facoltativi</small></span><svg viewBox="0 0 24 24" style="color:var(--m)"><path d="M6 9l6 6 6-6"/></svg></div>
+<div class="calc" style="margin-top:24px;display:flex;gap:16px;align-items:flex-start"><svg viewBox="0 0 24 24" style="flex:none;color:var(--a)"><rect x="5" y="11" width="14" height="9" rx="3"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div class="eb">Nessuna targa, nessun numero di telaio, nessun account. I dati restano su questo telefono.</div></div>
+<div style="display:flex;align-items:center;gap:8px;margin:24px 0 8px;font-size:15px;font-weight:600"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg>Elimina veicolo</div>
+</div>
+<button class="cta">Salva veicolo</button>
+</section>
+
+<section class="scr" id="emp">
+<div class="rg" id="eg" style="margin-top:0"><button data-k="1" class="on">Primo avvio</button><button data-k="2">Primi passi</button><button data-k="3">Grafico vuoto</button></div>
+
+<div class="dlv on" id="em-1">
+<div class="eb" style="margin-top:24px">Venerdì 30 ottobre</div>
+<div class="h" style="font-size:32px;margin-top:8px">Ciao</div>
+<div class="card" style="margin-top:32px;text-align:center;padding:32px 24px">
+<svg viewBox="0 0 1377 974" style="width:160px;height:113px;display:block;margin:0 auto;color:var(--a)"><use href="#scoot"/></svg>
+<div class="h" style="font-size:24px;margin-top:24px">Aggiungi il tuo primo veicolo</div>
+<div class="eb" style="margin-top:8px;line-height:1.5">Registra rifornimenti, manutenzioni e scadenze. Niente account e niente targa: i dati restano su questo telefono.</div>
+<div class="btn2" style="margin-top:24px;height:48px;background:var(--a);border-color:var(--a);color:var(--s);font-size:16px">Aggiungi veicolo</div>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:24px;color:var(--a);font-weight:600;font-size:15px"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Ho già un backup: importa</div>
+</div>
+
+<div class="dlv" id="em-2">
+<div class="eb" style="margin-top:24px">Venerdì 30 ottobre</div>
+<div class="h" style="font-size:32px;margin-top:8px">Ciao, Roberto</div>
+<div class="card" style="margin-top:24px"><div style="display:flex;justify-content:space-between;align-items:center"><div class="h" style="font-size:20px">Per iniziare</div><span class="eb">1 di 3</span></div>
+<div class="row" style="margin-top:16px;border-top:1px solid var(--ln)"><span class="ck on"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><div style="flex:1"><b style="color:var(--m);text-decoration:line-through">Aggiungi Filippo</b></div></div>
+<div class="row"><span class="ck"></span><div style="flex:1"><b>Registra il primo rifornimento</b><small>Serve per vedere i consumi</small></div><svg viewBox="0 0 24 24" style="color:var(--m)"><path d="M9 6l6 6-6 6"/></svg></div>
+<div class="row"><span class="ck"></span><div style="flex:1"><b>Imposta le scadenze</b><small>RCA, Bollo e Revisione</small></div><svg viewBox="0 0 24 24" style="color:var(--m)"><path d="M9 6l6 6-6 6"/></svg></div>
+</div>
+<div class="eb" style="margin-top:32px">Spesa di ottobre</div>
+<div class="num big" style="color:var(--m)">0,00 <span>€</span></div>
+<div class="eb" style="margin-top:8px">Qui comparirà quello che spendi ogni mese.</div>
+<div class="card" style="margin-top:24px"><div class="ci"><div class="ic"><svg viewBox="0 0 1377 974" style="width:28px;height:20px"><use href="#scoot"/></svg></div><div><small>Piaggio Liberty 125</small><div class="h" style="font-size:22px">Filippo</div></div></div><div class="num" style="font-size:40px;margin-top:24px">33.615 <span style="font-size:15px;color:var(--m);font-family:var(--fb);font-weight:400">km</span></div></div>
+</div>
+
+<div class="dlv" id="em-3">
+<div class="h" style="font-size:32px;margin-top:24px">Carburante</div>
+<div class="eb" style="margin-top:24px">Consumo medio</div>
+<div class="num" style="font-size:56px;margin-top:8px;color:var(--m)">—</div>
+<div class="eb" style="margin-top:8px">Servono almeno due rifornimenti.</div>
+<div class="g2"><div><span class="eb">Prezzo medio</span><b>1,99 €/L</b></div><div><span class="eb">Carburante al km</span><b style="color:var(--m)">—</b></div><div><span class="eb">Litri per sosta</span><b>4,4 L</b></div><div><span class="eb">Km tra le soste</span><b style="color:var(--m)">—</b></div></div>
+<div style="margin-top:32px;border:1.5px dashed var(--ln);border-radius:var(--r);padding:32px 24px;text-align:center"><svg viewBox="0 0 296 60" style="width:100%;height:auto;opacity:.4"><polyline points="8,40 70,24 130,44 190,16 250,30 288,26" fill="none" stroke="var(--m)" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/></svg><div class="h" style="font-size:17px;margin-top:16px">Il grafico arriva col secondo rifornimento</div><div class="eb" style="margin-top:8px">Ne manca 1. Aggiungilo con il tasto +.</div></div>
+</div>
+</section>
+
+<div class="nav" id="nav">
+<div class="cap"><div class="on" id="n1"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></div><div id="n2"><svg viewBox="0 0 24 24"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></svg></div><div><svg viewBox="0 0 24 24"><path d="M5 21V5a1 1 0 011-1h7a1 1 0 011 1v16M4 21h11M14 10h2a2 2 0 012 2v5a1.5 1.5 0 003 0V9l-3-3"/></svg></div><div><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div></div>
+<div class="pen"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+</div>
+</div>
+<div class="sw"><div><i style="background:#F8F1E4"></i><span>bg<br>#F8F1E4</span></div><div><i style="background:#FFFDF8"></i><span>surface<br>#FFFDF8</span></div><div><i style="background:#4A2F20"></i><span>ink<br>#4A2F20</span></div><div><i style="background:#7A634F"></i><span>muted<br>#7A634F</span></div><div><i id="acI" style="background:#B85C10"></i><span id="acT">accent<br>#B85C10</span></div></div>
+<script>
+document.querySelectorAll('button[data-s]').forEach(function(b){b.addEventListener('click',function(){
+var k=b.dataset.s;
+document.querySelectorAll('.scr').forEach(function(s){s.classList.toggle('on',s.id===k)});
+document.querySelectorAll('button[data-s]').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+document.getElementById('nav').style.display=['fuel','mnt','pick','dl','vf'].indexOf(k)>-1?'none':'flex';
+var idx={home:0,veh:1,set:3,stat:0,ft:2,grg:1,prof:3,emp:0}[k];
+document.querySelectorAll('#nav .cap div').forEach(function(d,i){d.className=i===idx?'on':''});
+});});
+document.querySelectorAll('#ac button').forEach(function(b){b.addEventListener('click',function(){
+document.getElementById('ph').style.setProperty('--a',b.dataset.c);
+document.querySelectorAll('#ac button').forEach(function(x){x.classList.toggle('on',x===b)});
+document.getElementById('acName').textContent=b.dataset.n;
+document.getElementById('acI').style.background=b.dataset.c;
+document.getElementById('acT').innerHTML='accent<br>'+b.dataset.c;
+});});
+var R={3:{t:"20,68",m:"6,89 €",k:"0,01 €",x:"1.500 km"},6:{t:"768,68",m:"128,11 €",k:"0,14 €",x:"5.515 km"},12:{t:"1.048,68",m:"131,08 €",k:"0,16 €",x:"6.615 km"},0:{t:"1.048,68",m:"131,08 €",k:"0,16 €",x:"6.615 km"}};
+document.querySelectorAll('#rg button').forEach(function(b){b.addEventListener('click',function(){
+var d=R[b.dataset.k];document.querySelectorAll('#rg button').forEach(function(x){x.classList.toggle('on',x===b)});
+document.getElementById('sT').textContent=d.t;document.getElementById('sM').textContent=d.m;document.getElementById('sK').textContent=d.k;document.getElementById('sX').textContent=d.x;});});
+var V=[20,25,22,18,24,21],A0=[0,0,748,0,0,0],A1=[0,0,62,62,62,62];
+function bars(sp){var a=sp?A1:A0,mx=Math.max.apply(null,V.map(function(v,i){return v+a[i]}));
+document.getElementById('mb').innerHTML=V.map(function(v,i){var h1=Math.max(4,v/mx*96),h2=a[i]/mx*96;return '<div>'+(a[i]?'<i style="height:'+h2+'px;background:var(--t2)"></i>':'')+'<i style="height:'+h1+'px;background:var(--a)"></i></div>'}).join('');}
+bars(false);
+document.getElementById('spread').addEventListener('click',function(){this.classList.toggle('on');bars(this.classList.contains('on'));});
+var R2={3:["41,6","± 8%, stima"],6:["41,8","± 4%, stima"],12:["41,8","± 3%, stima"],0:["41,8","± 3%, stima"]};
+document.querySelectorAll('#rg2 button').forEach(function(b){b.addEventListener('click',function(){
+document.querySelectorAll('#rg2 button').forEach(function(x){x.classList.toggle('on',x===b)});
+document.getElementById('fC').textContent=R2[b.dataset.k][0];document.getElementById('fE').textContent=R2[b.dataset.k][1];});});
+document.querySelectorAll('#sg div').forEach(function(d){d.addEventListener('click',function(){
+document.querySelectorAll('#sg div').forEach(function(x){x.classList.toggle('on',x===d)});
+var c=d.dataset.v==='c';document.getElementById('chC').style.display=c?'block':'none';document.getElementById('chP').style.display=c?'none':'block';
+document.getElementById('chN').textContent=c?'Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media.':'Prezzo pagato a ogni rifornimento. Trascina il dito per leggere.';});});
+var DT={r:"Assicurazione RCA",b:"Bollo",v:"Revisione"};
+document.querySelectorAll('#dlg button').forEach(function(b){b.addEventListener('click',function(){
+var k=b.dataset.k;document.querySelectorAll('#dlg button').forEach(function(x){x.classList.toggle('on',x===b)});
+['r','b','v'].forEach(function(i){document.getElementById('dl-'+i).classList.toggle('on',i===k)});
+document.getElementById('dlT').textContent=DT[k];document.getElementById('dlA').textContent=(k==='v'?'60, 30, 7 e 1 giorno prima':'30, 7 e 1 giorno prima')+', alle 9:00';});});
+document.querySelectorAll('#eg button').forEach(function(b){b.addEventListener('click',function(){
+var k=b.dataset.k;document.querySelectorAll('#eg button').forEach(function(x){x.classList.toggle('on',x===b)});
+['1','2','3'].forEach(function(i){document.getElementById('em-'+i).classList.toggle('on',i===k)});
+document.querySelectorAll('#nav .cap div').forEach(function(d,i){d.className=i===(k==='3'?2:0)?'on':''});});});
+</script>
+</body></html>
