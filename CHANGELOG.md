@@ -2,6 +2,27 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 6
+
+Version 1.2 (6), shown in Settings.
+
+Spending by month (Home and Stats)
+- Bars follow everyday spending, so insurance in July no longer makes the other months look empty
+- The yearly part (insurance, road tax, inspection) sits on top in a lighter colour; when it is too tall it fades out at the top
+- All bars have the same small corner radius, so tall bars are rectangles, not pills
+- Home: the chart is taller and there is no caption under it
+- Home: hold a month and a small list under the bars shows where the money went (category, amount); what does not fit on two lines is added up under "Altre voci". The Filippo card now sits a little lower all the time
+
+New entry
+- The "Nuova registrazione" sheet is only as tall as its four cards; it grows when you open a form
+
+Home status line
+- Overdue items are shown separately from coming-up ones ("1 scaduta · 2 in arrivo"), with the right singular
+- A maintenance job that is past its km counts as overdue even before the app can estimate days
+
+Swipe to delete
+- The line under an open row now stops at the same gap as the line above it
+
 ## Build 5
 
 Fuel

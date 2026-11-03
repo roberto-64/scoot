@@ -143,6 +143,54 @@ struct PriceChart: View {
     }
 }
 
+enum SpendScale {
+    /// Points per euro. Bars follow everyday spending (not the yearly items), so one big yearly cost
+    /// does not flatten the other months: the tallest everyday bar takes a little over half the height
+    /// when there are yearly costs to stack above it, and all of it otherwise.
+    static func unit(_ months: [MonthBucket], cap: CGFloat) -> CGFloat {
+        let tallest = max(months.map { $0.variable }.max() ?? 0, 1)
+        let hasYearly = months.contains { $0.annual > 0 }
+        return cap * (hasYearly ? 0.55 : 1) / CGFloat(tallest)
+    }
+}
+
+/// One month column, shared by Home and Stats: everyday spending at the bottom, the yearly part stacked
+/// above it. A yearly part that would pass the chart height is cut at the top and fades out there.
+/// Every bar keeps the same small corner radius, so tall bars stay rectangles rather than pills.
+struct SpendColumn: View {
+    let bucket: MonthBucket
+    let unit: CGFloat
+    let cap: CGFloat
+    let everyday: Color
+    let yearly: Color
+
+    private let radius: CGFloat = 4
+    private let gap: CGFloat = 2
+
+    var body: some View {
+        let low = max(Space.s1, CGFloat(bucket.variable) * unit)
+        let wanted = CGFloat(bucket.annual) * unit
+        let room = max(0, cap - low - gap)
+        let high = min(wanted, room)
+        let faded = wanted > room
+        VStack(spacing: gap) {
+            if high >= 2 {
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .fill(yearly)
+                    .frame(height: high)
+                    .mask(
+                        LinearGradient(colors: faded ? [.black, .clear] : [.black, .black],
+                                       startPoint: .bottom, endPoint: .top)
+                    )
+            }
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(everyday)
+                .frame(height: low)
+        }
+        .frame(height: cap, alignment: .bottom)
+    }
+}
+
 /// Stacked monthly bars: variable spending in accent, yearly items in a lighter tint.
 struct MonthlyBars: View {
     @Environment(\.appAccent) private var accent
@@ -168,22 +216,14 @@ struct MonthlyBars: View {
     }
 
     var body: some View {
-        let maxV = max(months.map { $0.total }.max() ?? 1, 1)
+        let cap: CGFloat = 96
+        let unit = SpendScale.unit(months, cap: cap)
         VStack(alignment: .leading, spacing: Space.s1) {
             readout
             HStack(alignment: .bottom, spacing: Space.s1) {
                 ForEach(Array(months.enumerated()), id: \.offset) { i, m in
                     VStack(spacing: Space.s1) {
-                        VStack(spacing: 2) {
-                            if m.annual > 0 {
-                                RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
-                                    .fill(accent.opacity(0.55))
-                                    .frame(height: CGFloat(m.annual / maxV) * 96)
-                            }
-                            RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
-                                .fill(accent)
-                                .frame(height: max(Space.s1, CGFloat(m.variable / maxV) * 96))
-                        }
+                        SpendColumn(bucket: m, unit: unit, cap: cap, everyday: accent, yearly: accent.opacity(0.55))
                         Text(verbatim: m.id.formatted(.dateTime.month(.narrow).locale(locale)))
                             .font(AppFont.sans(11, .semibold))
                             .foregroundStyle(held == i ? Theme.ink : Theme.muted)

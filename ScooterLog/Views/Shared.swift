@@ -183,6 +183,8 @@ extension View {
 struct SwipeToDelete<Content: View>: View {
     @Environment(\.appAccent) private var accent
     @Binding var isOpen: Bool
+    /// Identifies the row, so the line under it can end where the open row ends (see `SwipeCoordinator`).
+    var rowID: PersistentIdentifier? = nil
     var onTrash: () -> Void
     @ViewBuilder let content: () -> Content
     @State private var drag: CGFloat = 0
@@ -190,8 +192,8 @@ struct SwipeToDelete<Content: View>: View {
     @State private var armed = false
 
     /// Bare background between the sliding row and the trash block, so the price never touches it.
-    private let gap: CGFloat = Space.s2
-    private let reveal: CGFloat = Space.s8 + Space.s1 + Space.s2
+    private let gap: CGFloat = SwipeMetrics.gap
+    private let reveal: CGFloat = SwipeMetrics.reveal
 
     /// Resistance when pulling past the end of the trash block.
     private func rubber(_ x: CGFloat) -> CGFloat {
@@ -256,15 +258,39 @@ struct SwipeToDelete<Content: View>: View {
                 )
             )
             .blocksSwipeBack(isOpen || dragging)
+            .onChange(of: isOpen) { _, open in
+                guard let id = rowID else { return }
+                if open {
+                    SwipeCoordinator.shared.openID = id
+                } else if SwipeCoordinator.shared.openID == id {
+                    SwipeCoordinator.shared.openID = nil
+                }
+            }
     }
+}
+
+/// Sizes shared by the swipe row and the lines between rows.
+enum SwipeMetrics {
+    static let gap: CGFloat = Space.s2
+    static let reveal: CGFloat = Space.s8 + Space.s1 + Space.s2
+}
+
+/// Remembers which list row is swiped open. The line under an open row belongs to the next row,
+/// so that row shortens its top line to end where the open row ends, matching the line above.
+final class SwipeCoordinator: ObservableObject {
+    static let shared = SwipeCoordinator()
+    @Published var openID: PersistentIdentifier? = nil
 }
 
 struct HistoryRow: View {
     @Environment(\.locale) private var locale
     @Environment(\.modelContext) private var context
     @AppStorage("language") private var language = "it"
+    @ObservedObject private var swipe = SwipeCoordinator.shared
     let entry: HistoryEntry
     var showVehicle: Bool = false
+    /// The entry shown just above this one in the list, if any.
+    var previousID: PersistentIdentifier? = nil
     @State private var editing = false
     @State private var confirmDelete = false
     @State private var swipeOpen = false
@@ -290,7 +316,7 @@ struct HistoryRow: View {
     }
 
     var body: some View {
-        SwipeToDelete(isOpen: $swipeOpen, onTrash: { confirmDelete = true }) {
+        SwipeToDelete(isOpen: $swipeOpen, rowID: entry.id, onTrash: { confirmDelete = true }) {
             Button {
                 if swipeOpen {
                     withAnimation(Motion.spring) { swipeOpen = false }
@@ -344,7 +370,14 @@ struct HistoryRow: View {
         .padding(.vertical, Space.s2)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
-        .overlay(alignment: .top) { Hairline() }
+        .overlay(alignment: .topLeading) {
+            // When the row above is swiped open, this line (the one under that row) stops where the
+            // open row stops, like the line above that row does.
+            let shortened = previousID != nil && swipe.openID == previousID
+            Hairline()
+                .padding(.trailing, shortened ? SwipeMetrics.reveal : 0)
+                .animation(Motion.snap, value: shortened)
+        }
     }
 
     private func delete() {

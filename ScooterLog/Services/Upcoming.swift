@@ -13,6 +13,22 @@ struct UpcomingItem: Identifiable {
     /// True when the interval comes from the official Piaggio schedule.
     var isPiaggio: Bool = false
     var state: DueState { DueState.from(days: days) }
+
+    /// Already past: the date has passed, or the distance has passed (even when the app cannot
+    /// yet estimate days from the odometer history).
+    var isOverdue: Bool {
+        if let k = kmLeft, k < 0 { return true }
+        if let d = days { return d < 0 }
+        return false
+    }
+
+    /// Due within 30 days (or right now by distance), and not yet past.
+    var isComingUp: Bool {
+        if isOverdue { return false }
+        if let d = days { return d <= 30 }
+        if let k = kmLeft { return k <= 0 }
+        return false
+    }
 }
 
 enum Upcoming {

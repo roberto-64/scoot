@@ -93,7 +93,9 @@ struct VehicleDetailView: View {
                         Text(g.total.money(locale)).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
                     }
                     .padding(.top, Space.s3)
-                    ForEach(g.entries) { e in HistoryRow(entry: e).rowTransition() }
+                    ForEach(Array(g.entries.enumerated()), id: \.element.id) { i, e in
+                        HistoryRow(entry: e, previousID: i > 0 ? g.entries[i - 1].id : nil).rowTransition()
+                    }
                 }
             }
             .animation(Motion.bounce, value: groups.flatMap { $0.entries.map { $0.id } })

@@ -61,6 +61,8 @@ Hairlines are 1 pt. No 4, 12, 20 or other off-scale values.
 **24.** Cards, buttons, chips, inputs, icon squares, swatches, toggles, tab pills, sheets.
 SwiftUI clamps to half the shorter side, so 48-high items read as full pills. Do not invent other radii.
 
+**One exception: month bars (Home and Stats) use 4.** They are columns, not pills, so every bar keeps the same small radius whatever its height. Legend swatches use 3.
+
 ## Effects: no gradients or shadows unless listed here
 
 Only these five exist. Everything else is flat.
@@ -70,6 +72,8 @@ Only these five exist. Everything else is flat.
 3. **Card shadow.** y 8, blur 24, `ink` at 12%. Allowed on cards, chips, icon squares and the primary button. Nowhere else.
 4. **Bar shadow.** A stronger two-layer shadow for the floating menu bar only (tab capsule and + button): y 14, blur 36, `ink` at 30%, plus y 3, blur 8, `ink` at 18%.
 5. **Toggle knob shadow.** A soft shadow under the toggle knob only: y 2, blur 6, `ink` at 25%.
+
+One more fade, not a gradient fill: a month bar whose yearly part (insurance, road tax, inspection) would pass the chart height is cut at the chart top and the yearly part fades to transparent there. No edge, no caption.
 
 ## Layout rules
 
@@ -90,6 +94,12 @@ Only these five exist. Everything else is flat.
 - **Bottom buffer:** every screen that scrolls under the floating bar (the four tabs and every screen opened from them) ends with 72 pt of empty space so the last item stops above the bar.
 - **Cards:** `surface`, 1 pt `line` border, card shadow. **Buttons:** 48 to 56 high, `accent`, label in `surface`, semibold 17.
 
+## Month bars and legend
+
+- Bars follow everyday spending; the yearly part is stacked above in `accent` at 55% (full `accent` while that month is held on Home). Everyday part: `ink` for the shown month, `line` for the others on Home; `accent` on Stats.
+- Home chart is 88 pt high with 8 pt above it; Stats 96 pt. No caption under the chart.
+- Holding a month on Home shows a legend under the bars: 10 pt square (3 pt corners, `ink` for everyday, `accent` for yearly), category in 13 pt `muted`, amount in 13 pt semibold `ink`, flowing over at most two lines. Anything that does not fit is added up under "Altre voci", so the legend always equals the number shown. The 40 pt it needs (plus 16 pt above) is always reserved.
+
 ## Status and destructive states
 
 There is no red and no other status colour. State is shown by shape and word as well as fill:
@@ -102,6 +112,9 @@ There is no red and no other status colour. State is shown by shape and word as 
 | Overdue | `ink` fill, `surface` text | `Scaduta` |
 
 - Destructive actions (remove, delete): `ink` text with a trash icon, always behind a confirmation. The swipe-to-delete block is the one place `accent` marks a delete; it still asks for confirmation. A 16 pt gap of bare background separates the sliding row from the block.
+  The divider lines on both sides of an open row stop at the same gap (the line under it is shortened while it is open).
+- **Home status line:** "Il tuo garage è in regola" when nothing is overdue or due within 30 days. Otherwise it counts overdue and coming-up items separately ("2 scadute · 1 in arrivo"); anything overdue uses `ink` text and a filled exclamation icon, coming-up only uses `accent`.
+- **New-entry sheet** (the + button) is only as tall as its content, and grows to full height when a form is opened inside it.
 - Deadline alerts go out at 9:00. Revisione: 60, 30, 7 and 1 days before, so there is time to book. RCA and Bollo: 30, 7 and 1 days before.
 - Lists of upcoming items (Garage, "In arrivo") are always sorted by due date, deadlines and service items together.
 

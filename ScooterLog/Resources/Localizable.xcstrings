@@ -21,6 +21,16 @@
         }
       }
     },
+    "%lld in arrivo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld coming up"
+          }
+        }
+      }
+    },
     "%lld registrazioni": {
       "localizations": {
         "en": {
@@ -41,6 +51,16 @@
         }
       }
     },
+    "%lld scadute": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld overdue"
+          }
+        }
+      }
+    },
     ", quale arriva prima": {
       "localizations": {
         "en": {
@@ -51,12 +71,42 @@
         }
       }
     },
+    "1 in arrivo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 coming up"
+          }
+        }
+      }
+    },
     "1 registrazione": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "1 entry"
+          }
+        }
+      }
+    },
+    "1 scadenza in arrivo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 deadline coming up"
+          }
+        }
+      }
+    },
+    "1 scaduta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 overdue"
           }
         }
       }
@@ -277,6 +327,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Per month"
+          }
+        }
+      }
+    },
+    "Altre voci": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other items"
           }
         }
       }

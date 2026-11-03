@@ -46,7 +46,9 @@ struct FuelView: View {
                             Text(verbatim: String(fills.count)).eyebrow()
                         }
                         .padding(.top, Space.s4)
-                        ForEach(fills) { e in HistoryRow(entry: e, showVehicle: vehicles.count > 1).rowTransition() }
+                        ForEach(Array(fills.enumerated()), id: \.element.id) { i, e in
+                            HistoryRow(entry: e, showVehicle: vehicles.count > 1, previousID: i > 0 ? fills[i - 1].id : nil).rowTransition()
+                        }
                     }
                 }
             }

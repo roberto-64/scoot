@@ -102,18 +102,30 @@ struct HomeView: View {
     private var upcoming: [UpcomingItem] { Upcoming.items(for: vehicles, lang: language) }
 
     private var statusLine: some View {
-        let soon = upcoming.filter { $0.state == .soon || $0.state == .late }.count
+        let late = upcoming.filter { $0.isOverdue }.count
+        let soon = upcoming.filter { $0.isComingUp }.count
         return HStack(spacing: Space.s1) {
-            Image(systemName: soon == 0 ? "checkmark.circle" : "exclamationmark.circle")
-            if soon == 0 { Text("Il tuo garage è in regola") } else { Text("\(soon) scadenze in arrivo") }
+            Image(systemName: late > 0 ? "exclamationmark.circle.fill" : (soon == 0 ? "checkmark.circle" : "exclamationmark.circle"))
+            statusText(late: late, soon: soon)
         }
         .font(AppFont.sans(15, .semibold))
-        .foregroundStyle(accent)
+        .foregroundStyle(late > 0 ? Theme.ink : accent)
         .padding(.vertical, Space.s1)
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .top) { Hairline() }
         .overlay(alignment: .bottom) { Hairline() }
         .padding(.top, Space.s2)
+    }
+
+    /// "In regola", or what is overdue and what is coming up, with the right singular for one.
+    private func statusText(late: Int, soon: Int) -> Text {
+        let comingUp: Text = soon == 1 ? Text("1 scadenza in arrivo") : Text("\(soon) scadenze in arrivo")
+        if late == 0 && soon == 0 { return Text("Il tuo garage è in regola") }
+        let overdue: Text = late == 1 ? Text("1 scaduta") : Text("\(late) scadute")
+        if late > 0 && soon == 0 { return overdue }
+        if late == 0 { return comingUp }
+        let short: Text = soon == 1 ? Text("1 in arrivo") : Text("\(soon) in arrivo")
+        return overdue + Text(verbatim: " · ") + short
     }
 
     private var checklist: some View {
@@ -174,7 +186,8 @@ struct HomeView: View {
         let shown: MonthBucket? = summary.months.indices.contains(sel) ? summary.months[sel] : nil
         let thisMonth = shown?.total ?? 0
         let shownDate = shown?.id ?? Date()
-        let maxV = max(summary.months.map { $0.total }.max() ?? 1, 1)
+        let chartHeight: CGFloat = 88
+        let unit = SpendScale.unit(summary.months, cap: chartHeight)
         return VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("Spesa di \(shownDate.formatted(.dateTime.month(.wide).locale(locale)))").eyebrow()
@@ -202,17 +215,19 @@ struct HomeView: View {
                 ForEach(Array(summary.months.enumerated()), id: \.offset) { i, m in
                     let current = i == sel
                     VStack(spacing: Space.s1) {
-                        RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
-                            .fill(current ? Theme.ink : Theme.line)
-                            .frame(height: max(Space.s1, CGFloat(m.total / maxV) * 64))
+                        SpendColumn(
+                            bucket: m, unit: unit, cap: chartHeight,
+                            everyday: current ? Theme.ink : Theme.line,
+                            yearly: (heldMonth == i) ? accent : accent.opacity(0.55))
                         Text(verbatim: m.id.formatted(.dateTime.month(.narrow).locale(locale)))
                             .font(AppFont.sans(11, .semibold))
                             .foregroundStyle(current ? Theme.ink : Theme.muted)
+                            .frame(height: 14)
                     }
                     .frame(maxWidth: .infinity)
                 }
             }
-            .frame(height: 96, alignment: .bottom)
+            .frame(height: chartHeight + Space.s1 + 14, alignment: .bottom)
             .background(
                 ColumnScrub(
                     count: summary.months.count,
@@ -224,9 +239,15 @@ struct HomeView: View {
                 )
             )
             .blocksSwipeBack()
-            .padding(.top, Space.s2)
+            .padding(.top, Space.s1)
             .animation(Motion.spring, value: sel)
             .animation(Motion.spring, value: thisMonth)
+            // Breakdown of the held month. The space is always there, so the cards below stay put.
+            MonthLegendView(bucket: shown, language: language)
+                .padding(.top, Space.s2)
+                .opacity(heldMonth == nil ? 0 : 1)
+                .animation(Motion.fade, value: heldMonth == nil)
+                .accessibilityHidden(heldMonth == nil)
         }
     }
 
@@ -260,7 +281,9 @@ struct HomeView: View {
         return VStack(alignment: .leading, spacing: 0) {
             if !recent.isEmpty {
                 Text("Attività recente").eyebrow().padding(.top, Space.s3)
-                ForEach(recent) { e in HistoryRow(entry: e, showVehicle: vehicles.count > 1).rowTransition() }
+                ForEach(Array(recent.enumerated()), id: \.element.id) { i, e in
+                    HistoryRow(entry: e, showVehicle: vehicles.count > 1, previousID: i > 0 ? recent[i - 1].id : nil).rowTransition()
+                }
             }
         }
         .animation(Motion.bounce, value: recent.map { $0.id })

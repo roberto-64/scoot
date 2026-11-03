@@ -34,7 +34,6 @@ struct RootView: View {
         }
         .sheet(isPresented: $showNew) {
             NewEntrySheet()
-                .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(Radius.base)
                 .presentationBackground(Theme.bg)
@@ -118,14 +117,29 @@ struct FloatingBar: View {
     }
 }
 
+private struct SheetHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
 struct NewEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
     @Query(sort: \Vehicle.createdAt) private var vehicles: [Vehicle]
     @AppStorage("selectedVehicle") private var selectedID = ""
     @State private var route: NewRoute? = nil
+    /// Height of the title and cards (measured), so the sheet is only as tall as it needs to be.
+    @State private var contentHeight: CGFloat = 440
 
     private var vehicle: Vehicle? { selectedVehicle(vehicles, id: selectedID) }
+
+    /// Room under the cards: breathing space plus the home indicator strip at the bottom of the sheet.
+    private var bottomAllowance: CGFloat { Space.s4 + 34 }
+
+    /// Only as tall as the cards need; a form opened inside the sheet needs the full height.
+    private var detents: Set<PresentationDetent> {
+        route == nil ? [.height(contentHeight + bottomAllowance)] : [.large]
+    }
 
     var body: some View {
         NavigationStack {
@@ -165,6 +179,11 @@ struct NewEntrySheet: View {
                 }
                 .padding(.horizontal, Space.s2)
                 .padding(.top, Space.s4)
+                .background(
+                    GeometryReader { g in
+                        Color.clear.preference(key: SheetHeightKey.self, value: g.size.height)
+                    }
+                )
             }
             .screenBackground()
             .toolbar(.hidden, for: .navigationBar)
@@ -174,6 +193,10 @@ struct NewEntrySheet: View {
                 }
             }
         }
+        .onPreferenceChange(SheetHeightKey.self) { h in
+            if h > 0 { contentHeight = h }
+        }
+        .presentationDetents(detents)
     }
 
     @ViewBuilder

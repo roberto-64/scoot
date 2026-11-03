@@ -46,13 +46,34 @@ struct CostItem {
     let amount: Double
     let cat: CostCat
     let cover: Int
+    /// Name shown in the held-month legend (e.g. "Parcheggio"); falls back to the category name.
+    var label: String? = nil
+    var legendTitle: String { label ?? cat.title }
+}
+
+/// One line of a month's breakdown: a category name and what it added up to.
+struct MonthPart: Identifiable {
+    let title: String
+    var amount: Double
+    let annual: Bool
+    var id: String { (annual ? "a." : "v.") + title }
 }
 
 struct MonthBucket: Identifiable {
     let id: Date
     var variable: Double
     var annual: Double
+    var parts: [MonthPart] = []
     var total: Double { variable + annual }
+
+    mutating func add(_ title: String, _ amount: Double, annual isAnnual: Bool) {
+        if isAnnual { annual += amount } else { variable += amount }
+        if let i = parts.firstIndex(where: { $0.title == title && $0.annual == isAnnual }) {
+            parts[i].amount += amount
+        } else {
+            parts.append(MonthPart(title: title, amount: amount, annual: isAnnual))
+        }
+    }
 }
 
 struct SplitSlice: Identifiable {
@@ -118,7 +139,8 @@ enum StatsEngine {
                 case .revisione: cat = .revisione
                 default: cat = .other
                 }
-                out.append(CostItem(date: e.date, amount: e.amount, cat: cat, cover: max(1, e.coverMonths)))
+                out.append(CostItem(date: e.date, amount: e.amount, cat: cat, cover: max(1, e.coverMonths),
+                                    label: cat == .other ? e.category.title : nil))
             }
         }
         return out
@@ -197,10 +219,10 @@ enum StatsEngine {
                 let per = it.amount / Double(it.cover)
                 for k in 0..<it.cover {
                     let m = it.date.startOfMonth.addingMonths(k)
-                    if let i = frozen.firstIndex(of: m) { buckets[i].annual += per }
+                    if let i = frozen.firstIndex(of: m) { buckets[i].add(it.legendTitle, per, annual: true) }
                 }
             } else if let i = frozen.firstIndex(of: it.date.startOfMonth) {
-                if it.cat.isAnnual { buckets[i].annual += it.amount } else { buckets[i].variable += it.amount }
+                buckets[i].add(it.legendTitle, it.amount, annual: it.cat.isAnnual)
             }
         }
         return buckets
