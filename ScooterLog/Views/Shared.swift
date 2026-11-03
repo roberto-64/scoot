@@ -189,7 +189,9 @@ struct SwipeToDelete<Content: View>: View {
     @State private var dragging = false
     @State private var armed = false
 
-    private let reveal: CGFloat = Space.s8 + Space.s1
+    /// Bare background between the sliding row and the trash block, so the price never touches it.
+    private let gap: CGFloat = Space.s2
+    private let reveal: CGFloat = Space.s8 + Space.s1 + Space.s2
 
     /// Resistance when pulling past the end of the trash block.
     private func rubber(_ x: CGFloat) -> CGFloat {
@@ -221,9 +223,9 @@ struct SwipeToDelete<Content: View>: View {
                                 .foregroundStyle(Theme.surface)
                                 .scaleEffect(-offset >= reveal * 0.5 ? 1 : 0.7)
                                 .animation(Motion.bounce, value: -offset >= reveal * 0.5)
-                                .frame(width: reveal)
+                                .frame(width: reveal - gap)
                         }
-                        .frame(width: max(0, -offset))
+                        .frame(width: max(0, -offset - gap))
                         .clipped()
                 }
                 .buttonStyle(.plain)

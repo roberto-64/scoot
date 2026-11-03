@@ -381,6 +381,16 @@
         }
       }
     },
+    "Attivala se la spia era accesa quando hai fatto rifornimento. Serve a misurare il consumo da una spia alla successiva.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn it on if the light was on when you filled up. It lets the app measure consumption from one light to the next."
+          }
+        }
+      }
+    },
     "Attività recente": {
       "localizations": {
         "en": {
@@ -657,6 +667,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pay by"
+          }
+        }
+      }
+    },
+    "Da una spia della riserva alla successiva. Trascina il dito per leggere. Linea tratteggiata: media.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From one reserve light to the next. Drag your finger to read. Dashed line: average."
           }
         }
       }
@@ -2101,6 +2121,16 @@
         }
       }
     },
+    "Segnato. Il consumo si calcola dall’ultima spia segnata fino a questo rifornimento.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marked. Consumption is measured from the last marked light to this fill-up."
+          }
+        }
+      }
+    },
     "Serve per vedere i consumi": {
       "localizations": {
         "en": {
@@ -2231,6 +2261,16 @@
         }
       }
     },
+    "Spia della riserva accesa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reserve light on"
+          }
+        }
+      }
+    },
     "Stima annua": {
       "localizations": {
         "en": {
@@ -2267,6 +2307,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Terracotta"
+          }
+        }
+      }
+    },
+    "Tieni premuto un mese per leggerlo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press and hold a month to read it."
           }
         }
       }
@@ -2427,6 +2477,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "since"
+          }
+        }
+      }
+    },
+    "di cui %@ annuali": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "of which %@ yearly"
           }
         }
       }

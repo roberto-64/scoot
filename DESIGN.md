@@ -73,13 +73,13 @@ Only these five exist. Everything else is flat.
 
 ## Layout rules
 
-- **Home:** date, greeting (serif 32), status line in `accent`, monthly spend (serif 56) with six month bars, vehicle card (tap opens the vehicle page), recent activity.
+- **Home:** date, greeting (serif 32), status line in `accent`, monthly spend (serif 56) with six month bars (press and hold a bar, then drag sideways: the number and title follow the held month, the held bar turns `ink`; lifting the finger returns to the current month), vehicle card (tap opens the vehicle page), recent activity.
 - **New-entry sheet:** 32 pt of space above the title and 32 pt between the title row and the tiles, so the title clears the sheet's drag handle and rounded corners.
 - **Entries (all four types):** tap an entry in any list to open the same form, pre-filled; the form opens as a sheet with a close cross, "Salva modifiche" at the bottom and an "Elimina registrazione" button (ink text, trash icon) that asks for confirmation. Press-and-hold shows "Elimina", also with confirmation. Swipe left on a row to show a full-height `accent` block with a `surface` trash icon; tapping it asks for confirmation, then deletes. The swipe behaves like WhatsApp's: the row follows the finger, the page cannot scroll while a row is dragged sideways, a flick opens or closes it, pulling past the end stretches with resistance, it settles with a bounce, the trash icon pops in and a haptic tick marks the point where it will stay open. Only one row is open at a time; scrolling the page or tapping elsewhere slides an open row back.
 - **Going back:** on any screen opened from another, swipe from left to right anywhere to go back (the built-in edge swipe also works). Charts you drag across to read values, and a row that is swiped open, are excluded.
 - **Vehicle:** back, make and model, quoted nickname (serif 32), year and fuel, odometer, cost per month, average consumption, deadline chips, history grouped by month.
 - **Forms (fill-up, maintenance, vehicle):** back button and title, underlined fields with serif numbers, calculated cost, one `accent` button pinned at the bottom. No tab bar on forms.
-- **Fill-up form:** quantity, price per litre, calculated cost, odometer, date. No full/partial switch and no extra optional taps. One entry per stop, with the total litres.
+- **Fill-up form:** quantity, price per litre, calculated cost, odometer, date. No full/partial switch. One optional toggle, "Spia della riserva accesa", sits under the odometer (same toggle as Settings, label with a small muted line). One entry per stop, with the total litres. Consumption is then measured from one marked fill-up to the next marked one: litres = the first marked fill-up plus those in between, not the closing one; until a stretch exists the 400 km window is used. Stats and Fuel say which method is shown.
 - **Consumption figures** are estimates: distance from first to last reading over litres added after the first, shown with a margin ("41,8 km/L ± 4%, stima"). Charts use a rolling average over at least 400 km. Never show per-fill km/L as a headline.
 - **Garage:** title and add button, one card per vehicle with odometer and three deadline cells (RCA, Bollo, Revisione), then "In arrivo". The whole upper part of the vehicle card opens the vehicle page; the deadline cells have their own taps.
 - **"In arrivo" (Garage):** only items due within 30 days from today, plus anything already overdue. A job that depends only on distance appears once it is estimated to fall inside the window (this needs about two weeks of odometer entries) or when its distance has passed. Maintenance whose interval comes from the official Piaggio schedule carries a small **PIAGGIO** tag next to its name. When nothing is due the section says so in one line.
@@ -101,7 +101,7 @@ There is no red and no other status colour. State is shown by shape and word as 
 | Soon (30 days or fewer) | `accent` fill, `surface` text | `12 gg` |
 | Overdue | `ink` fill, `surface` text | `Scaduta` |
 
-- Destructive actions (remove, delete): `ink` text with a trash icon, always behind a confirmation. The swipe-to-delete block is the one place `accent` marks a delete; it still asks for confirmation.
+- Destructive actions (remove, delete): `ink` text with a trash icon, always behind a confirmation. The swipe-to-delete block is the one place `accent` marks a delete; it still asks for confirmation. A 16 pt gap of bare background separates the sliding row from the block.
 - Deadline alerts go out at 9:00. Revisione: 60, 30, 7 and 1 days before, so there is time to book. RCA and Bollo: 30, 7 and 1 days before.
 - Lists of upcoming items (Garage, "In arrivo") are always sorted by due date, deadlines and service items together.
 

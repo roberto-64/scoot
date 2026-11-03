@@ -14,6 +14,8 @@ struct HomeView: View {
     @State private var showVehicleForm = false
     @State private var showImport = false
     @State private var deadlineSheet: DeadlineRoute? = nil
+    /// Month bar being held (index into the six bars); nil means the current month.
+    @State private var heldMonth: Int? = nil
 
     private var vehicle: Vehicle? { selectedVehicle(vehicles, id: selectedID) }
     private var hasEntries: Bool { vehicles.contains(where: { $0.entryCount > 0 }) }
@@ -167,11 +169,15 @@ struct HomeView: View {
 
     private var spendSection: some View {
         let summary = StatsEngine.summary(vehicles: vehicles, range: .m6, spread: false)
-        let thisMonth = summary.months.last?.total ?? 0
+        let lastIndex = max(summary.months.count - 1, 0)
+        let sel = min(heldMonth ?? lastIndex, lastIndex)
+        let shown: MonthBucket? = summary.months.indices.contains(sel) ? summary.months[sel] : nil
+        let thisMonth = shown?.total ?? 0
+        let shownDate = shown?.id ?? Date()
         let maxV = max(summary.months.map { $0.total }.max() ?? 1, 1)
         return VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("Spesa di \(Date().formatted(.dateTime.month(.wide).locale(locale)))").eyebrow()
+                Text("Spesa di \(shownDate.formatted(.dateTime.month(.wide).locale(locale)))").eyebrow()
                 Spacer()
                 NavigationLink { StatsView() } label: {
                     HStack(spacing: 2) { Text("Riepilogo"); Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold)) }
@@ -194,7 +200,7 @@ struct HomeView: View {
             }
             HStack(alignment: .bottom, spacing: Space.s1) {
                 ForEach(Array(summary.months.enumerated()), id: \.offset) { i, m in
-                    let current = i == summary.months.count - 1
+                    let current = i == sel
                     VStack(spacing: Space.s1) {
                         RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
                             .fill(current ? Theme.ink : Theme.line)
@@ -207,7 +213,19 @@ struct HomeView: View {
                 }
             }
             .frame(height: 96, alignment: .bottom)
+            .background(
+                ColumnScrub(
+                    count: summary.months.count,
+                    onSelect: { i in
+                        Haptics.tick()
+                        withAnimation(Motion.spring) { heldMonth = i }
+                    },
+                    onEnd: { withAnimation(Motion.bounce) { heldMonth = nil } }
+                )
+            )
+            .blocksSwipeBack()
             .padding(.top, Space.s2)
+            .animation(Motion.spring, value: sel)
             .animation(Motion.spring, value: thisMonth)
         }
     }

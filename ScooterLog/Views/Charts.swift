@@ -148,30 +148,63 @@ struct MonthlyBars: View {
     @Environment(\.appAccent) private var accent
     @Environment(\.locale) private var locale
     let months: [MonthBucket]
+    /// Bar being held (press and hold, then drag); nil when the finger is up.
+    @State private var held: Int? = nil
+
+    private var readout: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if let i = held, months.indices.contains(i) {
+                let m = months[i]
+                Text(verbatim: "\(m.id.formatted(.dateTime.month(.wide).year().locale(locale))) · \(m.total.money(locale))")
+                    .font(AppFont.sans(15, .semibold)).foregroundStyle(Theme.ink).monospacedDigit()
+                if m.annual > 0 {
+                    Text("di cui \(m.annual.money(locale)) annuali").eyebrow()
+                }
+            } else {
+                Text("Tieni premuto un mese per leggerlo.").eyebrow()
+            }
+        }
+        .frame(height: Space.s5, alignment: .topLeading)
+    }
 
     var body: some View {
         let maxV = max(months.map { $0.total }.max() ?? 1, 1)
-        HStack(alignment: .bottom, spacing: Space.s1) {
-            ForEach(months) { m in
-                VStack(spacing: Space.s1) {
-                    VStack(spacing: 2) {
-                        if m.annual > 0 {
+        VStack(alignment: .leading, spacing: Space.s1) {
+            readout
+            HStack(alignment: .bottom, spacing: Space.s1) {
+                ForEach(Array(months.enumerated()), id: \.offset) { i, m in
+                    VStack(spacing: Space.s1) {
+                        VStack(spacing: 2) {
+                            if m.annual > 0 {
+                                RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
+                                    .fill(accent.opacity(0.55))
+                                    .frame(height: CGFloat(m.annual / maxV) * 96)
+                            }
                             RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
-                                .fill(accent.opacity(0.55))
-                                .frame(height: CGFloat(m.annual / maxV) * 96)
+                                .fill(accent)
+                                .frame(height: max(Space.s1, CGFloat(m.variable / maxV) * 96))
                         }
-                        RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
-                            .fill(accent)
-                            .frame(height: max(Space.s1, CGFloat(m.variable / maxV) * 96))
+                        Text(verbatim: m.id.formatted(.dateTime.month(.narrow).locale(locale)))
+                            .font(AppFont.sans(11, .semibold))
+                            .foregroundStyle(held == i ? Theme.ink : Theme.muted)
                     }
-                    Text(verbatim: m.id.formatted(.dateTime.month(.narrow).locale(locale)))
-                        .font(AppFont.sans(11, .semibold))
-                        .foregroundStyle(Theme.muted)
+                    .frame(maxWidth: .infinity)
+                    .opacity(held == nil || held == i ? 1 : 0.35)
                 }
-                .frame(maxWidth: .infinity)
             }
+            .frame(height: 128, alignment: .bottom)
+            .background(
+                ColumnScrub(
+                    count: months.count,
+                    onSelect: { i in
+                        Haptics.tick()
+                        withAnimation(Motion.spring) { held = i }
+                    },
+                    onEnd: { withAnimation(Motion.bounce) { held = nil } }
+                )
+            )
+            .blocksSwipeBack()
         }
-        .frame(height: 128, alignment: .bottom)
     }
 }
 

@@ -98,6 +98,8 @@ struct FuelSummary {
     var kmBetweenStops: Double? = nil
     var pricePoints: [PricePoint] = []
     var fillsInRange: Int = 0
+    /// True when the consumption figures come from reserve-light to reserve-light stretches.
+    var usesReserve: Bool = false
 }
 
 enum StatsEngine {
@@ -250,9 +252,31 @@ enum FuelStats {
         var allLiters = 0.0
         var allCost = 0.0
         var stops = 0
+        var reservePoints: [ConsumptionPoint] = []
+        var reserveDist = 0
+        var reserveLiters = 0.0
 
         for v in vehicles {
             let fills = v.fuelEntries.sorted { $0.odometer < $1.odometer }
+
+            // Reserve-light stretches: from one fill-up made with the light on to the next one.
+            // Litres = the first marked fill-up plus every fill-up in between, not the closing one
+            // (the tank was back at reserve level just before the closing fill-up).
+            let marked = fills.indices.filter { fills[$0].reserveLight }
+            if marked.count >= 2 {
+                for m in 1..<marked.count {
+                    let a = marked[m - 1], b = marked[m]
+                    guard range.contains(fills[b].date, now: now) else { continue }
+                    var liters = 0.0
+                    for k in a..<b { liters += fills[k].liters }
+                    let dist = fills[b].odometer - fills[a].odometer
+                    if liters > 0 && dist > 0 {
+                        reservePoints.append(ConsumptionPoint(date: fills[b].date, kmPerL: Double(dist) / liters))
+                        reserveDist += dist
+                        reserveLiters += liters
+                    }
+                }
+            }
 
             // Rolling windows of at least `windowKm`, ending at each fill.
             if fills.count >= 2 {
@@ -293,6 +317,11 @@ enum FuelStats {
             }
         }
 
+        // With at least one reserve-light stretch in range, those replace the 400 km windows.
+        if !reservePoints.isEmpty && reserveLiters > 0 {
+            out.points = reservePoints
+            out.usesReserve = true
+        }
         out.points.sort { $0.date < $1.date }
         out.pricePoints.sort { $0.date < $1.date }
         out.fillsInRange = stops
@@ -300,6 +329,10 @@ enum FuelStats {
             out.kmPerL = Double(totalDist) / totalLiters
             out.margin = min(marginLiters / totalLiters, 0.99)
             if totalDist > 0 { out.fuelCostPerKm = costAfterFirst / Double(totalDist) }
+        }
+        if out.usesReserve {
+            out.kmPerL = Double(reserveDist) / reserveLiters
+            out.margin = min(marginLiters / reserveLiters, 0.99)
         }
         if allLiters > 0 { out.avgPrice = allCost / allLiters }
         if stops > 0 { out.litersPerStop = allLiters / Double(stops) }

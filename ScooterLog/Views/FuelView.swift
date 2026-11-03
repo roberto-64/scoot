@@ -82,7 +82,9 @@ struct FuelView: View {
         if mode == 0 {
             if f.points.count >= 2 {
                 ConsumptionChart(points: f.points, average: f.kmPerL)
-                Text("Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media.")
+                Text(f.usesReserve
+                     ? LocalizedStringKey("Da una spia della riserva alla successiva. Trascina il dito per leggere. Linea tratteggiata: media.")
+                     : LocalizedStringKey("Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media."))
                     .eyebrow().padding(.top, Space.s1)
             } else {
                 ChartPlaceholder(title: "Il grafico arriva con più rifornimenti",

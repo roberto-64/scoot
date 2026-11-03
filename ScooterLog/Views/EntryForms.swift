@@ -97,6 +97,7 @@ struct FuelFormView: View {
     @State private var priceText = ""
     @State private var odoText = ""
     @State private var date = Date()
+    @State private var reserve = false
     @State private var prefilled = false
 
     private var liters: Double { parseDecimal(litersText) ?? 0 }
@@ -140,6 +141,16 @@ struct FuelFormView: View {
                     Text("Ultima lettura: \(lastOdo.grouped(locale)) km").eyebrow()
                 }
             }
+            Toggle(isOn: $reserve) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Spia della riserva accesa").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
+                    Text(reserve ? LocalizedStringKey("Segnato. Il consumo si calcola dall’ultima spia segnata fino a questo rifornimento.")
+                                 : LocalizedStringKey("Attivala se la spia era accesa quando hai fatto rifornimento. Serve a misurare il consumo da una spia alla successiva."))
+                        .font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                }
+            }
+            .toggleStyle(AccentToggleStyle())
+            .padding(.top, Space.s1)
             Text("Una voce per sosta: somma tutti i litri, anche dopo i ritocchi.").eyebrow()
             DateRow(label: "Data", date: $date)
         }
@@ -151,6 +162,7 @@ struct FuelFormView: View {
                 priceText = e.pricePerLiter.plain(locale)
                 odoText = String(e.odometer)
                 date = e.date
+                reserve = e.reserveLight
                 return
             }
             odoText = String(vehicle.currentOdometer)
@@ -168,8 +180,9 @@ struct FuelFormView: View {
             e.odometer = odo
             e.liters = liters
             e.pricePerLiter = price
+            e.reserveLight = reserve
         } else {
-            let e = FuelEntry(date: date, odometer: odo, liters: liters, pricePerLiter: price)
+            let e = FuelEntry(date: date, odometer: odo, liters: liters, pricePerLiter: price, reserveLight: reserve)
             context.insert(e)
             e.vehicle = vehicle
         }

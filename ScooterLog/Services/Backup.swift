@@ -31,7 +31,11 @@ struct VehicleDTO: Codable {
     var deadlines: [DeadlineDTO]
 }
 
-struct FuelDTO: Codable { var date: Date; var odometer: Int; var liters: Double; var pricePerLiter: Double }
+struct FuelDTO: Codable {
+    var date: Date; var odometer: Int; var liters: Double; var pricePerLiter: Double
+    /// Optional so backups made before this field existed still load.
+    var reserveLight: Bool? = nil
+}
 struct JobDTO: Codable {
     var jobKey: String; var customName: String; var categoryKey: String
     var unitPrice: Double; var quantity: Double; var ruleKm: Int; var ruleMonths: Int
@@ -48,7 +52,8 @@ enum BackupService {
     private static func fuelDTOs(_ v: Vehicle) -> [FuelDTO] {
         var out: [FuelDTO] = []
         for f in v.fuelEntries {
-            out.append(FuelDTO(date: f.date, odometer: f.odometer, liters: f.liters, pricePerLiter: f.pricePerLiter))
+            out.append(FuelDTO(date: f.date, odometer: f.odometer, liters: f.liters, pricePerLiter: f.pricePerLiter,
+                               reserveLight: f.reserveLight))
         }
         return out
     }
@@ -124,7 +129,7 @@ enum BackupService {
         for v in vehicles {
             let n = esc(v.displayName)
             for f in v.fuelEntries {
-                lines.append("\(n),fuel,\(iso.string(from: f.date)),\(f.odometer),\(f.total),\(f.liters) L @ \(f.pricePerLiter)")
+                lines.append("\(n),fuel,\(iso.string(from: f.date)),\(f.odometer),\(f.total),\(f.liters) L @ \(f.pricePerLiter)\(f.reserveLight ? " reserve light" : "")")
             }
             for m in v.maintenance {
                 let names = m.jobs.map { Catalog.displayName(jobKey: $0.jobKey, custom: $0.customName, lang: "it") }.joined(separator: "; ")
@@ -161,7 +166,8 @@ enum BackupService {
             v.createdAt = d.createdAt
             context.insert(v)
             for f in d.fuel {
-                let e = FuelEntry(date: f.date, odometer: f.odometer, liters: f.liters, pricePerLiter: f.pricePerLiter)
+                let e = FuelEntry(date: f.date, odometer: f.odometer, liters: f.liters, pricePerLiter: f.pricePerLiter,
+                                  reserveLight: f.reserveLight ?? false)
                 context.insert(e); e.vehicle = v
             }
             for m in d.maintenance {

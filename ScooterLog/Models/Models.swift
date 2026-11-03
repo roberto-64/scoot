@@ -140,13 +140,17 @@ final class FuelEntry {
     var odometer: Int = 0
     var liters: Double = 0
     var pricePerLiter: Double = 0
+    /// The reserve light was on when this fill-up was made. Used to measure consumption
+    /// from one light to the next. Older entries default to false.
+    var reserveLight: Bool = false
     var vehicle: Vehicle?
 
-    init(date: Date, odometer: Int, liters: Double, pricePerLiter: Double) {
+    init(date: Date, odometer: Int, liters: Double, pricePerLiter: Double, reserveLight: Bool = false) {
         self.date = date
         self.odometer = odometer
         self.liters = liters
         self.pricePerLiter = pricePerLiter
+        self.reserveLight = reserveLight
     }
 
     var total: Double { liters * pricePerLiter }

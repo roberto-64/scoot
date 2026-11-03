@@ -1,6 +1,23 @@
 # Changelog
 
-Newest first. Dates are 2 November 2026.
+Newest first. Dates are 2 and 3 November 2026.
+
+## Build 5
+
+Fuel
+- New switch "Spia della riserva accesa" on the fill-up form (also when editing)
+- Consumption is measured from one fill-up with the light on to the next one, once two are marked; until then the 400 km average is used
+- Stats and Fuel say which method the graph is showing
+
+Spending by month
+- Press and hold a month bar on Home, then drag to another month: the number and title follow, and lifting your finger returns to this month
+- Same on the Stats screen, with a line above the bars showing the month, the total and the yearly part
+
+Swipe to delete
+- A gap between the amount and the trash block when a row is open
+
+Fix
+- Build 4 did not compile (one missing word); fixed
 
 ## Build 4
 

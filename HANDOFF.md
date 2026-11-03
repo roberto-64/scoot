@@ -256,3 +256,11 @@ There is no test target yet.
 See the end of the chat message for the exact tree and the download list. The single file `scooter-log-handoff.zip` contains everything.
 
 - Build 4 first failed to compile: `SwipeRow.swift` needed `override` on `gestureRecognizerShouldBegin` (UIView already has that method). Fixed; confirm with the next GitHub build.
+
+## Round 4 (built in build 5, not yet tested on the phone)
+- Swipe-to-delete: a 16 pt gap (Space.s2) of bare background between the sliding row and the trash block (`SwipeToDelete` in Shared.swift; `reveal` is now 88 pt, block 72 pt).
+- Reserve-light toggle on the fill-up form (new and edit). New field `FuelEntry.reserveLight` (Bool, default false: SwiftData adds it to an existing store by itself, unverified on the phone). Backup JSON carries it as an optional field, so older backups still load; CSV details say "reserve light".
+- Consumption: `FuelStats.summary` (Services/Stats.swift) builds stretches between consecutive marked fill-ups (litres = first marked fill-up plus those in between, not the closing one; distance = odometer difference; point dated at the closing fill-up). If at least one stretch is in range it replaces the 400 km window points and the average (`FuelSummary.usesReserve`); otherwise nothing changes. The chart caption says which method is shown.
+- Hold and drag on the monthly bars: new `Views/ColumnScrub.swift` (a long-press recogniser on the enclosing UIScrollView, locks scrolling while held, same trick as `SwipeBridge`). Used in Home `spendSection` (number and title follow the held month) and Stats `MonthlyBars` (readout line above the bars: month and total, plus the yearly part). Both exclude swipe-back with `.blocksSwipeBack()`.
+- Build 4 first failed to compile: `SwipeRow.swift` needed `override` on `gestureRecognizerShouldBegin` (UIView already has that method). Fixed, and the build then passed.
+- Things to check on the phone: hold a bar without the page scrolling; drag across bars; the toggle row spacing; a fill-up edited after marking the toggle; existing data still there after the update.

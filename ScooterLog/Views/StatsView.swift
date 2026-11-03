@@ -67,7 +67,9 @@ struct StatsView: View {
                     SectionTitle(title: "Consumo, km/L").padding(.top, Space.s4)
                     if f.points.count >= 2 {
                         ConsumptionChart(points: f.points, average: f.kmPerL).padding(.top, Space.s2)
-                        Text("Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media.")
+                        Text(f.usesReserve
+                             ? LocalizedStringKey("Da una spia della riserva alla successiva. Trascina il dito per leggere. Linea tratteggiata: media.")
+                             : LocalizedStringKey("Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media."))
                             .eyebrow().padding(.top, Space.s1)
                         StatGrid(cells: [
                             StatCellData(title: "Miglior tratto", value: f.best.map { "\($0.decimal(1, locale)) km/L" } ?? "—", available: f.best != nil),
