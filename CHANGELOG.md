@@ -2,6 +2,14 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 7
+
+Version 1.2 (7).
+
+Month bars (Home and Stats)
+- The month lights up the moment you touch the bars, like the price graph: no waiting
+- Drag sideways to move between months (the page stays still); drag up or down and the page scrolls as usual
+
 ## Build 6
 
 Version 1.2 (6), shown in Settings.

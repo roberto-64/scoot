@@ -1,9 +1,10 @@
 import SwiftUI
 import UIKit
 
-/// Press and hold, then drag sideways across `count` equal columns (the monthly bars).
-/// While the finger is down the page does not scroll; lifting the finger ends the selection.
-/// Place it in the `.background` of the bars.
+/// Touch the bars and the month under the finger lights up at once (no waiting); drag sideways to move
+/// across the `count` equal columns. Sideways movement locks the page so it does not scroll; a drag
+/// that goes up or down instead hands the touch back to the page and the selection ends.
+/// Lifting the finger ends the selection. Place it in the `.background` of the bars.
 struct ColumnScrub: UIViewRepresentable {
     var count: Int
     var onSelect: (Int) -> Void
@@ -32,6 +33,8 @@ final class ColumnScrubView: UIView, UIGestureRecognizerDelegate {
     private var press: UILongPressGestureRecognizer?
     private var lockedScrolling = false
     private var lastIndex = -1
+    private var startPoint = CGPoint.zero
+    private var decided = false
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
@@ -45,8 +48,8 @@ final class ColumnScrubView: UIView, UIGestureRecognizerDelegate {
         guard let sv = v as? UIScrollView else { return }
         scroll = sv
         let g = UILongPressGestureRecognizer(target: self, action: #selector(handle(_:)))
-        g.minimumPressDuration = 0.25
-        g.allowableMovement = 12
+        g.minimumPressDuration = 0
+        g.cancelsTouchesInView = false
         g.delegate = self
         sv.addGestureRecognizer(g)
         press = g
@@ -69,17 +72,40 @@ final class ColumnScrubView: UIView, UIGestureRecognizerDelegate {
         return bounds.contains(g.location(in: self))
     }
 
+    /// The page's own scrolling may run alongside this touch until we know which way the finger goes.
+    func gestureRecognizer(_ g: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+        other === scroll?.panGestureRecognizer
+    }
+
     @objc private func handle(_ g: UILongPressGestureRecognizer) {
         switch g.state {
         case .began:
-            if let sv = scroll, sv.isScrollEnabled { sv.isScrollEnabled = false; lockedScrolling = true }
             lastIndex = -1
+            decided = false
+            startPoint = g.location(in: nil)
             report(g)
         case .changed:
+            if !decided {
+                let p = g.location(in: nil)
+                let dx = abs(p.x - startPoint.x)
+                let dy = abs(p.y - startPoint.y)
+                if dy > 8 && dy > dx {
+                    // Going up or down: this is a scroll, not a selection.
+                    decided = true
+                    g.isEnabled = false
+                    g.isEnabled = true
+                    return
+                } else if dx > 6 {
+                    decided = true
+                    if let sv = scroll, sv.isScrollEnabled { sv.isScrollEnabled = false; lockedScrolling = true }
+                }
+            }
             report(g)
         case .ended, .cancelled, .failed:
             if lockedScrolling { scroll?.isScrollEnabled = true; lockedScrolling = false }
             lastIndex = -1
+            decided = false
             onEnd()
         default:
             break

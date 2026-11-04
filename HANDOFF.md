@@ -274,6 +274,9 @@ See the end of the chat message for the exact tree and the download list. The si
 - Home status line: overdue ("N scadute", ink colour, `exclamationmark.circle.fill`) shown separately from "N in arrivo"; singular handled; a distance-only job past its km counts as overdue (`UpcomingItem.isOverdue` / `isComingUp`). New catalog keys (261 in total).
 - Things to check on the phone: hold a bar without the page scrolling; drag across bars; July-style month (insurance) fades at the top while the other months are readable; the legend stays on two lines and the Filippo card never jumps; the legend adds up to the number; sheet height with four tiles and when a form opens; dividers when a row is swiped; status line wording with one overdue item; version number in Settings. Compile errors are possible: nothing here has been built yet.
 
+## Round 6 (built in build 7, version 1.2 (7), not yet tested on the phone)
+- `ColumnScrub` no longer waits 0.25 s: the long-press recogniser has `minimumPressDuration = 0` and runs alongside the page's own scroll. The first movement decides: sideways (over 6 pt) locks scrolling and keeps selecting; up or down (over 8 pt) cancels the selection (recogniser switched off and on) and the page scrolls. Check on the phone: instant highlight, sideways drag does not scroll, vertical drag starting on the bars still scrolls, a quick tap just flashes the month.
+
 ## To do (logged, not built)
 - Nothing logged right now.
 - Build 5 tested on the phone by the user (2026-11-03): works well (swipe gap, reserve-light toggle, month hold and drag).
