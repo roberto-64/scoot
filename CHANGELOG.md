@@ -2,12 +2,17 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 9
+
+Version 1.3 (9).
+- Home: the Filippo card now slides down smoothly when you hold a month (in build 8 it jumped)
+
 ## Build 8
 
 Version 1.3 (8). Everything below is new and has not been run on a phone yet.
 
 Home
-- The Filippo card sits right under the month bars; hold a month and it slides down to make room for the list of where the money went
+- The Filippo card sits right under the month bars; hold a month and it slides down smoothly to make room for the list of where the money went
 
 Statistics
 - New "Km percorsi": kilometres per month or per week (last 12 weeks), hold and drag to read, average and best

@@ -20,6 +20,9 @@ struct HomeView: View {
     @State private var legendMonth: Int = 0
     /// Width of the bars row, to know how many lines the legend needs.
     @State private var barsWidth: CGFloat = 0
+    /// How far the cards below the bars are pushed down while a month is held (they slide with an offset,
+    /// which animates smoothly; the page itself does not change height).
+    @State private var slideAmount: CGFloat = 0
 
     private var vehicle: Vehicle? { selectedVehicle(vehicles, id: selectedID) }
     private var hasEntries: Bool { vehicles.contains(where: { $0.entryCount > 0 }) }
@@ -40,8 +43,14 @@ struct HomeView: View {
                         statusLine
                         if !hasEntries && !hideChecklist { checklist }
                         spendSection
-                        if let v = vehicle { vehicleCard(v) }
+                        if let v = vehicle {
+                            vehicleCard(v)
+                                .offset(y: slideAmount)
+                                .animation(Motion.spring, value: slideAmount)
+                        }
                         recentSection
+                            .offset(y: slideAmount)
+                            .animation(Motion.spring, value: slideAmount)
                     }
                 }
                 .padding(.horizontal, Space.s2)
@@ -199,8 +208,6 @@ struct HomeView: View {
         let legendItems = legendBucket.map {
             MonthLegend.items(for: $0, language: language, locale: locale, width: legendWidth)
         } ?? []
-        let legendRows = MonthLegend.rows(of: legendItems, width: legendWidth, locale: locale)
-        let slide: CGFloat = heldMonth == nil || legendRows == 0 ? 0 : Space.s2 + MonthLegend.height(rows: legendRows)
         return VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("Spesa di \(shownDate.formatted(.dateTime.month(.wide).locale(locale)))").eyebrow()
@@ -254,27 +261,37 @@ struct HomeView: View {
                     onSelect: { i in
                         Haptics.tick()
                         legendMonth = i
-                        withAnimation(Motion.spring) { heldMonth = i }
+                        let items = MonthLegend.items(for: summary.months[i], language: language,
+                                                      locale: locale, width: legendWidth)
+                        let rows = MonthLegend.rows(of: items, width: legendWidth, locale: locale)
+                        let depth: CGFloat = rows == 0 ? 0 : Space.s2 + MonthLegend.height(rows: rows)
+                        withAnimation(Motion.spring) {
+                            heldMonth = i
+                            slideAmount = depth
+                        }
                     },
-                    onEnd: { withAnimation(Motion.bounce) { heldMonth = nil } }
+                    onEnd: {
+                        withAnimation(Motion.bounce) {
+                            heldMonth = nil
+                            slideAmount = 0
+                        }
+                    }
                 )
             )
             .blocksSwipeBack()
             .padding(.top, Space.s1)
             .animation(Motion.spring, value: sel)
             .animation(Motion.spring, value: thisMonth)
-            // Breakdown of the held month. It has no height until a month is held; then the cards below
-            // slide down by exactly what it needs (one line, or two).
+            // Breakdown of the held month. It takes no room of its own: it sits behind the vehicle card,
+            // which slides down (see `slideAmount`) and uncovers it.
             Color.clear
-                .frame(height: slide)
+                .frame(height: 0)
                 .overlay(alignment: .topLeading) {
                     MonthLegendView(items: legendItems)
                         .padding(.top, Space.s2)
                         .opacity(heldMonth == nil ? 0 : 1)
                         .animation(Motion.fade, value: heldMonth == nil)
                 }
-                .clipped()
-                .animation(Motion.spring, value: slide)
                 .accessibilityHidden(heldMonth == nil)
         }
     }
