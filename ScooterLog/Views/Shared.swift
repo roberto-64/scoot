@@ -291,6 +291,9 @@ struct HistoryRow: View {
     var showVehicle: Bool = false
     /// The entry shown just above this one in the list, if any.
     var previousID: PersistentIdentifier? = nil
+    /// Words to mark in the row while searching.
+    var highlight: [String] = []
+    @Environment(\.appAccent) private var accent
     @State private var editing = false
     @State private var confirmDelete = false
     @State private var swipeOpen = false
@@ -304,7 +307,7 @@ struct HistoryRow: View {
         case .maint(let m):
             let names = m.jobs.map { Catalog.displayName(jobKey: $0.jobKey, custom: $0.customName, lang: language) }.joined(separator: ", ")
             return ("wrench.and.screwdriver", "Manutenzione",
-                    "\(names)\n\(m.date.short(locale)) · \(m.odometer.grouped(locale)) km",
+                    "\(names)\n\(m.date.short(locale)) · \(m.odometer.grouped(locale)) km" + searchExtra(m),
                     m.total, m.vehicle?.displayName ?? "")
         case .expense(let e):
             let sub = e.title.isEmpty ? e.date.short(locale) : "\(e.title) · \(e.date.short(locale))"
@@ -313,6 +316,17 @@ struct HistoryRow: View {
             return ("gauge", "Contachilometri",
                     "\(r.date.short(locale)) · \(r.odometer.grouped(locale)) km", nil, r.vehicle?.displayName ?? "")
         }
+    }
+
+    /// While searching, workshop and notes are shown too, so it is clear why a row was found.
+    private func searchExtra(_ m: MaintenanceEntry) -> String {
+        guard !highlight.isEmpty else { return "" }
+        let more = [m.workshop, m.note].filter { !$0.isEmpty }.joined(separator: " · ")
+        return more.isEmpty ? "" : "\n" + more
+    }
+
+    private func marked(_ s: String) -> Text {
+        Text(HistorySearch.highlighted(s, tokens: highlight, tint: accent))
     }
 
     var body: some View {
@@ -355,12 +369,19 @@ struct HistoryRow: View {
                 .frame(width: Space.s3)
                 .padding(.top, 2)
             VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(p.title)).font(AppFont.serif(17)).foregroundStyle(Theme.ink)
+                Group {
+                    if highlight.isEmpty { Text(LocalizedStringKey(p.title)) }
+                    else { marked(Loc.tr(p.title, language)) }
+                }
+                .font(AppFont.serif(17)).foregroundStyle(Theme.ink)
                 if showVehicle && !p.vehicle.isEmpty {
                     Text(verbatim: p.vehicle).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
                 }
-                Text(verbatim: p.subtitle).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
-                    .multilineTextAlignment(.leading)
+                Group {
+                    if highlight.isEmpty { Text(verbatim: p.subtitle) } else { marked(p.subtitle) }
+                }
+                .font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                .multilineTextAlignment(.leading)
             }
             Spacer(minLength: Space.s1)
             if let a = p.amount {

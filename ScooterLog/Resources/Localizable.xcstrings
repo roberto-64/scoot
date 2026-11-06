@@ -11,6 +11,36 @@
         }
       }
     },
+    "%@ km al %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ km on %@"
+          }
+        }
+      }
+    },
+    "%@ · dal %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · from %@"
+          }
+        }
+      }
+    },
+    "%lld di %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld"
+          }
+        }
+      }
+    },
     "%lld di 3": {
       "localizations": {
         "en": {
@@ -37,6 +67,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld entries"
+          }
+        }
+      }
+    },
+    "%lld risultati": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld results"
           }
         }
       }
@@ -87,6 +127,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 entry"
+          }
+        }
+      }
+    },
+    "1 risultato": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 result"
           }
         }
       }
@@ -291,6 +341,16 @@
         }
       }
     },
+    "Aggiungi una foto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a photo"
+          }
+        }
+      }
+    },
     "Aggiungi una registrazione con il tasto + oppure scegli un periodo più ampio.": {
       "localizations": {
         "en": {
@@ -407,6 +467,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Apre Scoot sul modulo del nuovo rifornimento.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens Scoot on the new fill-up form."
           }
         }
       }
@@ -551,6 +621,16 @@
         }
       }
     },
+    "Cancella": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
     "Capienza serbatoio": {
       "localizations": {
         "en": {
@@ -587,6 +667,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Category"
+          }
+        }
+      }
+    },
+    "Cerca nello storico": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search the history"
           }
         }
       }
@@ -651,6 +741,16 @@
         }
       }
     },
+    "Condividi PDF": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share PDF"
+          }
+        }
+      }
+    },
     "Consumo": {
       "localizations": {
         "en": {
@@ -691,6 +791,16 @@
         }
       }
     },
+    "Costo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cost"
+          }
+        }
+      }
+    },
     "Costo (facoltativo)": {
       "localizations": {
         "en": {
@@ -717,6 +827,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Calculated cost"
+          }
+        }
+      }
+    },
+    "Creazione del PDF non riuscita": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not create the PDF"
           }
         }
       }
@@ -871,6 +991,16 @@
         }
       }
     },
+    "Elimina foto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete photo"
+          }
+        }
+      }
+    },
     "Elimina registrazione": {
       "localizations": {
         "en": {
@@ -1011,6 +1141,16 @@
         }
       }
     },
+    "Foto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos"
+          }
+        }
+      }
+    },
     "Freno posteriore": {
       "localizations": {
         "en": {
@@ -1037,6 +1177,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Diesel"
+          }
+        }
+      }
+    },
+    "Generato con Scoot · dati inseriti dal proprietario": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Made with Scoot · data entered by the owner"
           }
         }
       }
@@ -1111,6 +1261,16 @@
         }
       }
     },
+    "Il grafico arriva con più letture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The chart needs more readings"
+          }
+        }
+      }
+    },
     "Il grafico arriva con più rifornimenti": {
       "localizations": {
         "en": {
@@ -1127,6 +1287,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "My garage"
+          }
+        }
+      }
+    },
+    "Il tuo anno": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your year"
+          }
+        }
+      }
+    },
+    "Il tuo anno con %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your year with %@"
           }
         }
       }
@@ -1241,6 +1421,16 @@
         }
       }
     },
+    "Intervento": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work done"
+          }
+        }
+      }
+    },
     "Intervento personalizzato": {
       "localizations": {
         "en": {
@@ -1271,12 +1461,32 @@
         }
       }
     },
+    "Km percorsi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance travelled"
+          }
+        }
+      }
+    },
     "Km tra le soste": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Km between stops"
+          }
+        }
+      }
+    },
+    "Km tra una lettura del contachilometri e l’altra, divisi sui giorni.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Km between one odometer reading and the next, spread over the days."
           }
         }
       }
@@ -1307,6 +1517,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Liquid"
+          }
+        }
+      }
+    },
+    "Litri": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Litres"
           }
         }
       }
@@ -1381,6 +1601,26 @@
         }
       }
     },
+    "Media a settimana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly average"
+          }
+        }
+      }
+    },
+    "Media al mese": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly average"
+          }
+        }
+      }
+    },
     "Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media.": {
       "localizations": {
         "en": {
@@ -1391,12 +1631,52 @@
         }
       }
     },
+    "Mese": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Month"
+          }
+        }
+      }
+    },
     "Mese di scadenza": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Expiry month"
+          }
+        }
+      }
+    },
+    "Mese migliore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best month"
+          }
+        }
+      }
+    },
+    "Mese per mese": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Month by month"
+          }
+        }
+      }
+    },
+    "Mese più caro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priciest month"
           }
         }
       }
@@ -1511,6 +1791,16 @@
         }
       }
     },
+    "Nessuna manutenzione registrata.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No maintenance recorded."
+          }
+        }
+      }
+    },
     "Nessuna registrazione": {
       "localizations": {
         "en": {
@@ -1587,6 +1877,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "New entry"
+          }
+        }
+      }
+    },
+    "Nuovo rifornimento": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New fill-up"
           }
         }
       }
@@ -1767,6 +2067,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Profile"
+          }
+        }
+      }
+    },
+    "Prossima": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
           }
         }
       }
@@ -2141,6 +2451,26 @@
         }
       }
     },
+    "Scatta una foto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a photo"
+          }
+        }
+      }
+    },
+    "Scegli dalla libreria": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose from library"
+          }
+        }
+      }
+    },
     "Scegli una manutenzione": {
       "localizations": {
         "en": {
@@ -2191,6 +2521,16 @@
         }
       }
     },
+    "Senza assicurazione, bollo e revisione": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without insurance, road tax and inspection"
+          }
+        }
+      }
+    },
     "Serve per vedere i consumi": {
       "localizations": {
         "en": {
@@ -2221,12 +2561,42 @@
         }
       }
     },
+    "Servono almeno due letture del contachilometri.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least two odometer readings are needed."
+          }
+        }
+      }
+    },
     "Servono almeno due rifornimenti.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "You need at least two fill-ups."
+          }
+        }
+      }
+    },
+    "Settimana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week"
+          }
+        }
+      }
+    },
+    "Settimana migliore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best week"
           }
         }
       }
@@ -2321,6 +2691,26 @@
         }
       }
     },
+    "Spese": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expenses"
+          }
+        }
+      }
+    },
+    "Speso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spent"
+          }
+        }
+      }
+    },
     "Spia della riserva accesa": {
       "localizations": {
         "en": {
@@ -2351,6 +2741,16 @@
         }
       }
     },
+    "Storico per la vendita": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service history for selling"
+          }
+        }
+      }
+    },
     "Tamburo": {
       "localizations": {
         "en": {
@@ -2371,6 +2771,16 @@
         }
       }
     },
+    "Tieni premuta una settimana per leggerla.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press and hold a week to read it."
+          }
+        }
+      }
+    },
     "Tieni premuto un mese per leggerlo.": {
       "localizations": {
         "en": {
@@ -2387,6 +2797,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vehicle type"
+          }
+        }
+      }
+    },
+    "Tocca una foto per aprirla.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a photo to open it."
           }
         }
       }
@@ -2431,6 +2851,16 @@
         }
       }
     },
+    "Ultima": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last"
+          }
+        }
+      }
+    },
     "Ultima lettura: %@ km": {
       "localizations": {
         "en": {
@@ -2447,6 +2877,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Last inspection done"
+          }
+        }
+      }
+    },
+    "Ultime 12 settimane. Il numero sotto è il lunedì. Tra due letture i km sono divisi sui giorni, quindi è una stima.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 12 weeks. The number below is the Monday. Between two readings the km are spread over the days, so it is an estimate."
           }
         }
       }
@@ -2571,6 +3011,16 @@
         }
       }
     },
+    "in corso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in progress"
+          }
+        }
+      }
+    },
     "mesi": {
       "localizations": {
         "en": {
@@ -2587,6 +3037,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "or"
+          }
+        }
+      }
+    },
+    "percorsi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "travelled"
+          }
+        }
+      }
+    },
+    "percorsi con %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "travelled with %@"
           }
         }
       }

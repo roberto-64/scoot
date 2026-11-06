@@ -17,6 +17,9 @@ struct RootView: View {
     @AppStorage("lastBackup") private var lastBackup: Double = 0
     @State private var tab: AppTab = .home
     @State private var showNew = false
+    /// Form to open straight away when the sheet comes from Shortcuts or the icon menu.
+    @State private var openRoute: NewRoute? = nil
+    @ObservedObject private var quick = QuickRoute.shared
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -32,13 +35,14 @@ struct RootView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             FloatingBar(tab: $tab, onNew: { showNew = true })
         }
-        .sheet(isPresented: $showNew) {
-            NewEntrySheet()
+        .sheet(isPresented: $showNew, onDismiss: { openRoute = nil }) {
+            NewEntrySheet(initialRoute: openRoute)
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(Radius.base)
                 .presentationBackground(Theme.bg)
         }
-        .onAppear { reschedule() }
+        .onAppear { reschedule(); takeQuickRoute() }
+        .onChange(of: quick.pending) { _, _ in takeQuickRoute() }
         .onChange(of: scenePhase) { _, p in if p == .active { reschedule() } }
         .onChange(of: language) { _, _ in reschedule() }
         .onChange(of: alerts) { _, on in
@@ -46,6 +50,13 @@ struct RootView: View {
             reschedule()
         }
         .onReceive(NotificationCenter.default.publisher(for: .dataChanged)) { _ in reschedule() }
+    }
+
+    private func takeQuickRoute() {
+        guard let r = quick.pending else { return }
+        quick.pending = nil
+        openRoute = r
+        showNew = true
     }
 
     private func reschedule() {
@@ -127,6 +138,7 @@ struct NewEntrySheet: View {
     @Environment(\.locale) private var locale
     @Query(sort: \Vehicle.createdAt) private var vehicles: [Vehicle]
     @AppStorage("selectedVehicle") private var selectedID = ""
+    var initialRoute: NewRoute? = nil
     @State private var route: NewRoute? = nil
     /// Height of the title and cards (measured), so the sheet is only as tall as it needs to be.
     @State private var contentHeight: CGFloat = 440
@@ -195,6 +207,11 @@ struct NewEntrySheet: View {
         }
         .onPreferenceChange(SheetHeightKey.self) { h in
             if h > 0 { contentHeight = h }
+        }
+        .onAppear {
+            if let r = initialRoute, route == nil {
+                DispatchQueue.main.async { route = r }
+            }
         }
         .presentationDetents(detents)
     }

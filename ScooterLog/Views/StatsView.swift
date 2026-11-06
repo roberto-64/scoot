@@ -50,6 +50,11 @@ struct StatsView: View {
                         (Text(verbatim: "± \(Int((m * 100).rounded()))%, ") + Text("stima")).eyebrow().padding(.top, Space.s1)
                     }
 
+                    SectionTitle(title: "Km percorsi").padding(.top, Space.s4)
+                    KmBars(months: KmStats.months(vehicles: vs, starts: s.months.map { $0.id }),
+                           weeks: KmStats.weeks(vehicles: vs, count: 12))
+                        .padding(.top, Space.s2)
+
                     SectionTitle(title: "Spesa mensile").padding(.top, Space.s4)
                     MonthlyBars(months: s.months).padding(.top, Space.s2)
                     Toggle(isOn: $spread) {
@@ -93,6 +98,8 @@ struct StatsView: View {
                         .card()
                         .padding(.top, Space.s4)
                     }
+
+                    YearCard(vehicles: vs).padding(.top, Space.s2)
                 }
             }
             .padding(.horizontal, Space.s2)

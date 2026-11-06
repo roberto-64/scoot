@@ -225,6 +225,7 @@ struct ExpenseFormView: View {
     @State private var odoText = ""
     @State private var date = Date()
     @State private var prefilled = false
+    @State private var photos: [Data] = []
 
     private var amount: Double { parseDecimal(amountText) ?? 0 }
     private var canSave: Bool { amount > 0 }
@@ -255,6 +256,7 @@ struct ExpenseFormView: View {
             LineField(label: "Descrizione", text: $title, keyboard: .default, size: 22, placeholder: "Facoltativo")
             LineField(label: "Contachilometri", text: $odoText, unit: "km", keyboard: .numberPad, size: 22, placeholder: "Facoltativo")
             DateRow(label: "Data", date: $date)
+            PhotoSection(photos: $photos)
         }
         .onAppear {
             guard !prefilled else { return }
@@ -265,23 +267,32 @@ struct ExpenseFormView: View {
                 amountText = e.amount.plain(locale, maxDigits: 2)
                 odoText = e.odometer > 0 ? String(e.odometer) : ""
                 date = e.date
+                photos = e.photoData
             }
         }
     }
 
     private func save() {
         guard canSave else { return }
+        let entry: ExpenseEntry
         if let e = editing {
+            entry = e
             e.date = date
             e.odometer = parseInt(odoText)
             e.categoryRaw = category.rawValue
             e.title = title.trimmingCharacters(in: .whitespaces)
             e.amount = amount
+            for old in Array(e.photos) { context.delete(old) }
         } else {
-            let e = ExpenseEntry(date: date, odometer: parseInt(odoText), category: category,
+            entry = ExpenseEntry(date: date, odometer: parseInt(odoText), category: category,
                                  title: title.trimmingCharacters(in: .whitespaces), amount: amount, coverMonths: 1)
-            context.insert(e)
-            e.vehicle = vehicle
+            context.insert(entry)
+            entry.vehicle = vehicle
+        }
+        for (i, bytes) in photos.enumerated() {
+            let ph = EntryPhoto(data: bytes, createdAt: Date(timeIntervalSince1970: TimeInterval(i)))
+            context.insert(ph)
+            ph.expense = entry
         }
         try? context.save()
         Haptics.success()

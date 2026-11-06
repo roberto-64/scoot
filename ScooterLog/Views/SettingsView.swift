@@ -38,6 +38,7 @@ struct SettingsView: View {
                 switchesSection
                 marginSection
                 backupSection
+                salesSection
                 versionRow
             }
             .padding(.horizontal, Space.s2)
@@ -161,6 +162,22 @@ struct SettingsView: View {
             }
             .card(padding: Space.s2)
         }
+    }
+
+    private var salesSection: some View {
+        NavigationLink { SalesHistoryView() } label: {
+            HStack {
+                Text("Storico per la vendita").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
+                Spacer()
+                Image(systemName: "doc.richtext")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(accent)
+            }
+            .padding(.vertical, Space.s1)
+            .contentShape(Rectangle())
+            .card(padding: Space.s2)
+        }
+        .buttonStyle(PressStyle())
     }
 
     private func actionRow(_ title: LocalizedStringKey, symbol: String, action: @escaping () -> Void) -> some View {

@@ -40,8 +40,15 @@ struct JobDTO: Codable {
     var jobKey: String; var customName: String; var categoryKey: String
     var unitPrice: Double; var quantity: Double; var ruleKm: Int; var ruleMonths: Int
 }
-struct MaintDTO: Codable { var date: Date; var odometer: Int; var workshop: String; var note: String; var jobs: [JobDTO] }
-struct ExpDTO: Codable { var date: Date; var odometer: Int; var categoryRaw: String; var title: String; var amount: Double; var coverMonths: Int }
+/// `photos` are optional so backups made before photos existed still load.
+struct MaintDTO: Codable {
+    var date: Date; var odometer: Int; var workshop: String; var note: String; var jobs: [JobDTO]
+    var photos: [Data]? = nil
+}
+struct ExpDTO: Codable {
+    var date: Date; var odometer: Int; var categoryRaw: String; var title: String; var amount: Double; var coverMonths: Int
+    var photos: [Data]? = nil
+}
 struct ReadDTO: Codable { var date: Date; var odometer: Int }
 struct DeadlineDTO: Codable {
     var kindRaw: String; var dueDate: Date; var startDate: Date?
@@ -66,7 +73,8 @@ enum BackupService {
                 jobs.append(JobDTO(jobKey: j.jobKey, customName: j.customName, categoryKey: j.categoryKey,
                                    unitPrice: j.unitPrice, quantity: j.quantity, ruleKm: j.ruleKm, ruleMonths: j.ruleMonths))
             }
-            out.append(MaintDTO(date: m.date, odometer: m.odometer, workshop: m.workshop, note: m.note, jobs: jobs))
+            out.append(MaintDTO(date: m.date, odometer: m.odometer, workshop: m.workshop, note: m.note, jobs: jobs,
+                                photos: m.photos.isEmpty ? nil : m.photoData))
         }
         return out
     }
@@ -75,7 +83,8 @@ enum BackupService {
         var out: [ExpDTO] = []
         for e in v.expenses {
             out.append(ExpDTO(date: e.date, odometer: e.odometer, categoryRaw: e.categoryRaw, title: e.title,
-                              amount: e.amount, coverMonths: e.coverMonths))
+                              amount: e.amount, coverMonths: e.coverMonths,
+                              photos: e.photos.isEmpty ? nil : e.photoData))
         }
         return out
     }
@@ -178,11 +187,19 @@ enum BackupService {
                                              unitPrice: j.unitPrice, quantity: j.quantity, ruleKm: j.ruleKm, ruleMonths: j.ruleMonths)
                     context.insert(job); job.entry = e
                 }
+                for (i, bytes) in (m.photos ?? []).enumerated() {
+                    let ph = EntryPhoto(data: bytes, createdAt: Date(timeIntervalSince1970: TimeInterval(i)))
+                    context.insert(ph); ph.maintenance = e
+                }
             }
             for x in d.expenses {
                 let e = ExpenseEntry(date: x.date, odometer: x.odometer, category: ExpenseCategory(rawValue: x.categoryRaw) ?? .other,
                                      title: x.title, amount: x.amount, coverMonths: x.coverMonths)
                 context.insert(e); e.vehicle = v
+                for (i, bytes) in (x.photos ?? []).enumerated() {
+                    let ph = EntryPhoto(data: bytes, createdAt: Date(timeIntervalSince1970: TimeInterval(i)))
+                    context.insert(ph); ph.expense = e
+                }
             }
             for r in d.readings {
                 let e = OdometerReading(date: r.date, odometer: r.odometer)

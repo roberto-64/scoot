@@ -79,6 +79,7 @@ struct MaintenanceEntryView: View {
     @State private var note = ""
     @State private var date = Date()
     @State private var prefilled = false
+    @State private var photos: [Data] = []
 
     private var odo: Int { parseInt(odoText) }
     private var total: Double { drafts.reduce(0) { $0 + $1.total } }
@@ -146,6 +147,7 @@ struct MaintenanceEntryView: View {
             }
             DateRow(label: "Data", date: $date)
             LineField(label: "Note", text: $note, keyboard: .default, size: 17, placeholder: "Facoltative")
+            PhotoSection(photos: $photos)
         }
         .onAppear {
             guard !prefilled else { return }
@@ -156,6 +158,7 @@ struct MaintenanceEntryView: View {
                 note = e.note
                 date = e.date
                 drafts = e.jobs.map { DraftJob(job: $0) }
+                photos = e.photoData
                 return
             }
             odoText = String(vehicle.currentOdometer)
@@ -191,6 +194,7 @@ struct MaintenanceEntryView: View {
             entry.workshop = workshop.trimmingCharacters(in: .whitespaces)
             entry.note = note.trimmingCharacters(in: .whitespaces)
             for old in Array(entry.jobs) { context.delete(old) }
+            for old in Array(entry.photos) { context.delete(old) }
         } else {
             entry = MaintenanceEntry(date: date, odometer: odo,
                                      workshop: workshop.trimmingCharacters(in: .whitespaces),
@@ -204,6 +208,11 @@ struct MaintenanceEntryView: View {
                                      ruleKm: d.ruleKm, ruleMonths: d.ruleMonths)
             context.insert(job)
             job.entry = entry
+        }
+        for (i, bytes) in photos.enumerated() {
+            let ph = EntryPhoto(data: bytes, createdAt: Date(timeIntervalSince1970: TimeInterval(i)))
+            context.insert(ph)
+            ph.maintenance = entry
         }
         try? context.save()
         Haptics.success()

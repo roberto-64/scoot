@@ -16,6 +16,10 @@ struct HomeView: View {
     @State private var deadlineSheet: DeadlineRoute? = nil
     /// Month bar being held (index into the six bars); nil means the current month.
     @State private var heldMonth: Int? = nil
+    /// Last month that was held. The legend keeps showing it while it slides away.
+    @State private var legendMonth: Int = 0
+    /// Width of the bars row, to know how many lines the legend needs.
+    @State private var barsWidth: CGFloat = 0
 
     private var vehicle: Vehicle? { selectedVehicle(vehicles, id: selectedID) }
     private var hasEntries: Bool { vehicles.contains(where: { $0.entryCount > 0 }) }
@@ -188,6 +192,15 @@ struct HomeView: View {
         let shownDate = shown?.id ?? Date()
         let chartHeight: CGFloat = 88
         let unit = SpendScale.unit(summary.months, cap: chartHeight)
+        // Legend of the held month, and how far the cards below slide down to make room for it.
+        let legendIndex = min(legendMonth, lastIndex)
+        let legendBucket: MonthBucket? = summary.months.indices.contains(legendIndex) ? summary.months[legendIndex] : nil
+        let legendWidth = barsWidth > 0 ? barsWidth : 361
+        let legendItems = legendBucket.map {
+            MonthLegend.items(for: $0, language: language, locale: locale, width: legendWidth)
+        } ?? []
+        let legendRows = MonthLegend.rows(of: legendItems, width: legendWidth, locale: locale)
+        let slide: CGFloat = heldMonth == nil || legendRows == 0 ? 0 : Space.s2 + MonthLegend.height(rows: legendRows)
         return VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("Spesa di \(shownDate.formatted(.dateTime.month(.wide).locale(locale)))").eyebrow()
@@ -229,10 +242,18 @@ struct HomeView: View {
             }
             .frame(height: chartHeight + Space.s1 + 14, alignment: .bottom)
             .background(
+                GeometryReader { g in
+                    Color.clear
+                        .onAppear { barsWidth = g.size.width }
+                        .onChange(of: g.size.width) { _, w in barsWidth = w }
+                }
+            )
+            .background(
                 ColumnScrub(
                     count: summary.months.count,
                     onSelect: { i in
                         Haptics.tick()
+                        legendMonth = i
                         withAnimation(Motion.spring) { heldMonth = i }
                     },
                     onEnd: { withAnimation(Motion.bounce) { heldMonth = nil } }
@@ -242,11 +263,18 @@ struct HomeView: View {
             .padding(.top, Space.s1)
             .animation(Motion.spring, value: sel)
             .animation(Motion.spring, value: thisMonth)
-            // Breakdown of the held month. The space is always there, so the cards below stay put.
-            MonthLegendView(bucket: shown, language: language)
-                .padding(.top, Space.s2)
-                .opacity(heldMonth == nil ? 0 : 1)
-                .animation(Motion.fade, value: heldMonth == nil)
+            // Breakdown of the held month. It has no height until a month is held; then the cards below
+            // slide down by exactly what it needs (one line, or two).
+            Color.clear
+                .frame(height: slide)
+                .overlay(alignment: .topLeading) {
+                    MonthLegendView(items: legendItems)
+                        .padding(.top, Space.s2)
+                        .opacity(heldMonth == nil ? 0 : 1)
+                        .animation(Motion.fade, value: heldMonth == nil)
+                }
+                .clipped()
+                .animation(Motion.spring, value: slide)
                 .accessibilityHidden(heldMonth == nil)
         }
     }

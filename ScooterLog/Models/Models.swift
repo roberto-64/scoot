@@ -165,6 +165,8 @@ final class MaintenanceEntry {
     var vehicle: Vehicle?
     @Relationship(deleteRule: .cascade, inverse: \MaintenanceJob.entry)
     var jobs: [MaintenanceJob] = []
+    @Relationship(deleteRule: .cascade, inverse: \EntryPhoto.maintenance)
+    var photos: [EntryPhoto] = []
 
     init(date: Date, odometer: Int, workshop: String, note: String) {
         self.date = date
@@ -209,6 +211,8 @@ final class ExpenseEntry {
     var amount: Double = 0
     var coverMonths: Int = 1
     var vehicle: Vehicle?
+    @Relationship(deleteRule: .cascade, inverse: \EntryPhoto.expense)
+    var photos: [EntryPhoto] = []
 
     init(date: Date, odometer: Int, category: ExpenseCategory, title: String, amount: Double, coverMonths: Int) {
         self.date = date

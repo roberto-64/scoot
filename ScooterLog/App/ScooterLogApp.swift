@@ -3,6 +3,7 @@ import SwiftData
 
 @main
 struct ScooterLogApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @AppStorage("language") private var language = "it"
     @AppStorage("accent") private var accentId = "amber"
     @AppStorage("faceID") private var faceID = false
@@ -17,7 +18,8 @@ struct ScooterLogApp: App {
             MaintenanceJob.self,
             ExpenseEntry.self,
             OdometerReading.self,
-            Deadline.self
+            Deadline.self,
+            EntryPhoto.self
         ])
         do {
             return try ModelContainer(for: schema)

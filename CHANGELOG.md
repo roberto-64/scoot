@@ -2,6 +2,31 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 8
+
+Version 1.3 (8). Everything below is new and has not been run on a phone yet.
+
+Home
+- The Filippo card sits right under the month bars; hold a month and it slides down to make room for the list of where the money went
+
+Statistics
+- New "Km percorsi": kilometres per month or per week (last 12 weeks), hold and drag to read, average and best
+- New "Il tuo anno con Filippo" card at the bottom, opening a yearly summary (km, money, fuel, month by month, priciest month without insurance, road tax and inspection)
+
+Quick start
+- Shortcuts action "Nuovo rifornimento" opens the app on the new fill-up form (add it to Control Center, the Action Button or the lock screen from the Shortcuts app)
+- Long-press the app icon: "Nuovo rifornimento"
+
+Selling
+- Settings: "Storico per la vendita" makes a PDF with make, model, kilometres, maintenance and deadlines (no nickname, no photos) and shares it
+
+Photos
+- Maintenance and expense entries can have photos (camera or library); tap to open full screen, pinch to zoom, delete
+- Photos are saved in the backup (the backup file gets bigger); they are not in the PDF
+
+Search
+- Vehicle page, Storico: search box and filters (Tutto, Rifornimenti, Manutenzione, Spese, Km), result count and total, matches marked
+
 ## Build 7
 
 Version 1.2 (7).

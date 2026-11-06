@@ -56,8 +56,18 @@ enum MonthLegend {
     static let textGap: CGFloat = 6
     static let itemGap: CGFloat = Space.s2
     static let lines = 2
-    /// Two lines of 13 pt text plus the gap between them.
-    static let height: CGFloat = 40
+    /// One line of 13 pt text.
+    static let rowHeight: CGFloat = 16
+
+    /// Height of `rows` lines with the gap between them.
+    static func height(rows: Int) -> CGFloat {
+        rows <= 0 ? 0 : CGFloat(rows) * rowHeight + CGFloat(rows - 1) * Space.s1
+    }
+
+    /// How many lines these items take at this width (same measure that picked them).
+    static func rows(of items: [LegendItem], width: CGFloat, locale: Locale) -> Int {
+        items.isEmpty ? 0 : lineCount(items, width: max(0, width - 4), locale: locale)
+    }
 
     private static func textWidth(_ s: String, weight: UIFont.Weight) -> CGFloat {
         ceil((s as NSString).size(withAttributes: [.font: UIFont.systemFont(ofSize: 13, weight: weight)]).width)
@@ -112,34 +122,27 @@ enum MonthLegend {
     }
 }
 
-/// Small breakdown under the month bars while a bar is held. Always takes the same height, so
-/// what sits below it never jumps.
+/// Small breakdown shown while a month bar is held. The caller works out the items and the height.
 struct MonthLegendView: View {
     @Environment(\.appAccent) private var accent
     @Environment(\.locale) private var locale
-    let bucket: MonthBucket?
-    let language: String
+    let items: [LegendItem]
 
     var body: some View {
-        GeometryReader { g in
-            if let b = bucket {
-                let items = MonthLegend.items(for: b, language: language, locale: locale, width: g.size.width)
-                FlowLayout(hSpacing: MonthLegend.itemGap, vSpacing: Space.s1) {
-                    ForEach(items) { it in
-                        HStack(spacing: MonthLegend.textGap) {
-                            RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                .fill(it.annual ? accent : Theme.ink)
-                                .frame(width: MonthLegend.swatch, height: MonthLegend.swatch)
-                            Text(verbatim: it.title)
-                                .font(AppFont.sans(13)).foregroundStyle(Theme.muted)
-                            Text(verbatim: it.amount.money(locale))
-                                .font(AppFont.sans(13, .semibold)).foregroundStyle(Theme.ink)
-                        }
-                        .fixedSize()
-                    }
+        FlowLayout(hSpacing: MonthLegend.itemGap, vSpacing: Space.s1) {
+            ForEach(items) { it in
+                HStack(spacing: MonthLegend.textGap) {
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill(it.annual ? accent : Theme.ink)
+                        .frame(width: MonthLegend.swatch, height: MonthLegend.swatch)
+                    Text(verbatim: it.title)
+                        .font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                    Text(verbatim: it.amount.money(locale))
+                        .font(AppFont.sans(13, .semibold)).foregroundStyle(Theme.ink)
                 }
+                .fixedSize()
             }
         }
-        .frame(height: MonthLegend.height)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 }

@@ -8,8 +8,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "1.2"
-    CURRENT_PROJECT_VERSION: "7"
+    MARKETING_VERSION: "1.3"
+    CURRENT_PROJECT_VERSION: "8"
 targets:
   ScooterLog:
     type: application
@@ -27,6 +27,11 @@ targets:
         UIUserInterfaceStyle: Light
         ITSAppUsesNonExemptEncryption: false
         NSFaceIDUsageDescription: Sblocca Scoot con Face ID.
+        NSCameraUsageDescription: Scoot usa la fotocamera per allegare foto a manutenzioni e spese.
+        UIApplicationShortcutItems:
+          - UIApplicationShortcutItemType: com.personal.scooterlog.newfuel
+            UIApplicationShortcutItemTitle: Nuovo rifornimento
+            UIApplicationShortcutItemIconSymbolName: fuelpump
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.personal.scooterlog

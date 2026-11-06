@@ -17,6 +17,19 @@ struct VehicleDetailView: View {
     @State private var showEdit = false
     @State private var confirmDelete = false
     @State private var deadlineSheet: DeadlineRoute? = nil
+    @AppStorage("language") private var language = "it"
+    @State private var query = ""
+    @State private var filter: HistoryFilter = .all
+
+    private var tokens: [String] { HistorySearch.tokens(query) }
+    private var searching: Bool { !tokens.isEmpty || filter != .all }
+
+    /// What the search and the chips let through, newest first.
+    private var results: [HistoryEntry] {
+        HistoryEntry.all(vehicle).filter {
+            filter.allows($0) && HistorySearch.matches($0, tokens: tokens, language: language, locale: locale)
+        }
+    }
 
     private var groups: [MonthGroup] {
         let all = HistoryEntry.all(vehicle)
@@ -83,6 +96,28 @@ struct VehicleDetailView: View {
                     Text(verbatim: String(vehicle.entryCount)).eyebrow()
                 }
                 .padding(.top, Space.s4)
+                if vehicle.entryCount > 0 {
+                    HistorySearchField(text: $query).padding(.top, Space.s2)
+                    HistoryFilterChips(filter: $filter).padding(.top, Space.s1)
+                }
+                if searching {
+                    let found = results
+                    HStack {
+                        Group {
+                            if found.count == 1 { Text("1 risultato") } else { Text("\(found.count) risultati") }
+                        }
+                        .eyebrow()
+                        Spacer()
+                        Text(found.reduce(0) { $0 + $1.amount }.money(locale)).monospacedDigit().eyebrow()
+                    }
+                    .padding(.top, Space.s3)
+                    if found.isEmpty {
+                        Text("Nessun risultato.").font(AppFont.sans(15)).foregroundStyle(Theme.muted).padding(.top, Space.s2)
+                    }
+                    ForEach(Array(found.enumerated()), id: \.element.id) { i, e in
+                        HistoryRow(entry: e, previousID: i > 0 ? found[i - 1].id : nil, highlight: tokens).rowTransition()
+                    }
+                } else {
                 if groups.isEmpty {
                     Text("Nessuna registrazione.").font(AppFont.sans(15)).foregroundStyle(Theme.muted).padding(.top, Space.s2)
                 }
@@ -97,12 +132,14 @@ struct VehicleDetailView: View {
                         HistoryRow(entry: e, previousID: i > 0 ? g.entries[i - 1].id : nil).rowTransition()
                     }
                 }
+                }
             }
             .animation(Motion.bounce, value: groups.flatMap { $0.entries.map { $0.id } })
             .padding(.horizontal, Space.s2)
             .padding(.top, Space.s2)
             .padding(.bottom, Space.s4)
         }
+        .scrollDismissesKeyboard(.interactively)
         .safeAreaInset(edge: .bottom) { Color.clear.frame(height: Space.s8 + Space.s2) }
         .screenBackground(glow: true)
         .toolbar(.hidden, for: .navigationBar)

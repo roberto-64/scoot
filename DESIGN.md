@@ -100,6 +100,18 @@ One more fade, not a gradient fill: a month bar whose yearly part (insurance, ro
 - Home chart is 88 pt high with 8 pt above it; Stats 96 pt. No caption under the chart.
 - Holding a month on Home shows a legend under the bars: 10 pt square (3 pt corners, `ink` for everyday, `accent` for yearly), category in 13 pt `muted`, amount in 13 pt semibold `ink`, flowing over at most two lines. Anything that does not fit is added up under "Altre voci", so the legend always equals the number shown. The 40 pt it needs (plus 16 pt above) is always reserved.
 
+## Home card, km chart, yearly summary (build 8)
+
+- The vehicle card sits 24 pt under the month bars. Holding a month slides it down with `Motion.spring` by the legend's height (one row 34 pt, two rows 56 pt); the legend fades in at the same time. Nothing else on the page moves.
+- Km chart (Stats): same bars as the spending chart (4 pt radius, 96 pt cap), `accent`, readout line above ("5–11 ott · 262 km"), the others dim to 35% while one is held. Average and best use the usual two-column grid. Weekly labels are the Monday's day number only.
+- Yearly summary: big serif km total, six-cell grid, month-by-month bars (yearly part lighter), one-line note. Subtitle "2026 · dal 2 novembre" only.
+
+## Search, photos, PDF (build 8)
+
+- Search field in Storico: 48 pt high, `surface`, 24 pt radius, 1 pt `line`, card shadow, magnifier left, clear button right. Chips below: 40 pt high, 24 pt radius, selected = `accent` fill with `surface` text. Matches are marked with `accent` at 22% behind the text. Result count and total in eyebrow style.
+- Photo tiles in forms: 88 x 112 pt with a **12 pt radius** (exception to the single 24 pt radius, same reason as the month bars: small shapes), 1 pt `line`, card shadow. "Aggiungi" tile: dashed `accent` outline at 55%. Full-screen viewer: dark brown background (#1D130D) with cream controls; the only dark surface in the app.
+- Sales PDF: A4, white paper, `ink` and `muted` text, hairline rules, no accent colour, no nickname, no photos.
+
 ## Status and destructive states
 
 There is no red and no other status colour. State is shown by shape and word as well as fill:

@@ -364,3 +364,97 @@ enum FuelStats {
         return out
     }
 }
+
+/// One period of the km chart: a calendar month or a week (Monday to Sunday).
+struct KmBucket: Identifiable {
+    let id: Date        // first day
+    let end: Date       // last day
+    let km: Double
+}
+
+enum KmStats {
+    private static var weekCalendar: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = Calendar.current.timeZone
+        c.firstWeekday = 2
+        c.minimumDaysInFirstWeek = 4
+        return c
+    }
+
+    /// Monday of the week that contains `d`.
+    static func weekStart(_ d: Date) -> Date {
+        weekCalendar.dateInterval(of: .weekOfYear, for: d)?.start ?? Calendar.current.startOfDay(for: d)
+    }
+
+    /// Km driven on each day. The odometer is only read now and then, so the km between two readings
+    /// are spread evenly over the days between them. It is an estimate for any single day or week.
+    static func perDay(_ vehicles: [Vehicle]) -> [Date: Double] {
+        let cal = Calendar.current
+        var out: [Date: Double] = [:]
+        for v in vehicles {
+            var byDay: [Date: Int] = [:]
+            for p in v.odometerPoints {
+                let d = cal.startOfDay(for: p.date)
+                byDay[d] = max(byDay[d] ?? 0, p.km)
+            }
+            var prevDay: Date? = nil
+            var prevKm = 0
+            for d in byDay.keys.sorted() {
+                let km = byDay[d] ?? 0
+                if let pd = prevDay {
+                    let gain = km - prevKm
+                    if gain > 0 {
+                        let n = max(1, daysBetween(pd, d))
+                        let each = Double(gain) / Double(n)
+                        var day = pd.addingDays(1)
+                        for _ in 0..<n {
+                            out[day, default: 0] += each
+                            day = day.addingDays(1)
+                        }
+                    }
+                    prevKm = max(prevKm, km)
+                } else {
+                    prevKm = km
+                }
+                prevDay = d
+            }
+        }
+        return out
+    }
+
+    /// One bucket per month start given (oldest first).
+    static func months(vehicles: [Vehicle], starts: [Date]) -> [KmBucket] {
+        let days = perDay(vehicles)
+        var sums: [Date: Double] = [:]
+        for (d, km) in days { sums[d.startOfMonth, default: 0] += km }
+        return starts.map { KmBucket(id: $0, end: $0.endOfMonth, km: sums[$0] ?? 0) }
+    }
+
+    /// The last `count` weeks, the current one last.
+    static func weeks(vehicles: [Vehicle], count: Int, now: Date = Date()) -> [KmBucket] {
+        let days = perDay(vehicles)
+        var sums: [Date: Double] = [:]
+        for (d, km) in days { sums[weekStart(d), default: 0] += km }
+        let thisWeek = weekStart(now)
+        var out: [KmBucket] = []
+        var k = count - 1
+        while k >= 0 {
+            let s = thisWeek.addingDays(-7 * k)
+            out.append(KmBucket(id: s, end: s.addingDays(6), km: sums[s] ?? 0))
+            k -= 1
+        }
+        return out
+    }
+
+    /// Total km in the calendar year (same estimate), and the first day with any km counted.
+    static func year(vehicles: [Vehicle], year: Int) -> (km: Double, first: Date?) {
+        let cal = Calendar.current
+        var km = 0.0
+        var first: Date? = nil
+        for (d, v) in perDay(vehicles) where cal.component(.year, from: d) == year {
+            km += v
+            if first == nil || d < first! { first = d }
+        }
+        return (km, first)
+    }
+}
