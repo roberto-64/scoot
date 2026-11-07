@@ -54,10 +54,14 @@ struct RootView: View {
         return content()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .opacity(on ? 1 : 0)
+            .animation(on ? Motion.tabIn : Motion.tabOut, value: on)
+            // The new screen also pops up from slightly smaller with a springy overshoot. The old one
+            // keeps its size until it is covered, then shrinks while hidden, ready for its next turn.
+            .scaleEffect(on ? 1 : 0.92)
+            .animation(on ? Motion.bounce : Motion.tabOut, value: on)
             .zIndex(on ? 1 : 0)
             .allowsHitTesting(on)
             .accessibilityHidden(!on)
-            .animation(on ? Motion.tabIn : Motion.tabOut, value: tab)
     }
 
     private func takeQuickRoute() {

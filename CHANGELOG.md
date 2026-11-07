@@ -2,6 +2,11 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 12
+
+Version 1.3 (12).
+- Switching tabs is bouncier: the new screen fades in quickly and pops up from slightly smaller with a springy bounce (same bounce as the bar's highlight)
+
 ## Build 11
 
 Version 1.3 (11).

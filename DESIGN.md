@@ -150,7 +150,7 @@ Playful, springs only. Everyday spring: response 0.32, damping 0.68. Pop spring 
 - Taps: buttons and cards squash to 94% and bounce back; list rows to 98%.
 - Toggles: the knob stretches while pressed and bounces into place.
 - Lists: a new entry pops in (scale from 92%), a deleted one slides out to the left.
-- Tabs: the highlight pill bounces to the new tab. The screen content change (changed in build 10 at the user's request) is a soft 0.3 s ease-in-out fade: the new screen fades in on top of the old one, which switches off after it is covered, so there is no dip in the middle and no bounce. All four screens stay alive in the background, so each tab remembers its scroll position and any page that was open.
+- Tabs: the highlight pill bounces to the new tab. The screen content change (changed in build 10 at the user's request) is (build 12) a quick 0.22 s fade plus a springy pop: the new screen grows from 92% to full size with the bounce spring (response 0.4, damping 0.52) on top of the old one, which switches off after it is covered, so there is no dip in the middle. All four screens stay alive in the background, so each tab remembers its scroll position and any page that was open.
 - Save: the Save button gives a small pop (105%) just before the screen closes.
 - Numbers roll when they change. Sheets slide natively.
 One haptic per action: selection tick on tabs, success on save, warning on invalid odometer.

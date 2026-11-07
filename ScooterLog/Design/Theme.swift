@@ -108,11 +108,11 @@ enum Motion {
     }
     /// Switching tabs: the new screen fades in over the old one, calm, no bounce.
     static var tabIn: Animation? {
-        enabled ? .easeInOut(duration: 0.3) : nil
+        enabled ? .easeInOut(duration: 0.22) : nil
     }
     /// The old screen is switched off only after the new one has covered it (no dip in the middle).
     static var tabOut: Animation? {
-        enabled ? Animation.linear(duration: 0.01).delay(0.3) : nil
+        enabled ? Animation.linear(duration: 0.01).delay(0.4) : nil
     }
     /// Quick spring for press-down.
     static var press: Animation? {
