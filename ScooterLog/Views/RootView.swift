@@ -30,6 +30,7 @@ struct RootView: View {
             tabScreen(.fuel) { FuelView() }
             tabScreen(.profile) { ProfileView() }
             FloatingBar(tab: $tab, onNew: { showNew = true })
+                .zIndex(10)
         }
         .sheet(isPresented: $showNew, onDismiss: { openRoute = nil }) {
             NewEntrySheet(initialRoute: openRoute)

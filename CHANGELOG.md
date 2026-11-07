@@ -2,6 +2,11 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 11
+
+Version 1.3 (11).
+- Fixed: the tab bar at the bottom had disappeared in build 10 (the screens were drawn on top of it)
+
 ## Build 10
 
 Version 1.3 (10).
