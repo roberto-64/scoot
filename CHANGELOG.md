@@ -2,6 +2,12 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 10
+
+Version 1.3 (10).
+- Switching tabs is now a soft fade: the new screen fades in over the old one, no bounce
+- The screens stay ready in the background, so there is no hiccup, and each tab remembers where you were (scroll position, open page)
+
 ## Build 9
 
 Version 1.3 (9).

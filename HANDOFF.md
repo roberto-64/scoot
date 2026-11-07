@@ -277,6 +277,9 @@ See the end of the chat message for the exact tree and the download list. The si
 ## Round 6 (built in build 7, version 1.2 (7), not yet tested on the phone)
 - `ColumnScrub` no longer waits 0.25 s: the long-press recogniser has `minimumPressDuration = 0` and runs alongside the page's own scroll. The first movement decides: sideways (over 6 pt) locks scrolling and keeps selecting; up or down (over 8 pt) cancels the selection (recogniser switched off and on) and the page scrolls. Check on the phone: instant highlight, sideways drag does not scroll, vertical drag starting on the bars still scrolls, a quick tap just flashes the month.
 
+## Round 8 (build 10, version 1.3 (10), not yet tested on the phone)
+- Tab switching (`RootView.tabScreen`, `Motion.tabIn/tabOut`): the four tab screens are no longer rebuilt on every switch. They all stay alive; the selected one is on top (`zIndex`) and fades in over the old one with a 0.3 s ease-in-out, the old one drops to opacity 0 after 0.3 s (no dip). Hidden screens do not take touches and are hidden from VoiceOver. Side effect, chosen by the user: each tab keeps its scroll position and any opened page when you come back. The user chose "soft fade" over slide/rise. Locked rule in DESIGN.md updated. Check: tapping tabs quickly, a page opened inside a tab is still there when you return, Home slide still works, nothing flickers at launch, battery/heat not worse.
+
 ## Round 7 (built in build 8, version 1.3 (8); build 9 = same plus the slide fix, not yet tested on the phone)
 Build 7 was tested by the user (2026-11-04): the instant hold on the month bars works great. Build 5 was tested earlier and works well.
 Everything below was approved in mockups and written in one go. **None of it has been compiled.**

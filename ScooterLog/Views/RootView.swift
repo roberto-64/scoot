@@ -23,16 +23,12 @@ struct RootView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Group {
-                switch tab {
-                case .home: HomeView(onAdd: { showNew = true })
-                case .garage: GarageView()
-                case .fuel: FuelView()
-                case .profile: ProfileView()
-                }
-            }
-            .animation(Motion.fade, value: tab)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // All four screens stay alive, so switching never has to build anything (no hiccup) and each
+            // tab remembers where you were. The chosen one sits on top and fades in over the others.
+            tabScreen(.home) { HomeView(onAdd: { showNew = true }) }
+            tabScreen(.garage) { GarageView() }
+            tabScreen(.fuel) { FuelView() }
+            tabScreen(.profile) { ProfileView() }
             FloatingBar(tab: $tab, onNew: { showNew = true })
         }
         .sheet(isPresented: $showNew, onDismiss: { openRoute = nil }) {
@@ -50,6 +46,17 @@ struct RootView: View {
             reschedule()
         }
         .onReceive(NotificationCenter.default.publisher(for: .dataChanged)) { _ in reschedule() }
+    }
+
+    private func tabScreen<Content: View>(_ t: AppTab, @ViewBuilder content: () -> Content) -> some View {
+        let on = tab == t
+        return content()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .opacity(on ? 1 : 0)
+            .zIndex(on ? 1 : 0)
+            .allowsHitTesting(on)
+            .accessibilityHidden(!on)
+            .animation(on ? Motion.tabIn : Motion.tabOut, value: tab)
     }
 
     private func takeQuickRoute() {
