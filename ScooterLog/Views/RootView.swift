@@ -94,8 +94,8 @@ struct RootView: View {
         guard !locked, !showNew, recapRef == nil, scenePhase != .background else { return }
         let previous = Date().startOfMonth.addingMonths(-1)
         let key = RecapKey.string(previous)
-        guard recapSeen != key else { return }
-        let days = KmStats.perDay(vehicles)
+        guard previous >= RecapStart.date, recapSeen != key else { return }
+        let days = KmStats.perDay(vehicles, since: RecapStart.date)
         guard MonthRecap.hasData(vehicles: vehicles, month: previous, perDay: days) else { return }
         recapSeen = key
         // A short wait so the app has finished appearing (or unlocking) before the sheet slides up.

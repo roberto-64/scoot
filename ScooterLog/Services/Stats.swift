@@ -391,12 +391,13 @@ enum KmStats {
 
     /// Km driven on each day. The odometer is only read now and then, so the km between two readings
     /// are spread evenly over the days between them. It is an estimate for any single day or week.
-    static func perDay(_ vehicles: [Vehicle]) -> [Date: Double] {
+    /// With `since`, readings before that date are ignored (so a long gap before it is not spread forward).
+    static func perDay(_ vehicles: [Vehicle], since: Date? = nil) -> [Date: Double] {
         let cal = Calendar.current
         var out: [Date: Double] = [:]
         for v in vehicles {
             var byDay: [Date: Int] = [:]
-            for p in v.odometerPoints {
+            for p in v.odometerPoints where since == nil || p.date >= since! {
                 let d = cal.startOfDay(for: p.date)
                 byDay[d] = max(byDay[d] ?? 0, p.km)
             }

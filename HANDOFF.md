@@ -277,12 +277,13 @@ See the end of the chat message for the exact tree and the download list. The si
 ## Round 6 (built in build 7, version 1.2 (7), not yet tested on the phone)
 - `ColumnScrub` no longer waits 0.25 s: the long-press recogniser has `minimumPressDuration = 0` and runs alongside the page's own scroll. The first movement decides: sideways (over 6 pt) locks scrolling and keeps selecting; up or down (over 8 pt) cancels the selection (recogniser switched off and on) and the page scrolls. Check on the phone: instant highlight, sideways drag does not scroll, vertical drag starting on the bars still scrolls, a quick tap just flashes the month.
 
-## Monthly recap (build 14, version 1.4 (14), 2026-11-09, not yet tested on the phone)
+## Monthly recap (builds 14-15, version 1.4 (15), 2026-11-09, not yet tested on the phone)
 - Files: `Services/Recap.swift` (`MonthRecap`: km per day via `KmStats.perDay`, split into Monday-to-Sunday weeks cut to the month; everyday spending only, so insurance/road tax/inspection are left out; fuel via `FuelStats.summary(range: .month)`; previous month for the "Rispetto a" pills), `Views/RecapView.swift` (`RecapSheet`, `RecapShareCard`, `RecapListView`, `RecapWeekBars`, `RecapPills`, `RecapWatermark`).
 - `StatRange` has a new case `.month(Date)`.
 - First-open trigger: `RootView.checkRecap()`. `@AppStorage("recapSeen")` holds "2026-10" for the month already shown. It runs on appear, when the app becomes active and when the lock is released; it is skipped while locked (`EnvironmentValues.appLocked`, set in `ScooterLogApp`), while the new-entry sheet is open, and when the previous month has no data. The recap sheet has its own host view (`Color.clear.sheet`) in `RootView`'s background.
 - Share: `ImageRenderer` on `RecapShareCard` (scale 3) -> PNG in the temp folder -> `ShareSheet`.
 - Settings: new section "Riepiloghi" under the tank margin, opens `RecapListView` (months newest first, grouped by year, each opens `RecapSheet`).
+- Build 15: `RecapStart.date` (1 Nov 2026) is the first day that counts; everything earlier was testing. `KmStats.perDay(_, since:)` ignores readings before it, so the km of November are not polluted by the long gap from the April reading. The first pop-up is 1 Dec. The list also shows the running month ("in corso") for previews. The wide watermark must always be in an overlay/background: inside a ZStack it widened the layout (build 14 bug).
 - Not verified on a device: ImageRenderer output (watermark, fonts, GeometryReader in the split bar) and the sheet's bottom gradient/buttons.
 
 ## Tab animation: "cascata dal basso" (build 13, 2026-11-09, not yet tested on the phone)

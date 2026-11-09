@@ -8,6 +8,12 @@ struct RecapWeek: Identifiable {
     let km: Double
 }
 
+/// Recaps count real use only. The entries before this date were tests, so they are ignored:
+/// no recap for those months, and no km spread over the gap between an old reading and the first real one.
+enum RecapStart {
+    static let date: Date = Calendar.current.date(from: DateComponents(year: 2026, month: 11, day: 1)) ?? .distantPast
+}
+
 /// Wrapper so a month can drive `.sheet(item:)`.
 struct RecapRef: Identifiable {
     let month: Date
@@ -69,20 +75,22 @@ struct MonthRecap {
 
     // MARK: Building
 
-    /// Months (newest first) that already ended and have something to show.
-    static func months(vehicles: [Vehicle], now: Date = Date()) -> [Date] {
+    /// Months (newest first) with something to show, from `RecapStart` on. The running month is
+    /// included only when `includeCurrent` is true (the list shows it as "in corso", the pop-up never opens for it).
+    static func months(vehicles: [Vehicle], includeCurrent: Bool = false, now: Date = Date()) -> [Date] {
         let current = now.startOfMonth
         var found = Set<Date>()
-        for it in StatsEngine.items(vehicles) { found.insert(it.date.startOfMonth) }
+        for it in StatsEngine.items(vehicles) where it.date >= RecapStart.date { found.insert(it.date.startOfMonth) }
         for v in vehicles {
-            for r in v.readings { found.insert(r.date.startOfMonth) }
+            for r in v.readings where r.date >= RecapStart.date { found.insert(r.date.startOfMonth) }
         }
-        for (d, km) in KmStats.perDay(vehicles) where km > 0 { found.insert(d.startOfMonth) }
-        return found.filter { $0 < current }.sorted(by: >)
+        for (d, km) in KmStats.perDay(vehicles, since: RecapStart.date) where km > 0 { found.insert(d.startOfMonth) }
+        return found.filter { includeCurrent ? $0 <= current : $0 < current }.sorted(by: >)
     }
 
     static func hasData(vehicles: [Vehicle], month: Date, perDay: [Date: Double]) -> Bool {
         let start = month.startOfMonth
+        guard start >= RecapStart.date else { return false }
         if StatsEngine.items(vehicles).contains(where: { $0.date.startOfMonth == start }) { return true }
         for v in vehicles where v.readings.contains(where: { $0.date.startOfMonth == start }) { return true }
         for (d, km) in perDay where km > 0 && d.startOfMonth == start { return true }
@@ -93,7 +101,7 @@ struct MonthRecap {
                      perDay: [Date: Double]? = nil, withPrevious: Bool = true, now: Date = Date()) -> MonthRecap {
         let start = month.startOfMonth
         let end = start.endOfMonth
-        let days = perDay ?? KmStats.perDay(vehicles)
+        let days = perDay ?? KmStats.perDay(vehicles, since: RecapStart.date)
         var r = MonthRecap(month: start)
 
         // Cost lines of the month.
@@ -137,8 +145,20 @@ struct MonthRecap {
             RecapWeek(id: firstDay[ws] ?? start, end: lastDay[ws] ?? end, km: sums[ws] ?? 0)
         }
         r.km = r.weeks.reduce(0) { $0 + $1.km }
+        if r.km <= 0 {
+            // No day-by-day estimate (for instance all readings on one day): fall back to the
+            // distance between the lowest and highest odometer reading of the month.
+            var dist = 0
+            for v in vehicles {
+                let kms = v.odometerPoints
+                    .filter { $0.date.startOfMonth == start && $0.date >= RecapStart.date }
+                    .map { $0.km }
+                if let top = kms.max(), let low = kms.min() { dist += top - low }
+            }
+            r.km = Double(dist)
+        }
 
-        if withPrevious {
+        if withPrevious && start.addingMonths(-1) >= RecapStart.date {
             let prev = make(vehicles: vehicles, month: start.addingMonths(-1), margin: margin,
                             perDay: days, withPrevious: false, now: now)
             if prev.hasData {

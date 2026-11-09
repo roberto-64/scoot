@@ -32,6 +32,13 @@ enum RecapText {
         "\(sign(Double(p)))\(abs(p))%"
     }
 
+    /// "Ottobre 2026", with " · in corso" while the month is still running.
+    static func heading(_ month: Date, _ locale: Locale, _ language: String) -> String {
+        var t = monthTitle(month, locale) + " " + month.formatted(.dateTime.year().locale(locale))
+        if month == Date().startOfMonth { t += " · " + Loc.tr("in corso", language) }
+        return t
+    }
+
     /// "5–11" (a single day when the week has only one day inside the month).
     static func weekLabel(_ w: RecapWeek, _ locale: Locale) -> String {
         let a = w.id.formatted(.dateTime.day().locale(locale))
@@ -206,7 +213,10 @@ struct RecapSheet: View {
         let r = MonthRecap.make(vehicles: vehicles, month: month, margin: margin)
         ZStack(alignment: .top) {
             Theme.bg
-            RecapWatermark(width: 470).offset(x: -20, y: 240)
+            // An overlay, so the wide scooter never makes the sheet wider than the screen.
+            Color.clear.overlay(alignment: .top) {
+                RecapWatermark(width: 470).offset(x: -20, y: 240)
+            }
             ScrollView {
                 content(r)
                     .padding(.horizontal, Space.s2)
@@ -259,7 +269,7 @@ struct RecapSheet: View {
     @ViewBuilder
     private func content(_ r: MonthRecap) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(verbatim: RecapText.monthTitle(r.month, locale) + " " + r.month.formatted(.dateTime.year().locale(locale)))
+            Text(verbatim: RecapText.heading(r.month, locale, language))
                 .eyebrow()
             title(r).padding(.top, Space.s1)
 
@@ -380,15 +390,8 @@ struct RecapShareCard: View {
     var body: some View {
         let r = recap
         let name = RecapText.monthName(r.month, locale)
-        ZStack(alignment: .topLeading) {
-            Theme.bg
-            RadialGradient(colors: [accent.opacity(0.24), accent.opacity(0)],
-                           center: .topLeading, startRadius: 0, endRadius: 320)
-                .frame(height: 300)
-            RecapWatermark(width: 420).offset(x: -30, y: 170)
-
-            VStack(alignment: .leading, spacing: 0) {
-                Text(verbatim: RecapText.monthTitle(r.month, locale) + " " + r.month.formatted(.dateTime.year().locale(locale)))
+        VStack(alignment: .leading, spacing: 0) {
+                Text(verbatim: RecapText.heading(r.month, locale, locale.identifier))
                     .eyebrow()
                 Group {
                     if let v = vehicleName {
@@ -444,10 +447,21 @@ struct RecapShareCard: View {
                 }
                 .opacity(0.85)
                 .padding(.top, Space.s3)
-            }
-            .padding(Space.s3)
         }
-        .frame(width: 360)
+        .padding(Space.s3)
+        .frame(width: 360, alignment: .topLeading)
+        .background(alignment: .topLeading) {
+            // Drawn behind the content, so the wide scooter never changes the size of the image.
+            ZStack(alignment: .topLeading) {
+                Theme.bg
+                RadialGradient(colors: [accent.opacity(0.24), accent.opacity(0)],
+                               center: .topLeading, startRadius: 0, endRadius: 320)
+                    .frame(height: 300)
+                Color.clear.overlay(alignment: .topLeading) {
+                    RecapWatermark(width: 420).offset(x: -30, y: 170)
+                }
+            }
+        }
         .clipped()
     }
 
@@ -502,11 +516,12 @@ struct RecapListView: View {
     @Environment(\.appAccent) private var accent
     @Query(sort: \Vehicle.createdAt) private var vehicles: [Vehicle]
     @AppStorage("tankMargin") private var margin = 0.5
+    @AppStorage("language") private var language = "it"
     @State private var open: RecapRef?
 
     var body: some View {
-        let months = MonthRecap.months(vehicles: vehicles)
-        let days = KmStats.perDay(vehicles)
+        let months = MonthRecap.months(vehicles: vehicles, includeCurrent: true)
+        let days = KmStats.perDay(vehicles, since: RecapStart.date)
         let years = Array(Set(months.map { Calendar.current.component(.year, from: $0) })).sorted(by: >)
 
         ScrollView {
@@ -556,6 +571,7 @@ struct RecapListView: View {
         let r = MonthRecap.make(vehicles: vehicles, month: month, margin: margin,
                                 perDay: days, withPrevious: false)
         var parts: [String] = []
+        if month == Date().startOfMonth { parts.append(Loc.tr("in corso", language)) }
         if r.km > 0 { parts.append("\(Int(r.km.rounded()).grouped(locale)) km") }
         if r.spent > 0 { parts.append(r.spent.money(locale)) }
         return Button { open = RecapRef(month: month) } label: {

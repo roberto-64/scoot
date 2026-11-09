@@ -2,6 +2,14 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 15
+
+Version 1.4 (15).
+- Fixed: the recap pop-up was wider than the screen (the big scooter behind the text stretched the layout), so the text was cut on both sides. The shared image had the same problem.
+- Recaps now count only from 1 November 2026: the earlier entries were tests. No recap for earlier months, and km are no longer spread over the gap between an old reading (for example the April repair) and the first real one. The first recap pop-up is on 1 December, for November.
+- Settings > Riepiloghi mensili also shows the running month, marked "in corso", so you can preview it before the month ends. It never opens by itself.
+- If a month has no usable day-by-day estimate, km come from the lowest and highest odometer reading of that month.
+
 ## Build 14
 
 Version 1.4 (14).
