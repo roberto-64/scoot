@@ -2,6 +2,12 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 16
+
+Version 1.4 (16).
+- Home: the "Attività recente" title now has a ">" and opens "Attività", the full history of all your vehicles. It is the same view as Garage > Filippo: search, filter chips and entries grouped by month with totals. Swipe to edit or delete works there too.
+- The history block of the vehicle page was moved into one shared view (`HistoryList`), so both places always look and behave the same.
+
 ## Build 15
 
 Version 1.4 (15).

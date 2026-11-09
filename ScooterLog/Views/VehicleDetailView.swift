@@ -1,12 +1,6 @@
 import SwiftUI
 import SwiftData
 
-struct MonthGroup: Identifiable {
-    let id: Date
-    let entries: [HistoryEntry]
-    var total: Double { entries.reduce(0) { $0 + $1.amount } }
-}
-
 struct VehicleDetailView: View {
     let vehicle: Vehicle
     @Environment(\.dismiss) private var dismiss
@@ -17,25 +11,6 @@ struct VehicleDetailView: View {
     @State private var showEdit = false
     @State private var confirmDelete = false
     @State private var deadlineSheet: DeadlineRoute? = nil
-    @AppStorage("language") private var language = "it"
-    @State private var query = ""
-    @State private var filter: HistoryFilter = .all
-
-    private var tokens: [String] { HistorySearch.tokens(query) }
-    private var searching: Bool { !tokens.isEmpty || filter != .all }
-
-    /// What the search and the chips let through, newest first.
-    private var results: [HistoryEntry] {
-        HistoryEntry.all(vehicle).filter {
-            filter.allows($0) && HistorySearch.matches($0, tokens: tokens, language: language, locale: locale)
-        }
-    }
-
-    private var groups: [MonthGroup] {
-        let all = HistoryEntry.all(vehicle)
-        let dict = Dictionary(grouping: all) { $0.date.startOfMonth }
-        return dict.keys.sorted(by: >).map { MonthGroup(id: $0, entries: dict[$0] ?? []) }
-    }
 
     var body: some View {
         let stats = StatsEngine.summary(vehicles: [vehicle], range: .all, spread: false)
@@ -96,45 +71,8 @@ struct VehicleDetailView: View {
                     Text(verbatim: String(vehicle.entryCount)).eyebrow()
                 }
                 .padding(.top, Space.s4)
-                if vehicle.entryCount > 0 {
-                    HistorySearchField(text: $query).padding(.top, Space.s2)
-                    HistoryFilterChips(filter: $filter).padding(.top, Space.s1)
-                }
-                if searching {
-                    let found = results
-                    HStack {
-                        Group {
-                            if found.count == 1 { Text("1 risultato") } else { Text("\(found.count) risultati") }
-                        }
-                        .eyebrow()
-                        Spacer()
-                        Text(found.reduce(0) { $0 + $1.amount }.money(locale)).monospacedDigit().eyebrow()
-                    }
-                    .padding(.top, Space.s3)
-                    if found.isEmpty {
-                        Text("Nessun risultato.").font(AppFont.sans(15)).foregroundStyle(Theme.muted).padding(.top, Space.s2)
-                    }
-                    ForEach(Array(found.enumerated()), id: \.element.id) { i, e in
-                        HistoryRow(entry: e, previousID: i > 0 ? found[i - 1].id : nil, highlight: tokens).rowTransition()
-                    }
-                } else {
-                if groups.isEmpty {
-                    Text("Nessuna registrazione.").font(AppFont.sans(15)).foregroundStyle(Theme.muted).padding(.top, Space.s2)
-                }
-                ForEach(groups) { g in
-                    HStack {
-                        Text(verbatim: g.id.monthYear(locale)).font(AppFont.sans(15, .semibold)).foregroundStyle(Theme.ink)
-                        Spacer()
-                        Text(g.total.money(locale)).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
-                    }
-                    .padding(.top, Space.s3)
-                    ForEach(Array(g.entries.enumerated()), id: \.element.id) { i, e in
-                        HistoryRow(entry: e, previousID: i > 0 ? g.entries[i - 1].id : nil).rowTransition()
-                    }
-                }
-                }
+                HistoryList(vehicles: [vehicle])
             }
-            .animation(Motion.bounce, value: groups.flatMap { $0.entries.map { $0.id } })
             .padding(.horizontal, Space.s2)
             .padding(.top, Space.s2)
             .padding(.bottom, Space.s4)

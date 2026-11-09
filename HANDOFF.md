@@ -312,3 +312,7 @@ Everything below was approved in mockups and written in one go. **None of it has
 - 308 catalog keys. Weekly odometer reminder: dropped by the user (not built).
 - Things to check on the phone: everything above, plus existing data still there after the update, the slide with 1 and 2 legend rows, week bars, the yearly page, the Shortcuts action (and adding it to Control Center / Action Button / lock screen), the icon long-press menu (cold and warm), a PDF with a few entries, adding a photo (camera and library), opening it, pinch zoom, deleting, a backup with photos and restoring it, search words (workshop, month name, an amount, a km number).
 - Compile risks I would look at first if the build fails: `QuickRoute.swift` (App Intents, scene delegate), `Photos.swift` (`photosPicker`, `preparingThumbnail`), `HistorySearch.highlighted` (AttributedString index conversion), `SalesHistoryView.swift` (the `Binding` for the share sheet item), `KmBars.swift`.
+
+## Activity page (build 16, version 1.4 (16))
+- `Views/HistoryList.swift`: `HistoryList(vehicles:showVehicle:)` holds search field, filter chips, search results and month groups (`MonthGroup`). Used by `VehicleDetailView` (one vehicle) and by `ActivityView`.
+- `ActivityView`: pushed from Home, via the "Attività recente >" title (`NavigationLink` in `HomeView.recentSection`). Shows all vehicles; the vehicle name appears on rows when there is more than one.

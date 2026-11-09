@@ -329,7 +329,16 @@ struct HomeView: View {
         let recent = HistoryEntry.recent(vehicles, limit: 5)
         return VStack(alignment: .leading, spacing: 0) {
             if !recent.isEmpty {
-                Text("Attività recente").eyebrow().padding(.top, Space.s3)
+                NavigationLink { ActivityView() } label: {
+                    HStack {
+                        Text("Attività recente").eyebrow()
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold)).foregroundStyle(accent)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.top, Space.s3)
                 ForEach(Array(recent.enumerated()), id: \.element.id) { i, e in
                     HistoryRow(entry: e, showVehicle: vehicles.count > 1, previousID: i > 0 ? recent[i - 1].id : nil).rowTransition()
                 }

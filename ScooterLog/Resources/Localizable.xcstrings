@@ -531,6 +531,16 @@
         }
       }
     },
+    "Attività": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activity"
+          }
+        }
+      }
+    },
     "Attività recente": {
       "localizations": {
         "en": {
