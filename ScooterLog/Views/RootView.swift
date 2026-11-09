@@ -20,6 +20,8 @@ struct RootView: View {
     /// Form to open straight away when the sheet comes from Shortcuts or the icon menu.
     @State private var openRoute: NewRoute? = nil
     @ObservedObject private var quick = QuickRoute.shared
+    /// Bumped for the tab that is coming in, so its blocks replay the bounce-in (see Cascade.swift).
+    @State private var cascadeTokens = [0, 0, 0, 0]
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -38,6 +40,7 @@ struct RootView: View {
                 .presentationCornerRadius(Radius.base)
                 .presentationBackground(Theme.bg)
         }
+        .onChange(of: tab) { _, new in cascadeTokens[new.rawValue] += 1 }
         .onAppear { reschedule(); takeQuickRoute() }
         .onChange(of: quick.pending) { _, _ in takeQuickRoute() }
         .onChange(of: scenePhase) { _, p in if p == .active { reschedule() } }
@@ -55,13 +58,10 @@ struct RootView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .opacity(on ? 1 : 0)
             .animation(on ? Motion.tabIn : Motion.tabOut, value: on)
-            // The new screen also pops up from slightly smaller with a springy overshoot. The old one
-            // keeps its size until it is covered, then shrinks while hidden, ready for its next turn.
-            .scaleEffect(on ? 1 : 0.92)
-            .animation(on ? Motion.bounce : Motion.tabOut, value: on)
             .zIndex(on ? 1 : 0)
             .allowsHitTesting(on)
             .accessibilityHidden(!on)
+            .environment(\.cascadeToken, cascadeTokens[t.rawValue])
     }
 
     private func takeQuickRoute() {

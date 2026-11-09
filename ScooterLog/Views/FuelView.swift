@@ -22,12 +22,14 @@ struct FuelView: View {
                     Spacer()
                     VehiclePill(vehicles: vehicles, selection: $scope)
                 }
+                .cascadeIn(0)
                 if vehicles.isEmpty {
                     Text("Aggiungi un veicolo dal garage per iniziare.")
                         .font(AppFont.sans(15)).foregroundStyle(Theme.muted).padding(.top, Space.s3)
+                        .cascadeIn(1)
                 } else {
-                    RangeChips(raw: $rangeRaw).padding(.top, Space.s3)
-                    hero(f).padding(.top, Space.s3)
+                    RangeChips(raw: $rangeRaw).padding(.top, Space.s3).cascadeIn(1)
+                    hero(f).padding(.top, Space.s3).cascadeIn(2)
                     StatGrid(cells: [
                         StatCellData(title: "Prezzo medio", value: f.avgPrice.map { "\($0.decimal(2, locale)) €/L" } ?? "—", available: f.avgPrice != nil),
                         StatCellData(title: "Carburante al km", value: f.fuelCostPerKm.map { $0.money(locale) } ?? "—", available: f.fuelCostPerKm != nil),
@@ -35,10 +37,12 @@ struct FuelView: View {
                         StatCellData(title: "Km tra le soste", value: f.kmBetweenStops.map { "\(Int($0.rounded()).grouped(locale)) km" } ?? "—", available: f.kmBetweenStops != nil)
                     ])
                     .padding(.top, Space.s3)
+                    .cascadeIn(3)
 
                     Segmented(options: [SegmentOption(value: 0, label: "Consumo"), SegmentOption(value: 1, label: "Prezzo al litro")], selection: $mode)
                         .padding(.top, Space.s4)
-                    chart(f).padding(.top, Space.s3)
+                        .cascadeIn(4)
+                    chart(f).padding(.top, Space.s3).cascadeIn(4)
 
                     if !fills.isEmpty {
                         HStack {
@@ -46,8 +50,10 @@ struct FuelView: View {
                             Text(verbatim: String(fills.count)).eyebrow()
                         }
                         .padding(.top, Space.s4)
+                        .cascadeIn(5)
                         ForEach(Array(fills.enumerated()), id: \.element.id) { i, e in
                             HistoryRow(entry: e, showVehicle: vehicles.count > 1, previousID: i > 0 ? fills[i - 1].id : nil).rowTransition()
+                                .cascadeIn(6 + i)
                         }
                     }
                 }

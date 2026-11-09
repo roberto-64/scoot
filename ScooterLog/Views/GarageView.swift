@@ -19,12 +19,14 @@ struct GarageView: View {
                         Button { showNew = true } label: { IconSquare(systemName: "plus", filled: true) }
                             .buttonStyle(PressStyle())
                     }
+                    .cascadeIn(0)
                     if vehicles.isEmpty {
                         Text("Nessun veicolo. Tocca + per aggiungerne uno.")
                             .font(AppFont.sans(15)).foregroundStyle(Theme.muted)
+                            .cascadeIn(1)
                     }
-                    ForEach(vehicles) { v in garageCard(v) }
-                    upcomingSection
+                    ForEach(vehicles) { v in garageCard(v).cascadeIn(1) }
+                    upcomingSection.cascadeIn(2)
                 }
                 .padding(.horizontal, Space.s2)
                 .padding(.top, Space.s2)

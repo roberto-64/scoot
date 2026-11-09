@@ -32,25 +32,29 @@ struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(Date().formatted(.dateTime.weekday(.wide).day().month(.wide).locale(locale))).eyebrow()
+                        .cascadeIn(0)
                     greeting
                         .font(AppFont.serif(32))
                         .foregroundStyle(Theme.ink)
                         .padding(.top, Space.s1)
+                        .cascadeIn(0)
 
                     if vehicles.isEmpty {
                         firstLaunch
                     } else {
-                        statusLine
-                        if !hasEntries && !hideChecklist { checklist }
-                        spendSection
+                        statusLine.cascadeIn(1)
+                        if !hasEntries && !hideChecklist { checklist.cascadeIn(1) }
+                        spendSection.cascadeIn(2)
                         if let v = vehicle {
                             vehicleCard(v)
                                 .offset(y: slideAmount)
                                 .animation(Motion.spring, value: slideAmount)
+                                .cascadeIn(3)
                         }
                         recentSection
                             .offset(y: slideAmount)
                             .animation(Motion.spring, value: slideAmount)
+                            .cascadeIn(4)
                     }
                 }
                 .padding(.horizontal, Space.s2)

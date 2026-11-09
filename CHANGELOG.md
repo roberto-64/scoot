@@ -2,6 +2,11 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 13
+
+Version 1.3 (13).
+- Switching tabs: the new screen appears right away and its blocks then bounce up from below one after the other, top block first ("cascata dal basso"). Replaces the earlier fade and pop.
+
 ## Build 12
 
 Version 1.3 (12).

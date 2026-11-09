@@ -27,11 +27,11 @@ struct ProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s3) {
-                    header
-                    nameCard
-                    activitySection
-                    vehiclesSection
-                    backupCard
+                    header.cascadeIn(0)
+                    nameCard.cascadeIn(1)
+                    activitySection.cascadeIn(2)
+                    vehiclesSection.cascadeIn(3)
+                    backupCard.cascadeIn(4)
                 }
                 .padding(.horizontal, Space.s2)
                 .padding(.top, Space.s2)
