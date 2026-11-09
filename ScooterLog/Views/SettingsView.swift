@@ -37,6 +37,7 @@ struct SettingsView: View {
                 languageSection
                 switchesSection
                 marginSection
+                recapSection
                 backupSection
                 salesSection
                 versionRow
@@ -145,6 +146,25 @@ struct SettingsView: View {
             }, selection: $margin)
             Text("Quanto può variare il livello del serbatoio a ogni rifornimento. Serve a stimare il margine dei consumi.")
                 .eyebrow()
+        }
+    }
+
+    private var recapSection: some View {
+        VStack(alignment: .leading, spacing: Space.s2) {
+            SectionTitle(title: "Riepiloghi")
+            NavigationLink { RecapListView() } label: {
+                HStack {
+                    Text("Riepiloghi mensili").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(accent)
+                }
+                .padding(.vertical, Space.s1)
+                .contentShape(Rectangle())
+                .card(padding: Space.s2)
+            }
+            .buttonStyle(PressStyle())
         }
     }
 

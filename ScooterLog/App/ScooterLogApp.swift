@@ -46,6 +46,7 @@ struct ScooterLogApp: App {
             }
             .environment(\.locale, Locale(identifier: language))
             .environment(\.appAccent, Accents.preset(accentId).color)
+            .environment(\.appLocked, locked)
             .tint(Accents.preset(accentId).color)
             .preferredColorScheme(.light)
             .onChange(of: scenePhase) { _, phase in

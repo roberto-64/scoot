@@ -11,10 +11,14 @@ enum NewRoute: Hashable {
 
 struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.appLocked) private var locked
     @Query(sort: \Vehicle.createdAt) private var vehicles: [Vehicle]
     @AppStorage("language") private var language = "it"
     @AppStorage("alerts") private var alerts = true
     @AppStorage("lastBackup") private var lastBackup: Double = 0
+    /// Month ("2026-10") whose recap pop-up has already been shown.
+    @AppStorage("recapSeen") private var recapSeen = ""
+    @State private var recapRef: RecapRef? = nil
     @State private var tab: AppTab = .home
     @State private var showNew = false
     /// Form to open straight away when the sheet comes from Shortcuts or the icon menu.
@@ -40,10 +44,23 @@ struct RootView: View {
                 .presentationCornerRadius(Radius.base)
                 .presentationBackground(Theme.bg)
         }
+        .background(
+            // Own host view, so it never competes with the new-entry sheet above.
+            Color.clear.sheet(item: $recapRef) { ref in
+                RecapSheet(vehicles: vehicles, month: ref.month)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+                    .presentationCornerRadius(Radius.base)
+                    .presentationBackground(Theme.bg)
+            }
+        )
         .onChange(of: tab) { _, new in cascadeTokens[new.rawValue] += 1 }
-        .onAppear { reschedule(); takeQuickRoute() }
+        .onAppear { reschedule(); takeQuickRoute(); checkRecap() }
         .onChange(of: quick.pending) { _, _ in takeQuickRoute() }
-        .onChange(of: scenePhase) { _, p in if p == .active { reschedule() } }
+        .onChange(of: scenePhase) { _, p in if p == .active { reschedule(); checkRecap() } }
+        .onChange(of: locked) { _, nowLocked in
+            if nowLocked { recapRef = nil } else { checkRecap() }
+        }
         .onChange(of: language) { _, _ in reschedule() }
         .onChange(of: alerts) { _, on in
             if on { Notifier.requestAuthorization() }
@@ -69,6 +86,23 @@ struct RootView: View {
         quick.pending = nil
         openRoute = r
         showNew = true
+    }
+
+    /// On the first open of a new month, shows the recap of the month that just ended (once).
+    /// Nothing opens while the Face ID lock is up, over another sheet, or when the month has no data.
+    private func checkRecap() {
+        guard !locked, !showNew, recapRef == nil, scenePhase != .background else { return }
+        let previous = Date().startOfMonth.addingMonths(-1)
+        let key = RecapKey.string(previous)
+        guard recapSeen != key else { return }
+        let days = KmStats.perDay(vehicles)
+        guard MonthRecap.hasData(vehicles: vehicles, month: previous, perDay: days) else { return }
+        recapSeen = key
+        // A short wait so the app has finished appearing (or unlocking) before the sheet slides up.
+        let ref = RecapRef(month: previous)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            if !locked { recapRef = ref }
+        }
     }
 
     private func reschedule() {

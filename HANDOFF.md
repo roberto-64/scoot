@@ -277,6 +277,14 @@ See the end of the chat message for the exact tree and the download list. The si
 ## Round 6 (built in build 7, version 1.2 (7), not yet tested on the phone)
 - `ColumnScrub` no longer waits 0.25 s: the long-press recogniser has `minimumPressDuration = 0` and runs alongside the page's own scroll. The first movement decides: sideways (over 6 pt) locks scrolling and keeps selecting; up or down (over 8 pt) cancels the selection (recogniser switched off and on) and the page scrolls. Check on the phone: instant highlight, sideways drag does not scroll, vertical drag starting on the bars still scrolls, a quick tap just flashes the month.
 
+## Monthly recap (build 14, version 1.4 (14), 2026-11-09, not yet tested on the phone)
+- Files: `Services/Recap.swift` (`MonthRecap`: km per day via `KmStats.perDay`, split into Monday-to-Sunday weeks cut to the month; everyday spending only, so insurance/road tax/inspection are left out; fuel via `FuelStats.summary(range: .month)`; previous month for the "Rispetto a" pills), `Views/RecapView.swift` (`RecapSheet`, `RecapShareCard`, `RecapListView`, `RecapWeekBars`, `RecapPills`, `RecapWatermark`).
+- `StatRange` has a new case `.month(Date)`.
+- First-open trigger: `RootView.checkRecap()`. `@AppStorage("recapSeen")` holds "2026-10" for the month already shown. It runs on appear, when the app becomes active and when the lock is released; it is skipped while locked (`EnvironmentValues.appLocked`, set in `ScooterLogApp`), while the new-entry sheet is open, and when the previous month has no data. The recap sheet has its own host view (`Color.clear.sheet`) in `RootView`'s background.
+- Share: `ImageRenderer` on `RecapShareCard` (scale 3) -> PNG in the temp folder -> `ShareSheet`.
+- Settings: new section "Riepiloghi" under the tank margin, opens `RecapListView` (months newest first, grouped by year, each opens `RecapSheet`).
+- Not verified on a device: ImageRenderer output (watermark, fonts, GeometryReader in the split bar) and the sheet's bottom gradient/buttons.
+
 ## Tab animation: "cascata dal basso" (build 13, 2026-11-09, not yet tested on the phone)
 Chosen by the user from mockups (previews page, section "Tre idee più vivaci"); pages keep their normal look, no cards. `Views/Cascade.swift`: `CascadeIn` modifier + `cascadeToken` environment value. `RootView` bumps `cascadeTokens[tab]` when a tab is selected; every block marked `.cascadeIn(index)` on Home, Garage, Fuel and Profile resets below (54 pt, invisible) and springs up (`response 0.5, damping 0.5`, 0.055 s per index, index capped at 9). The screen itself fades in over the old one in 0.16 s (`Motion.tabIn`), the old one switches off after 0.18 s (`Motion.tabOut`). Tab screens stay alive (each tab remembers its position). Tune: `rise`, `step`, spring in Cascade.swift. The "from the top" version was also mocked (user preferred from below).
 

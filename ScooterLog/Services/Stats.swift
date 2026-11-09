@@ -1,7 +1,7 @@
 import Foundation
 
 enum StatRange: Hashable {
-    case m3, m6, y1, all, year(Int)
+    case m3, m6, y1, all, year(Int), month(Date)
 
     /// Interval start (nil = from the beginning) and an exclusive end.
     func interval(now: Date = Date()) -> (start: Date?, end: Date) {
@@ -16,6 +16,9 @@ enum StatRange: Hashable {
             let s = cal.date(from: DateComponents(year: y, month: 1, day: 1))
             let e = cal.date(from: DateComponents(year: y + 1, month: 1, day: 1)) ?? endNow
             return (s, min(e, endNow))
+        case .month(let d):
+            let s = d.startOfMonth
+            return (s, min(s.addingMonths(1), endNow))
         }
     }
 

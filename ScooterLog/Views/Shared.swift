@@ -21,6 +21,7 @@ extension StatRange {
         case .y1: return "y1"
         case .all: return "all"
         case .year(let y): return "year\(y)"
+        case .month: return "month"
         }
     }
     static func from(_ raw: String) -> StatRange {

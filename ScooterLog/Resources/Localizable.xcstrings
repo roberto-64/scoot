@@ -431,6 +431,16 @@
         }
       }
     },
+    "Ancora nessun riepilogo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No recaps yet"
+          }
+        }
+      }
+    },
     "Ancora niente": {
       "localizations": {
         "en": {
@@ -711,6 +721,16 @@
         }
       }
     },
+    "Chiudi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
     "Ciao": {
       "localizations": {
         "en": {
@@ -737,6 +757,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Accent colour"
+          }
+        }
+      }
+    },
+    "Compaiono solo i mesi con dati. Tocca un mese per rivedere il riepilogo completo.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only months with data appear. Tap a month to see its full recap."
+          }
+        }
+      }
+    },
+    "Condividi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
           }
         }
       }
@@ -957,6 +997,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Distance"
+          }
+        }
+      }
+    },
+    "Dove sono andati i soldi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where the money went"
           }
         }
       }
@@ -1281,12 +1331,62 @@
         }
       }
     },
+    "Il mio %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My %@"
+          }
+        }
+      }
+    },
+    "Il mio %@ con %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My %@ with %@"
+          }
+        }
+      }
+    },
     "Il mio garage": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "My garage"
+          }
+        }
+      }
+    },
+    "Il primo arriva a fine mese, quando hai registrato qualcosa.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first one arrives at the end of the month, once you have logged something."
+          }
+        }
+      }
+    },
+    "Il tuo %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your %@"
+          }
+        }
+      }
+    },
+    "Il tuo %@ con %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your %@ with %@"
           }
         }
       }
@@ -1357,6 +1457,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Amount"
+          }
+        }
+      }
+    },
+    "Impossibile creare l’immagine": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t create the image"
           }
         }
       }
@@ -1461,6 +1571,16 @@
         }
       }
     },
+    "Km per settimana": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Km per week"
+          }
+        }
+      }
+    },
     "Km percorsi": {
       "localizations": {
         "en": {
@@ -1497,6 +1617,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your activity"
+          }
+        }
+      }
+    },
+    "Linea tratteggiata: media del mese": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dashed line: average for the month"
           }
         }
       }
@@ -2231,6 +2361,26 @@
         }
       }
     },
+    "Riepiloghi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recaps"
+          }
+        }
+      }
+    },
+    "Riepiloghi mensili": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly recaps"
+          }
+        }
+      }
+    },
     "Riepilogo": {
       "localizations": {
         "en": {
@@ -2287,6 +2437,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Spread insurance and road tax over the months covered"
+          }
+        }
+      }
+    },
+    "Rispetto a %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compared with %@"
           }
         }
       }
@@ -2597,6 +2757,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Best week"
+          }
+        }
+      }
+    },
+    "Settimana migliore:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best week:"
           }
         }
       }

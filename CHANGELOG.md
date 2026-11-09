@@ -2,6 +2,14 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 14
+
+Version 1.4 (14).
+- Monthly recap. On the first open of a new month, a sheet slides up with the month that just ended: km, km per week (with the km inside each bar), spent, litres, average consumption, refuels, change compared with the month before, where the money went and a consumption chart. It opens once per month; if you miss the 1st it opens the next time you open the app. Nothing opens when the month has no data, over the Face ID lock, or over another sheet.
+- "Condividi" makes a vertical image of the month (360 pt wide, saved at 1080 px) and opens the share sheet.
+- Settings > Riepiloghi mensili: a list of every past month with data; tap one to see its full recap again.
+- The scooter from the app is drawn large and almost invisible behind the text of the pop-up and of the image.
+
 ## Build 13
 
 Version 1.3 (13).
