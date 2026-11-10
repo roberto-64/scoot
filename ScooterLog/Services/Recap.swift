@@ -141,9 +141,23 @@ struct MonthRecap {
             sums[ws, default: 0] += days[d] ?? 0
             d = d.addingDays(1)
         }
-        r.weeks = order.map { ws in
+        var weeks = order.map { ws in
             RecapWeek(id: firstDay[ws] ?? start, end: lastDay[ws] ?? end, km: sums[ws] ?? 0)
         }
+        // A Monday-to-Sunday week cut by the month edge can be just a day or two. Under 4 days it joins its
+        // neighbour (the first one the next week, the last one the week before), so no tiny bars.
+        func dayCount(_ w: RecapWeek) -> Int {
+            (cal.dateComponents([.day], from: w.id, to: w.end).day ?? 0) + 1
+        }
+        if weeks.count > 1, dayCount(weeks[0]) < 4 {
+            let a = weeks[0], b = weeks[1]
+            weeks.replaceSubrange(0...1, with: [RecapWeek(id: a.id, end: b.end, km: a.km + b.km)])
+        }
+        if weeks.count > 1, let last = weeks.last, dayCount(last) < 4 {
+            let a = weeks[weeks.count - 2]
+            weeks.replaceSubrange((weeks.count - 2)..., with: [RecapWeek(id: a.id, end: last.end, km: a.km + last.km)])
+        }
+        r.weeks = weeks
         r.km = r.weeks.reduce(0) { $0 + $1.km }
         if r.km <= 0 {
             // No day-by-day estimate (for instance all readings on one day): fall back to the

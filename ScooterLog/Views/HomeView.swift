@@ -57,6 +57,7 @@ struct HomeView: View {
                             .cascadeIn(4)
                     }
                 }
+                .background(TabTapHelper(tab: .home))
                 .padding(.horizontal, Space.s2)
                 .padding(.top, Space.s2)
                 .padding(.bottom, Space.s2)

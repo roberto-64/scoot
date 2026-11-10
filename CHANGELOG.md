@@ -2,6 +2,12 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 18
+
+Version 1.4 (18).
+- Tab bar: tapping the tab you are already on goes back one page when you are inside a sub-page (Settings, Attività, a vehicle page, Stats), and scrolls the page to the top when you are on the main page.
+- Monthly recap, km per week: a week cut by the month edge that has fewer than 4 days is merged into its neighbour, so there are no one-day bars (November 2026 shows 1–8, 9–15, 16–22, 23–30).
+
 ## Build 17
 
 Version 1.4 (17).

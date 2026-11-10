@@ -33,6 +33,7 @@ struct ProfileView: View {
                     vehiclesSection.cascadeIn(3)
                     backupCard.cascadeIn(4)
                 }
+                .background(TabTapHelper(tab: .profile))
                 .padding(.horizontal, Space.s2)
                 .padding(.top, Space.s2)
             }

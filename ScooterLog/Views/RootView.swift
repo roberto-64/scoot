@@ -194,7 +194,7 @@ struct FloatingBar: View {
     private func tabButton<Icon: View>(_ t: AppTab, @ViewBuilder icon: () -> Icon) -> some View {
         let on = tab == t
         return Button {
-            withAnimation(Motion.spring) { tab = t }
+            if tab == t { TabTap.send(t) } else { withAnimation(Motion.spring) { tab = t } }
         } label: {
             icon()
                 .foregroundStyle(on ? Theme.surface : Theme.ink)

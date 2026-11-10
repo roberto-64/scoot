@@ -59,6 +59,7 @@ struct FuelView: View {
                 }
             }
             .animation(Motion.bounce, value: fills.map { $0.id })
+            .background(TabTapHelper(tab: .fuel))
             .padding(.horizontal, Space.s2)
             .padding(.top, Space.s2)
         }

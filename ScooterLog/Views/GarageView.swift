@@ -28,6 +28,7 @@ struct GarageView: View {
                     ForEach(vehicles) { v in garageCard(v).cascadeIn(1) }
                     upcomingSection.cascadeIn(2)
                 }
+                .background(TabTapHelper(tab: .garage))
                 .padding(.horizontal, Space.s2)
                 .padding(.top, Space.s2)
             }
