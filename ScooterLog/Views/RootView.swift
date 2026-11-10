@@ -19,6 +19,12 @@ struct RootView: View {
     /// Month ("2026-10") whose recap pop-up has already been shown.
     @AppStorage("recapSeen") private var recapSeen = ""
     @State private var recapRef: RecapRef? = nil
+    /// Fill-up whose "last two tanks" pop-up has already been shown, and the one that was in the app when it
+    /// last went to the background (the pop-up waits for the next open, not the moment of saving).
+    @AppStorage("tankSeen") private var tankSeen = ""
+    @AppStorage("tankArmed") private var tankArmed = ""
+    @AppStorage("tankMargin") private var tankMargin = 0.5
+    @State private var tankRecap: TankRecap? = nil
     @State private var tab: AppTab = .home
     @State private var showNew = false
     /// Form to open straight away when the sheet comes from Shortcuts or the icon menu.
@@ -54,12 +60,28 @@ struct RootView: View {
                     .presentationBackground(Theme.bg)
             }
         )
+        .overlay {
+            if let t = tankRecap {
+                TankRecapCard(recap: t) { withAnimation(Motion.spring) { tankRecap = nil } }
+                    .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                    .zIndex(20)
+            }
+        }
         .onChange(of: tab) { _, new in cascadeTokens[new.rawValue] += 1 }
-        .onAppear { reschedule(); takeQuickRoute(); checkRecap() }
+        .onAppear { reschedule(); takeQuickRoute(); checkRecap(); checkTank() }
         .onChange(of: quick.pending) { _, _ in takeQuickRoute() }
-        .onChange(of: scenePhase) { _, p in if p == .active { reschedule(); checkRecap() } }
+        .onChange(of: scenePhase) { _, p in
+            if p == .active { reschedule(); checkRecap(); checkTank() }
+            else if p == .background { armTank() }
+        }
         .onChange(of: locked) { _, nowLocked in
-            if nowLocked { recapRef = nil } else { checkRecap() }
+            if nowLocked {
+                recapRef = nil
+                // Closed by the lock before it was read: let it come back after unlocking.
+                if tankRecap != nil { tankRecap = nil; tankSeen = "" }
+            } else {
+                checkRecap(); checkTank()
+            }
         }
         .onChange(of: language) { _, _ in reschedule() }
         .onChange(of: alerts) { _, on in
@@ -102,6 +124,25 @@ struct RootView: View {
         let ref = RecapRef(month: previous)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
             if !locked { recapRef = ref }
+        }
+    }
+
+    /// When the app leaves the screen, remembers the latest fill-up. The next time the app opens, the
+    /// pop-up for that fill-up shows once (so it does not appear right after saving).
+    private func armTank() {
+        if let r = TankRecap.make(vehicles: vehicles, marginLiters: tankMargin) { tankArmed = r.key }
+    }
+
+    /// On the first open after a fill-up, shows the last two tanks (once per fill-up).
+    private func checkTank() {
+        guard !locked, !showNew, recapRef == nil, tankRecap == nil, scenePhase != .background else { return }
+        guard let r = TankRecap.make(vehicles: vehicles, marginLiters: tankMargin),
+              r.key == tankArmed, r.key != tankSeen else { return }
+        // A short wait so the app has finished appearing, and the monthly recap (if any) goes first.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            guard !locked, !showNew, recapRef == nil, tankRecap == nil, tankSeen != r.key else { return }
+            tankSeen = r.key
+            withAnimation(Motion.spring) { tankRecap = r }
         }
     }
 

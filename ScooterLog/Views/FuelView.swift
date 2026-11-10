@@ -96,7 +96,7 @@ struct FuelView: View {
                     .eyebrow().padding(.top, Space.s1)
             } else {
                 ChartPlaceholder(title: "Il grafico arriva con più rifornimenti",
-                                 hint: "Servono almeno 400 km tra due rifornimenti. Aggiungili con il tasto +.")
+                                 hint: "Servono almeno 400 km in totale tra i rifornimenti registrati. Aggiungili con il tasto +.")
             }
         } else {
             if f.pricePoints.count >= 2 {

@@ -316,3 +316,9 @@ Everything below was approved in mockups and written in one go. **None of it has
 ## Activity page (build 16, version 1.4 (16))
 - `Views/HistoryList.swift`: `HistoryList(vehicles:showVehicle:)` holds search field, filter chips, search results and month groups (`MonthGroup`). Used by `VehicleDetailView` (one vehicle) and by `ActivityView`.
 - `ActivityView`: pushed from Home, via the "Attività recente >" title (`NavigationLink` in `HomeView.recentSection`). Shows all vehicles; the vehicle name appears on rows when there is more than one.
+
+## Last two tanks pop-up (build 17, version 1.4 (17), not yet tested on the phone)
+- `Services/TankRecap.swift`: `TankRecap.make(vehicles:marginLiters:)`. Needs 3 reserve-light fill-ups on the vehicle with the newest fill-up, the newest being its latest. Tank = from one marked fill-up to the next; litres = the first one plus those in between, not the closing one. km/L = both tanks together; plus/minus = tank-level margin / litres.
+- `Views/TankRecapView.swift`: `TankRecapCard`, dim + centred card, shown as an `.overlay` of `RootView` (not a sheet).
+- Trigger in `RootView`: on scene `.background` the latest fill-up key is stored in `tankArmed`; on the next `.active`/appear, if `tankArmed == key` and `tankSeen != key`, the card shows after 0.9 s (skipped while locked, new-entry sheet open, monthly recap open) and `tankSeen = key`. Locking while it shows resets `tankSeen` so it returns after unlock. The first background after installing this build arms the current latest fill-up, so the pop-up can appear once for it.
+- Same build: chart hint wording ("Servono almeno 400 km in totale tra i rifornimenti registrati") and `.chartXScale(range: .plotDimension(padding: 12))` on `ConsumptionChart` and `PriceChart`.

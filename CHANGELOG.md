@@ -2,6 +2,13 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 17
+
+Version 1.4 (17).
+- New pop-up "Ultimi due pieni": the first time you open the app after a fill-up, a card over everything shows the km/L of your last two tanks ("40 km/L, ± 3, stima"), with km and litres for each tank and in total. Close it with the X, "Ok" or a tap outside. It shows once per fill-up and never right after saving (the app must go to the background first). It needs three fill-ups marked "Spia della riserva accesa", the newest being the latest fill-up.
+- Fuel and Stats: the chart hint now says "Servono almeno 400 km in totale tra i rifornimenti registrati" (the old text suggested 400 km between two fill-ups).
+- Price and consumption charts: a small gap between the last point and the y-axis labels.
+
 ## Build 16
 
 Version 1.4 (16).

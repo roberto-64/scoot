@@ -1531,6 +1531,16 @@
         }
       }
     },
+    "In tutto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total"
+          }
+        }
+      }
+    },
     "Interventi eseguiti": {
       "localizations": {
         "en": {
@@ -2071,6 +2081,16 @@
         }
       }
     },
+    "Ok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
     "Parcheggio": {
       "localizations": {
         "en": {
@@ -2107,6 +2127,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Piaggio"
+          }
+        }
+      }
+    },
+    "Pieno precedente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous fill-up"
           }
         }
       }
@@ -2711,22 +2741,22 @@
         }
       }
     },
-    "Servono almeno 400 km tra due rifornimenti.": {
+    "Servono almeno 400 km in totale tra i rifornimenti registrati.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You need at least 400 km between two fill-ups."
+            "value": "You need at least 400 km in total across your logged fill-ups."
           }
         }
       }
     },
-    "Servono almeno 400 km tra due rifornimenti. Aggiungili con il tasto +.": {
+    "Servono almeno 400 km in totale tra i rifornimenti registrati. Aggiungili con il tasto +.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You need at least 400 km between two fill-ups. Add them with the + button."
+            "value": "You need at least 400 km in total across your logged fill-ups. Add them with the + button."
           }
         }
       }
@@ -3071,6 +3101,16 @@
         }
       }
     },
+    "Ultimi due pieni": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last two fill-ups"
+          }
+        }
+      }
+    },
     "Ultimo backup:": {
       "localizations": {
         "en": {
@@ -3087,6 +3127,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Last backup: never"
+          }
+        }
+      }
+    },
+    "Ultimo pieno": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last fill-up"
           }
         }
       }
@@ -3247,6 +3297,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "estimate"
+          }
+        }
+      }
+    },
+    "± %lld, stima": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "± %lld, estimate"
           }
         }
       }

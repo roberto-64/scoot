@@ -72,6 +72,7 @@ struct ConsumptionChart: View {
             }
         }
         .chartYScale(domain: lo...hi)
+        .chartXScale(range: .plotDimension(padding: 12))
         .chartXSelection(value: $selected)
         .blocksSwipeBack()
         .chartXAxis {
@@ -124,6 +125,7 @@ struct PriceChart: View {
             }
         }
         .chartYScale(domain: lo...hi)
+        .chartXScale(range: .plotDimension(padding: 12))
         .chartXSelection(value: $selected)
         .blocksSwipeBack()
         .chartXAxis {

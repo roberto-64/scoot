@@ -83,7 +83,7 @@ struct StatsView: View {
                         .padding(.top, Space.s2)
                     } else {
                         ChartPlaceholder(title: "Il grafico arriva con più rifornimenti",
-                                         hint: "Servono almeno 400 km tra due rifornimenti.")
+                                         hint: "Servono almeno 400 km in totale tra i rifornimenti registrati.")
                             .padding(.top, Space.s2)
                     }
 
