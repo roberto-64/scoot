@@ -344,6 +344,10 @@ struct LineField: View {
     var keyboard: UIKeyboardType = .decimalPad
     var size: CGFloat = 28
     var placeholder: String = "0"
+    /// Called when the field gains (true) or loses (false) the keyboard. Used by the fill-up form to
+    /// complete the odometer's leading digits the moment the field is tapped.
+    var onFocusChange: ((Bool) -> Void)? = nil
+    @FocusState private var focused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s1) {
@@ -354,6 +358,8 @@ struct LineField: View {
                     .font(AppFont.serif(size))
                     .foregroundStyle(Theme.ink)
                     .monospacedDigit()
+                    .focused($focused)
+                    .onChange(of: focused) { _, now in onFocusChange?(now) }
                 if !unit.isEmpty {
                     Text(LocalizedStringKey(unit)).font(AppFont.sans(15)).foregroundStyle(Theme.muted)
                 }
@@ -374,6 +380,8 @@ struct Segmented<T: Hashable>: View {
     @Environment(\.appAccent) private var accent
     let options: [SegmentOption<T>]
     @Binding var selection: T
+    /// Shared by every segment so the selected pill slides from one to the next, like the tab bar's pill.
+    @Namespace private var pillSpace
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
@@ -389,8 +397,15 @@ struct Segmented<T: Hashable>: View {
                         .foregroundStyle(on ? Theme.ink : Theme.muted)
                         .frame(maxWidth: .infinity)
                         .frame(height: Space.s5)
-                        .background(on ? Theme.surface : Color.clear, in: shape)
-                        .overlay { if on { shape.stroke(Theme.line, lineWidth: 1) } }
+                        .background {
+                            // Only the selected segment draws the pill; matchedGeometryEffect makes it
+                            // glide to the newly selected segment instead of fading out and in.
+                            if on {
+                                shape.fill(Theme.surface)
+                                    .overlay(shape.stroke(Theme.line, lineWidth: 1))
+                                    .matchedGeometryEffect(id: "segmentPill", in: pillSpace)
+                            }
+                        }
                 }
                 .buttonStyle(.plain)
             }

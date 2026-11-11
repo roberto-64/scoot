@@ -2,6 +2,13 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 25
+
+Version 1.4 (25).
+- Every segmented switch (Mai/7/30 giorni, Consumo/Prezzo, Mese/Settimana, ...) now has a pill that slides to the chosen option, like the tab bar's pill (`matchedGeometryEffect`), instead of fading in and out.
+- Fill-up form, odometer field: it no longer starts with the old reading (which had to be erased). It starts empty with the last reading as a faded hint; tapping it fills in the leading digits the next reading will share (last reading + the median of the last 5 gaps between fill-ups, `OdometerGuess`). E.g. last 33,878, usual gap 120: tap gives "33", type "998". Near a rollover only the shared digits appear (33,950 -> "3"). Fewer than two fill-ups: nothing is filled in.
+- "Salva" is off while a new fill-up's odometer is below the last reading and dated after it (a half-typed number). A lower number with an earlier date (backdated entry) is still allowed. The "inferiore all'ultima lettura" warning waits until the number is as long as the last reading.
+
 ## Build 24
 
 Version 1.4 (24).

@@ -106,8 +106,18 @@ struct FuelFormView: View {
     private var total: Double { liters * price }
     private var lastOdo: Int { vehicle.currentOdometer }
     private var odoTooLow: Bool { editing == nil && odo > 0 && odo < lastOdo }
+    /// The warning (text + haptic) waits until the number is as long as the last reading, so the "33" that
+    /// tapping the field fills in doesn't flash an error while the rest is still being typed.
+    private var odoWarns: Bool { odoTooLow && odoText.count >= String(lastOdo).count }
     private var overTank: Bool { vehicle.tankLiters > 0 && liters > vehicle.tankLiters * 1.05 }
-    private var canSave: Bool { liters > 0 && price > 0 && odo > 0 }
+    /// A new fill-up that is below the last reading AND dated after it cannot be right (typically a
+    /// half-typed number). A lower number with an earlier date is a backdated entry and is allowed.
+    private var odoBlocksSave: Bool {
+        guard odoTooLow else { return false }
+        let latest = vehicle.odometerPoints.max(by: { $0.km < $1.km })?.date ?? .distantPast
+        return date > latest
+    }
+    private var canSave: Bool { liters > 0 && price > 0 && odo > 0 && !odoBlocksSave }
 
     var body: some View {
         FormScaffold(title: "Rifornimento", saveTitle: editing == nil ? "Salva registrazione" : "Salva modifiche",
@@ -134,8 +144,15 @@ struct FuelFormView: View {
                 .animation(Motion.spring, value: total)
             }
             VStack(alignment: .leading, spacing: Space.s1) {
-                LineField(label: "Contachilometri", text: $odoText, unit: "km", keyboard: .numberPad, size: 40)
-                if odoTooLow {
+                // New fill-up: the field starts empty with the last reading shown faded as a hint. Tapping it
+                // completes the leading digits the next reading will share with it (see OdometerGuess).
+                LineField(label: "Contachilometri", text: $odoText, unit: "km", keyboard: .numberPad, size: 40,
+                          placeholder: editing == nil && lastOdo > 0 ? lastOdo.grouped(locale) : "0",
+                          onFocusChange: { focused in
+                    guard focused, editing == nil, odoText.isEmpty else { return }
+                    odoText = OdometerGuess.sharedPrefix(last: lastOdo, fills: vehicle.fuelEntries)
+                })
+                if odoWarns {
                     Text("Il valore è inferiore all’ultima lettura.").font(AppFont.sans(13, .semibold)).foregroundStyle(Theme.ink)
                 } else if editing == nil {
                     Text("Ultima lettura: \(lastOdo.grouped(locale)) km").eyebrow()
@@ -165,12 +182,12 @@ struct FuelFormView: View {
                 reserve = e.reserveLight
                 return
             }
-            odoText = String(vehicle.currentOdometer)
+            // New fill-up: odoText stays empty on purpose (see the odometer field above).
             if let last = vehicle.fuelEntries.sorted(by: { $0.date > $1.date }).first {
                 priceText = last.pricePerLiter.decimal(3, locale)
             }
         }
-        .onChange(of: odoTooLow) { _, bad in if bad { Haptics.warning() } }
+        .onChange(of: odoWarns) { _, bad in if bad { Haptics.warning() } }
     }
 
     private func save() {
