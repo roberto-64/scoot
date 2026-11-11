@@ -21,7 +21,6 @@ struct SettingsView: View {
     @AppStorage("tankMargin") private var margin = 0.5
     @AppStorage("lastBackup") private var lastBackup: Double = 0
     @AppStorage(AutoBackup.enabledKey) private var autoBackup = false
-    @State private var pickFolder = false
     @State private var folderName: String? = nil
     @State private var autoFailed = false
 
@@ -208,7 +207,7 @@ struct SettingsView: View {
                     autoBackup = true
                     backUpNow()
                 } else {
-                    pickFolder = true
+                    chooseFolder()
                 }
             })) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -220,7 +219,7 @@ struct SettingsView: View {
             .toggleStyle(AccentToggleStyle())
 
             if autoBackup {
-                Button { pickFolder = true } label: {
+                Button { chooseFolder() } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 0) {
                             Text("Cartella").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
@@ -241,22 +240,23 @@ struct SettingsView: View {
             }
         }
         .onAppear { folderName = AutoBackup.folderName() }
-        .sheet(isPresented: $pickFolder) {
-            DocumentPicker(types: [.folder]) { url in
-                if AutoBackup.saveFolder(url) {
-                    folderName = AutoBackup.folderName()
-                    autoBackup = true
-                    backUpNow()
-                } else {
-                    autoFailed = true
-                }
-            }
-            .ignoresSafeArea()
-        }
         .alert("Backup automatico non riuscito", isPresented: $autoFailed) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Impossibile salvare nella cartella scelta. Scegline un’altra.")
+        }
+    }
+
+    /// Opens the Files picker for folders: go inside the folder, then tap "Apri".
+    private func chooseFolder() {
+        FilesPicker.present(types: [.folder]) { url in
+            if AutoBackup.saveFolder(url) {
+                folderName = AutoBackup.folderName()
+                autoBackup = true
+                backUpNow()
+            } else {
+                autoFailed = true
+            }
         }
     }
 

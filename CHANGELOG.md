@@ -2,6 +2,11 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 22
+
+Version 1.4 (22).
+- Automatic backup folder: tapping "Apri" in the folder picker did nothing. The Files picker is now shown directly by the system instead of inside a SwiftUI sheet (same for "Scegli un altro file" in the missing-data alarm).
+
 ## Build 21
 
 Version 1.4 (21).

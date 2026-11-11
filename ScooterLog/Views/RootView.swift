@@ -30,7 +30,6 @@ struct RootView: View {
     @Environment(\.modelContext) private var context
     @AppStorage("knownEntryCount") private var knownCount = 0
     @State private var wipeAlarm: WipeAlarm? = nil
-    @State private var showAlarmPicker = false
     @State private var alarmRestoreFailed = false
     @State private var tab: AppTab = .home
     @State private var showNew = false
@@ -67,12 +66,6 @@ struct RootView: View {
                     .presentationBackground(Theme.bg)
             }
         )
-        .background(
-            Color.clear.sheet(isPresented: $showAlarmPicker) {
-                DocumentPicker(types: [.json, .data]) { url in restoreFromFile(url) }
-                    .ignoresSafeArea()
-            }
-        )
         .alert("File non valido", isPresented: $alarmRestoreFailed) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -84,7 +77,9 @@ struct RootView: View {
                               onRestore: { f in restore(f.data, count: f.count) },
                               onPickFile: {
                                   withAnimation(Motion.spring) { wipeAlarm = nil }
-                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { showAlarmPicker = true }
+                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                                      FilesPicker.present(types: [.json, .data]) { url in restoreFromFile(url) }
+                                  }
                               },
                               onLater: { withAnimation(Motion.spring) { wipeAlarm = nil } })
                     .transition(.opacity.combined(with: .scale(scale: 0.94)))
