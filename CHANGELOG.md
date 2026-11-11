@@ -2,6 +2,14 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 23
+
+Version 1.4 (23).
+- Automatic backups now go into Scoot's own folder in Files: **Sul mio iPhone › Scoot › Backup automatici** (no folder to pick; picking an iCloud Drive folder never worked on the user's phone, builds 21-22). On by default. Tapping "Cartella" opens Files there.
+- These backups live outside the database, so a wipe like the one of 11 Nov 2026 leaves them intact and the missing-data alarm can restore them. They do not survive deleting the app or losing the phone, so:
+- The backup reminder is now weekly (was 30 days) and asks to export a copy to iCloud Drive. Automatic backups no longer count as "Ultimo backup"; Settings shows them separately ("Ultimo:" under Cartella).
+- "Importa backup" and "Scegli un altro file" use the system picker in copy mode (the app gets a copy of the file, no access permission needed).
+
 ## Build 22
 
 Version 1.4 (22).

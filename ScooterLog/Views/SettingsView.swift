@@ -20,8 +20,8 @@ struct SettingsView: View {
     @AppStorage("haptics") private var haptics = true
     @AppStorage("tankMargin") private var margin = 0.5
     @AppStorage("lastBackup") private var lastBackup: Double = 0
-    @AppStorage(AutoBackup.enabledKey) private var autoBackup = false
-    @State private var folderName: String? = nil
+    @AppStorage(AutoBackup.enabledKey) private var autoBackup = true
+    @AppStorage(AutoBackup.lastKey) private var lastAuto: Double = 0
     @State private var autoFailed = false
 
     @State private var shareItem: ShareItem?
@@ -197,19 +197,10 @@ struct SettingsView: View {
         }
     }
 
-    /// Automatic daily backup to a folder picked once (iCloud Drive), outside the app.
+    /// Automatic daily backup into Scoot's own folder in Files.
     private var autoBackupRows: some View {
         VStack(alignment: .leading, spacing: Space.s2) {
-            Toggle(isOn: Binding(get: { autoBackup }, set: { on in
-                if !on {
-                    autoBackup = false
-                } else if AutoBackup.hasFolder {
-                    autoBackup = true
-                    backUpNow()
-                } else {
-                    chooseFolder()
-                }
-            })) {
+            Toggle(isOn: $autoBackup) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Backup automatico").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
                     Text("Ogni giorno, quando apri l’app. Tiene gli ultimi 30.")
@@ -217,16 +208,18 @@ struct SettingsView: View {
                 }
             }
             .toggleStyle(AccentToggleStyle())
+            .onChange(of: autoBackup) { _, on in if on { backUpNow() } }
 
             if autoBackup {
-                Button { chooseFolder() } label: {
+                Button { openFolder() } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 0) {
                             Text("Cartella").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
-                            if let name = folderName {
-                                Text(verbatim: name).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
-                            } else {
-                                Text("Nessuna cartella").font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                            Text("Sul mio iPhone › Scoot › Backup automatici")
+                                .font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                            if lastAuto > 0 {
+                                (Text("Ultimo:") + Text(verbatim: " " + Date(timeIntervalSince1970: lastAuto).short(locale)))
+                                    .font(AppFont.sans(13)).foregroundStyle(Theme.muted)
                             }
                         }
                         Spacer()
@@ -239,25 +232,16 @@ struct SettingsView: View {
                 .buttonStyle(PressStyle())
             }
         }
-        .onAppear { folderName = AutoBackup.folderName() }
         .alert("Backup automatico non riuscito", isPresented: $autoFailed) {
             Button("OK", role: .cancel) {}
-        } message: {
-            Text("Impossibile salvare nella cartella scelta. Scegline un’altra.")
         }
     }
 
-    /// Opens the Files picker for folders: go inside the folder, then tap "Apri".
-    private func chooseFolder() {
-        FilesPicker.present(types: [.folder]) { url in
-            if AutoBackup.saveFolder(url) {
-                folderName = AutoBackup.folderName()
-                autoBackup = true
-                backUpNow()
-            } else {
-                autoFailed = true
-            }
-        }
+    /// Opens the Files app on the backup folder.
+    private func openFolder() {
+        guard let folder = AutoBackup.folderURL(),
+              let url = URL(string: "shareddocuments://" + folder.path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)!) else { return }
+        UIApplication.shared.open(url)
     }
 
     /// Writes today's automatic backup right away, so the user sees it works.

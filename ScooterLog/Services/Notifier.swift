@@ -57,7 +57,7 @@ enum Notifier {
             planned.append(PlannedNotification(
                 id: "\(prefix)backup",
                 title: Loc.tr("Backup dei dati", lang),
-                body: Loc.tr("Sono passati 30 giorni dall’ultimo backup. Esportali ora.", lang),
+                body: Loc.tr("È passata una settimana dall’ultimo backup. Esportane uno su iCloud Drive.", lang),
                 fire: b))
         }
         planned.sort { $0.fire < $1.fire }

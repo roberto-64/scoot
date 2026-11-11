@@ -225,7 +225,7 @@ struct RootView: View {
         var reminder: Date? = nil
         if let first = vehicles.first {
             let base = lastBackup > 0 ? Date(timeIntervalSince1970: lastBackup) : first.createdAt
-            reminder = base.addingDays(30)
+            reminder = base.addingDays(7)
         }
         Notifier.reschedule(vehicles: vehicles, lang: language, enabled: alerts, backupReminder: reminder)
     }

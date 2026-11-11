@@ -1541,16 +1541,6 @@
         }
       }
     },
-    "Impossibile salvare nella cartella scelta. Scegline un’altra.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Couldn’t save to the chosen folder. Pick another one."
-          }
-        }
-      }
-    },
     "Imposta": {
       "localizations": {
         "en": {
@@ -2027,16 +2017,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "No vehicles. Tap + to add one."
-          }
-        }
-      }
-    },
-    "Nessuna cartella": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No folder"
           }
         }
       }
@@ -2971,16 +2951,6 @@
         }
       }
     },
-    "Sono passati 30 giorni dall’ultimo backup. Esportali ora.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "It has been 30 days since your last backup. Export your data now."
-          }
-        }
-      }
-    },
     "Soprannome": {
       "localizations": {
         "en": {
@@ -3107,6 +3077,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Service history for selling"
+          }
+        }
+      }
+    },
+    "Sul mio iPhone › Scoot › Backup automatici": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On My iPhone › Scoot › Backup automatici"
           }
         }
       }
@@ -3291,6 +3271,16 @@
         }
       }
     },
+    "Ultimo:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last:"
+          }
+        }
+      }
+    },
     "Ultimo: %@": {
       "localizations": {
         "en": {
@@ -3457,6 +3447,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "± %lld, estimate"
+          }
+        }
+      }
+    },
+    "È passata una settimana dall’ultimo backup. Esportane uno su iCloud Drive.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It’s been a week since your last backup. Export one to iCloud Drive."
           }
         }
       }

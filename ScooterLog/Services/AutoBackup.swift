@@ -1,12 +1,11 @@
 import Foundation
 import SwiftData
 
-/// Daily automatic backups to a folder the user picked once (usually in iCloud Drive), so the data
-/// also lives outside the app. One file per day ("scoot-auto-2026-11-11.json"), the last 30 are kept.
+/// Daily automatic backups into Scoot's own folder in Files (outside the database, so a database
+/// wipe like the one of 11 Nov 2026 leaves them intact). One file per day ("scoot-auto-2026-11-11.json"), the last 30 are kept.
 /// An empty app is never backed up, so a wipe can never push good backups out.
 enum AutoBackup {
     static let enabledKey = "autoBackup"
-    static let folderKey = "autoBackupFolder"   // security-scoped bookmark of the folder
     static let lastKey = "lastAutoBackup"       // time of the last automatic backup
     static let keep = 30
     static let prefix = "scoot-auto-"
@@ -33,36 +32,17 @@ enum AutoBackup {
 
     // MARK: Folder
 
-    static var hasFolder: Bool { UserDefaults.standard.data(forKey: folderKey) != nil }
-
-    /// Remembers the folder picked in the system folder picker.
-    static func saveFolder(_ url: URL) -> Bool {
-        let opened = url.startAccessingSecurityScopedResource()
-        defer { if opened { url.stopAccessingSecurityScopedResource() } }
-        guard let data = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) else {
-            return false
-        }
-        UserDefaults.standard.set(data, forKey: folderKey)
-        return true
-    }
-
+    /// Scoot's own folder, visible in Files under "Sul mio iPhone › Scoot › Backup automatici".
+    /// (Picking a folder elsewhere, e.g. iCloud Drive, did not work: iPhone never handed the folder over.)
     static func folderURL() -> URL? {
-        guard let data = UserDefaults.standard.data(forKey: folderKey) else { return nil }
-        var stale = false
-        guard let url = try? URL(resolvingBookmarkData: data, options: [], relativeTo: nil, bookmarkDataIsStale: &stale) else {
-            return nil
-        }
-        if stale {
-            let opened = url.startAccessingSecurityScopedResource()
-            if let fresh = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
-                UserDefaults.standard.set(fresh, forKey: folderKey)
-            }
-            if opened { url.stopAccessingSecurityScopedResource() }
-        }
-        return url
+        guard let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        let folder = docs.appendingPathComponent("Backup automatici", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder
     }
 
-    static func folderName() -> String? { folderURL()?.lastPathComponent }
+    /// On unless the user switched it off.
+    static var isOn: Bool { UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? true }
 
     // MARK: Writing
 
@@ -70,7 +50,7 @@ enum AutoBackup {
     @discardableResult
     static func runIfDue(vehicles: [Vehicle], now: Date = Date()) -> Bool {
         let d = UserDefaults.standard
-        guard d.bool(forKey: enabledKey), hasFolder, entryCount(vehicles) > 0 else { return false }
+        guard isOn, entryCount(vehicles) > 0 else { return false }
         let last = d.double(forKey: lastKey)
         if last > 0, Calendar.current.isDate(Date(timeIntervalSince1970: last), inSameDayAs: now) { return false }
         return write(vehicles: vehicles, now: now)
@@ -82,8 +62,6 @@ enum AutoBackup {
         guard entryCount(vehicles) > 0, let folder = folderURL(), let json = BackupService.makeJSON(vehicles) else {
             return false
         }
-        let opened = folder.startAccessingSecurityScopedResource()
-        defer { if opened { folder.stopAccessingSecurityScopedResource() } }
         let target = folder.appendingPathComponent(prefix + now.formatted(.iso8601.year().month().day()) + ".json")
         var ok = false
         var coordError: NSError?
@@ -91,9 +69,8 @@ enum AutoBackup {
             ok = (try? json.write(to: url, options: .atomic)) != nil
         }
         guard ok else { return false }
+        // Not counted as "Ultimo backup": that one (and its weekly reminder) is for copies kept off the phone.
         UserDefaults.standard.set(now.timeIntervalSince1970, forKey: lastKey)
-        // An automatic backup also counts as a backup for the "Ultimo backup" line and the reminder.
-        UserDefaults.standard.set(now.timeIntervalSince1970, forKey: "lastBackup")
         prune(folder)
         return true
     }
@@ -131,8 +108,6 @@ enum AutoBackup {
     /// so call it off the main thread.
     static func latest() -> Found? {
         guard let folder = folderURL() else { return nil }
-        let opened = folder.startAccessingSecurityScopedResource()
-        defer { if opened { folder.stopAccessingSecurityScopedResource() } }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         for file in backupFiles(in: folder) {

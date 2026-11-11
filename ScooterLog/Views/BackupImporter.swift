@@ -15,8 +15,11 @@ struct BackupImporterModifier: ViewModifier {
         content
             // Any file can be picked (a backup saved to iCloud Drive can be labelled in ways that grey out a plain
             // ".json" filter); `isValidBackup` still checks that the contents are a real Scoot backup.
-            .fileImporter(isPresented: $isPresented, allowedContentTypes: [.json, .data]) { result in
-                handle(result)
+            // The picker hands over a copy of the file, so no access permission is needed.
+            .onChange(of: isPresented) { _, open in
+                guard open else { return }
+                isPresented = false
+                FilesPicker.present(types: [.json, .data]) { url in handle(.success(url)) }
             }
             .confirmationDialog("Sostituire tutti i dati con questo backup?",
                                 isPresented: $confirm,

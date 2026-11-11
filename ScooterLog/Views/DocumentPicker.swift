@@ -2,16 +2,16 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 
-/// The system Files picker, presented directly by UIKit on top of whatever is on screen.
-/// (Wrapped inside a SwiftUI sheet, the folder picker's "Apri" button did nothing: build 21.)
-/// Used for the automatic-backup folder and for picking a backup from the missing-data alarm.
+/// The system Files picker, presented directly by UIKit. It hands Scoot a copy of the picked file,
+/// so no access permission is involved (folder access was never granted on this phone, builds 21-22).
+/// Used by "Importa backup" and by "Scegli un altro file" in the missing-data alarm.
 enum FilesPicker {
     /// Keeps the delegate alive while the picker is open.
     private static var current: Delegate?
 
     static func present(types: [UTType], onPick: @escaping (URL) -> Void) {
         guard let top = topViewController() else { return }
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: types)
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: true)
         picker.allowsMultipleSelection = false
         let delegate = Delegate { url in
             current = nil
