@@ -1141,6 +1141,16 @@
         }
       }
     },
+    "Esporta database (diagnostica)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export database (diagnostics)"
+          }
+        }
+      }
+    },
     "Esporta ora": {
       "localizations": {
         "en": {

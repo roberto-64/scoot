@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appAccent) private var accent
     @Environment(\.locale) private var locale
+    @Environment(\.modelContext) private var context
     @Query private var vehicles: [Vehicle]
 
     @AppStorage("accent") private var accentId = "amber"
@@ -20,6 +21,8 @@ struct SettingsView: View {
     @AppStorage("lastBackup") private var lastBackup: Double = 0
 
     @State private var shareItem: ShareItem?
+    /// The raw database for diagnostics (kept apart so it does not count as a backup).
+    @State private var dbShare: ShareItem?
     @State private var showImport = false
     @State private var exportFailed = false
 
@@ -179,8 +182,13 @@ struct SettingsView: View {
                 actionRow("Esporta JSON", symbol: "square.and.arrow.up") { export(json: true) }
                 actionRow("Esporta CSV", symbol: "tablecells") { export(json: false) }
                 actionRow("Importa backup", symbol: "square.and.arrow.down") { showImport = true }
+                actionRow("Esporta database (diagnostica)", symbol: "stethoscope") { exportDatabase() }
             }
             .card(padding: Space.s2)
+        }
+        .sheet(item: $dbShare) { item in
+            ShareSheet(url: item.url)
+                .presentationDetents([.medium, .large])
         }
     }
 
@@ -230,6 +238,15 @@ struct SettingsView: View {
         let v = info?["CFBundleShortVersionString"] as? String ?? "1.0"
         let b = info?["CFBundleVersion"] as? String ?? "1"
         return "\(v) (\(b))"
+    }
+
+    private func exportDatabase() {
+        if let url = DatabaseExport.makeZip(container: context.container) {
+            Haptics.tick()
+            dbShare = ShareItem(url: url)
+        } else {
+            exportFailed = true
+        }
     }
 
     private func export(json: Bool) {

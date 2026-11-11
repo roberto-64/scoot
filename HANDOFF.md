@@ -326,3 +326,8 @@ Everything below was approved in mockups and written in one go. **None of it has
 ## Tab tap and recap weeks (build 18, version 1.4 (18), not yet tested on the phone)
 - `Views/TabTap.swift`: `TabTap.send(tab)` is called by `FloatingBar` when the tapped tab is already selected. `TabTapHelper(tab:)` (a zero-size UIKit view in the background of each tab's main page, inside the scroll view) listens; if its `UINavigationController` has more than one page it pops one (`popViewController`), otherwise it scrolls the enclosing `UIScrollView` to the top. Unverified on device: that a UIKit pop keeps SwiftUI's `NavigationStack` in sync (the swipe-back already uses UIKit), and the scroll offset with the safe-area insets.
 - `MonthRecap.make`: weeks are Monday-to-Sunday cut to the month; a first or last week with under 4 days is merged into its neighbour.
+
+## Data loss investigation (build 19)
+- 11 Nov 2026: the user opened the app and the database was empty, while the settings (accent, "Ultimo backup") survived, so the app was not reinstalled. No model, container or bundle ID change since the Nov 7 upload. The only in-app wipes are deleting the vehicle (`VehicleFormView`, with confirmation) and restoring a backup (`BackupService.restore`, with confirmation).
+- `Services/DatabaseExport.swift` + Settings row "Esporta database (diagnostica)": zips `default.store`, `-wal`, `-shm`, `.default_SUPPORT` and `report.txt` (file listing with dates, version, settings) through `NSFileCoordinator(.forUploading)`. Analyse it with sqlite3: `Z_PRIMARYKEY.Z_MAX` (deleted rows vs a new store), `ATRANSACTION`/`ACHANGE` (history with timestamps), free pages and WAL frames for leftovers.
+- `BackupImporter`: picker accepts `[.json, .data]`, contents still validated.

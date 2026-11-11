@@ -2,6 +2,12 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 19
+
+Version 1.4 (19).
+- Settings > Backup: new "Esporta database (diagnostica)". It copies the raw database files exactly as they are (database, its journal files, the photos folder) plus a report (file sizes and dates, version, a few settings) into one .zip to share. Added to find out why the data disappeared on 11 Nov 2026. It does not count as a backup.
+- Import backup: the file picker now lets you choose any file (a backup .json saved in iCloud Drive was greyed out). The app still checks that the contents are a real Scoot backup before replacing anything.
+
 ## Build 18
 
 Version 1.4 (18).
