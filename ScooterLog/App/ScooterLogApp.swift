@@ -21,8 +21,15 @@ struct ScooterLogApp: App {
             Deadline.self,
             EntryPhoto.self
         ])
+        // The database lives in Scoot's own private folder, under its own name.
+        // The default location is the shared App Group folder that the signing service adds to every
+        // sideloaded app, with the same file name ("default.store") for every app: another app using it
+        // (Cycle, 11 Nov 2026) converted the file to its own format and Scoot's data was wiped.
+        let folder = URL.applicationSupportDirectory
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let config = ModelConfiguration("Scoot", schema: schema, url: folder.appending(path: "Scoot.store"))
         do {
-            return try ModelContainer(for: schema)
+            return try ModelContainer(for: schema, configurations: [config])
         } catch {
             fatalError("Impossibile creare il database: \(error)")
         }

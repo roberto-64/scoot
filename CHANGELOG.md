@@ -2,6 +2,13 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 20
+
+Version 1.4 (20).
+- Data loss fix. The database is now `Scoot.store` in Scoot's own private folder. Until build 19 SwiftData used its default: `default.store` in the App Group folder that Signulous adds to every sideloaded app, shared with any other SwiftData app. On 11 Nov 2026 the Cycle app (same default) opened that file and converted it to its own format, dropping Scoot's tables; when Scoot opened at 16:35 it converted it back, empty. Proof in the diagnostic export: the change log names `com.personal.cycle` and three lightweight migrations, all entity counters at zero.
+- The new private database starts empty: restore the last backup after installing.
+- Settings shows the real version (it always said 1.0 (1): the Info.plist did not take the project version).
+
 ## Build 19
 
 Version 1.4 (19).
