@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 enum AppTab: Int, Hashable {
     case home, garage, fuel, profile
@@ -25,6 +26,12 @@ struct RootView: View {
     @AppStorage("tankArmed") private var tankArmed = ""
     @AppStorage("tankMargin") private var tankMargin = 0.5
     @State private var tankRecap: TankRecap? = nil
+    /// Missing-data alarm: how many entries the app had when it last left the screen.
+    @Environment(\.modelContext) private var context
+    @AppStorage("knownEntryCount") private var knownCount = 0
+    @State private var wipeAlarm: WipeAlarm? = nil
+    @State private var showAlarmPicker = false
+    @State private var alarmRestoreFailed = false
     @State private var tab: AppTab = .home
     @State private var showNew = false
     /// Form to open straight away when the sheet comes from Shortcuts or the icon menu.
@@ -60,6 +67,30 @@ struct RootView: View {
                     .presentationBackground(Theme.bg)
             }
         )
+        .background(
+            Color.clear.sheet(isPresented: $showAlarmPicker) {
+                DocumentPicker(types: [.json, .data]) { url in restoreFromFile(url) }
+                    .ignoresSafeArea()
+            }
+        )
+        .alert("File non valido", isPresented: $alarmRestoreFailed) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Questo file non è un backup di Scoot.")
+        }
+        .overlay {
+            if let a = wipeAlarm {
+                WipeAlarmCard(alarm: a,
+                              onRestore: { f in restore(f.data, count: f.count) },
+                              onPickFile: {
+                                  withAnimation(Motion.spring) { wipeAlarm = nil }
+                                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { showAlarmPicker = true }
+                              },
+                              onLater: { withAnimation(Motion.spring) { wipeAlarm = nil } })
+                    .transition(.opacity.combined(with: .scale(scale: 0.94)))
+                    .zIndex(30)
+            }
+        }
         .overlay {
             if let t = tankRecap {
                 TankRecapCard(recap: t) { withAnimation(Motion.spring) { tankRecap = nil } }
@@ -68,11 +99,16 @@ struct RootView: View {
             }
         }
         .onChange(of: tab) { _, new in cascadeTokens[new.rawValue] += 1 }
-        .onAppear { reschedule(); takeQuickRoute(); checkRecap(); checkTank() }
+        .onAppear { reschedule(); takeQuickRoute(); checkWipe(); AutoBackup.runIfDue(vehicles: vehicles); checkRecap(); checkTank() }
         .onChange(of: quick.pending) { _, _ in takeQuickRoute() }
         .onChange(of: scenePhase) { _, p in
-            if p == .active { reschedule(); checkRecap(); checkTank() }
-            else if p == .background { armTank() }
+            if p == .active {
+                reschedule(); checkWipe(); AutoBackup.runIfDue(vehicles: vehicles); checkRecap(); checkTank()
+            } else if p == .background {
+                armTank()
+                // While the alarm is up the app is empty on purpose: keep the old count so it can come back.
+                if wipeAlarm == nil { knownCount = AutoBackup.entryCount(vehicles) }
+            }
         }
         .onChange(of: locked) { _, nowLocked in
             if nowLocked {
@@ -80,7 +116,7 @@ struct RootView: View {
                 // Closed by the lock before it was read: let it come back after unlocking.
                 if tankRecap != nil { tankRecap = nil; tankSeen = "" }
             } else {
-                checkRecap(); checkTank()
+                checkWipe(); checkRecap(); checkTank()
             }
         }
         .onChange(of: language) { _, _ in reschedule() }
@@ -112,8 +148,52 @@ struct RootView: View {
 
     /// On the first open of a new month, shows the recap of the month that just ended (once).
     /// Nothing opens while the Face ID lock is up, over another sheet, or when the month has no data.
+    /// If Scoot had entries when it last left the screen and now opens empty, something wiped it:
+    /// show the alarm with the newest automatic backup (looked up off the main thread, it may download).
+    private func checkWipe() {
+        guard !locked, wipeAlarm == nil, knownCount > 0 else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            guard !locked, wipeAlarm == nil, knownCount > 0, AutoBackup.entryCount(vehicles) == 0 else { return }
+            let known = knownCount
+            DispatchQueue.global(qos: .userInitiated).async {
+                let found = AutoBackup.latest()
+                DispatchQueue.main.async {
+                    guard wipeAlarm == nil, AutoBackup.entryCount(vehicles) == 0 else { return }
+                    recapRef = nil
+                    tankRecap = nil
+                    Haptics.warning()
+                    withAnimation(Motion.spring) { wipeAlarm = WipeAlarm(knownCount: known, found: found) }
+                }
+            }
+        }
+    }
+
+    private func restore(_ data: Data, count: Int) {
+        if BackupService.restore(data, into: context) {
+            Haptics.success()
+            DataSignal.fire()
+            knownCount = count
+            withAnimation(Motion.spring) { wipeAlarm = nil }
+        } else {
+            alarmRestoreFailed = true
+        }
+    }
+
+    private func restoreFromFile(_ url: URL) {
+        let opened = url.startAccessingSecurityScopedResource()
+        defer { if opened { url.stopAccessingSecurityScopedResource() } }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        guard let data = try? Data(contentsOf: url),
+              let file = try? decoder.decode(BackupFile.self, from: data) else {
+            alarmRestoreFailed = true
+            return
+        }
+        restore(data, count: AutoBackup.entryCount(file))
+    }
+
     private func checkRecap() {
-        guard !locked, !showNew, recapRef == nil, scenePhase != .background else { return }
+        guard !locked, !showNew, recapRef == nil, wipeAlarm == nil, scenePhase != .background else { return }
         let previous = Date().startOfMonth.addingMonths(-1)
         let key = RecapKey.string(previous)
         guard previous >= RecapStart.date, recapSeen != key else { return }
@@ -135,7 +215,7 @@ struct RootView: View {
 
     /// On the first open after a fill-up, shows the last two tanks (once per fill-up).
     private func checkTank() {
-        guard !locked, !showNew, recapRef == nil, tankRecap == nil, scenePhase != .background else { return }
+        guard !locked, !showNew, recapRef == nil, tankRecap == nil, wipeAlarm == nil, scenePhase != .background else { return }
         guard let r = TankRecap.make(vehicles: vehicles, marginLiters: tankMargin),
               r.key == tankArmed, r.key != tankSeen else { return }
         // A short wait so the app has finished appearing, and the monthly recap (if any) goes first.

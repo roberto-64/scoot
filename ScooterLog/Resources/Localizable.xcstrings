@@ -571,6 +571,36 @@
         }
       }
     },
+    "Backup automatico": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic backup"
+          }
+        }
+      }
+    },
+    "Backup automatico non riuscito": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic backup failed"
+          }
+        }
+      }
+    },
+    "Backup automatico più recente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latest automatic backup"
+          }
+        }
+      }
+    },
     "Backup dei dati": {
       "localizations": {
         "en": {
@@ -677,6 +707,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fuel per km"
+          }
+        }
+      }
+    },
+    "Cartella": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder"
           }
         }
       }
@@ -1311,6 +1351,16 @@
         }
       }
     },
+    "I tuoi dati sembrano spariti": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your data seems to be missing"
+          }
+        }
+      }
+    },
     "I tuoi veicoli": {
       "localizations": {
         "en": {
@@ -1487,6 +1537,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t create the image"
+          }
+        }
+      }
+    },
+    "Impossibile salvare nella cartella scelta. Scegline un’altra.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save to the chosen folder. Pick another one."
           }
         }
       }
@@ -1697,6 +1757,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Litres per stop"
+          }
+        }
+      }
+    },
+    "L’ultima volta Scoot aveva %lld registrazioni. Ora è vuoto.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last time Scoot had %lld entries. Now it’s empty."
           }
         }
       }
@@ -1921,6 +1991,16 @@
         }
       }
     },
+    "Nessun backup automatico trovato.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No automatic backup found."
+          }
+        }
+      }
+    },
     "Nessun dato in questo periodo": {
       "localizations": {
         "en": {
@@ -1947,6 +2027,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No vehicles. Tap + to add one."
+          }
+        }
+      }
+    },
+    "Nessuna cartella": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No folder"
           }
         }
       }
@@ -2021,6 +2111,16 @@
         }
       }
     },
+    "Non ora": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        }
+      }
+    },
     "Note": {
       "localizations": {
         "en": {
@@ -2087,6 +2187,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Every"
+          }
+        }
+      }
+    },
+    "Ogni giorno, quando apri l’app. Tiene gli ultimi 30.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every day, when you open the app. Keeps the last 30."
           }
         }
       }
@@ -2491,6 +2601,16 @@
         }
       }
     },
+    "Ripristina questo backup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore this backup"
+          }
+        }
+      }
+    },
     "Rispetto a %@": {
       "localizations": {
         "en": {
@@ -2677,6 +2797,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choose from library"
+          }
+        }
+      }
+    },
+    "Scegli un altro file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose another file"
+          }
+        }
+      }
+    },
+    "Scegli un file di backup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a backup file"
           }
         }
       }

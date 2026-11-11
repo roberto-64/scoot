@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 /// Settings: colour, language, alerts, Face ID, animations, haptics,
 /// tank margin, backup (export / import) and version.
@@ -19,6 +20,10 @@ struct SettingsView: View {
     @AppStorage("haptics") private var haptics = true
     @AppStorage("tankMargin") private var margin = 0.5
     @AppStorage("lastBackup") private var lastBackup: Double = 0
+    @AppStorage(AutoBackup.enabledKey) private var autoBackup = false
+    @State private var pickFolder = false
+    @State private var folderName: String? = nil
+    @State private var autoFailed = false
 
     @State private var shareItem: ShareItem?
     /// The raw database for diagnostics (kept apart so it does not count as a backup).
@@ -178,6 +183,7 @@ struct SettingsView: View {
                 (Text("Ultimo backup:") + Text(verbatim: " " + Date(timeIntervalSince1970: lastBackup).short(locale)))
                     .eyebrow()
             }
+            autoBackupRows
             VStack(spacing: 0) {
                 actionRow("Esporta JSON", symbol: "square.and.arrow.up") { export(json: true) }
                 actionRow("Esporta CSV", symbol: "tablecells") { export(json: false) }
@@ -189,6 +195,78 @@ struct SettingsView: View {
         .sheet(item: $dbShare) { item in
             ShareSheet(url: item.url)
                 .presentationDetents([.medium, .large])
+        }
+    }
+
+    /// Automatic daily backup to a folder picked once (iCloud Drive), outside the app.
+    private var autoBackupRows: some View {
+        VStack(alignment: .leading, spacing: Space.s2) {
+            Toggle(isOn: Binding(get: { autoBackup }, set: { on in
+                if !on {
+                    autoBackup = false
+                } else if AutoBackup.hasFolder {
+                    autoBackup = true
+                    backUpNow()
+                } else {
+                    pickFolder = true
+                }
+            })) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Backup automatico").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
+                    Text("Ogni giorno, quando apri l’app. Tiene gli ultimi 30.")
+                        .font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                }
+            }
+            .toggleStyle(AccentToggleStyle())
+
+            if autoBackup {
+                Button { pickFolder = true } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("Cartella").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
+                            if let name = folderName {
+                                Text(verbatim: name).font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                            } else {
+                                Text("Nessuna cartella").font(AppFont.sans(13)).foregroundStyle(Theme.muted)
+                            }
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(accent)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PressStyle())
+            }
+        }
+        .onAppear { folderName = AutoBackup.folderName() }
+        .sheet(isPresented: $pickFolder) {
+            DocumentPicker(types: [.folder]) { url in
+                if AutoBackup.saveFolder(url) {
+                    folderName = AutoBackup.folderName()
+                    autoBackup = true
+                    backUpNow()
+                } else {
+                    autoFailed = true
+                }
+            }
+            .ignoresSafeArea()
+        }
+        .alert("Backup automatico non riuscito", isPresented: $autoFailed) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Impossibile salvare nella cartella scelta. Scegline un’altra.")
+        }
+    }
+
+    /// Writes today's automatic backup right away, so the user sees it works.
+    private func backUpNow() {
+        guard AutoBackup.entryCount(vehicles) > 0 else { return }
+        if AutoBackup.write(vehicles: vehicles) {
+            Haptics.success()
+        } else {
+            autoFailed = true
         }
     }
 

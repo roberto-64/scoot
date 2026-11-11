@@ -2,6 +2,12 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 21
+
+Version 1.4 (21).
+- Automatic backups: Settings > Backup dei dati > "Backup automatico". The first time it asks for a folder (pick one in iCloud Drive); from then on Scoot saves a backup there once a day when you open the app (`scoot-auto-YYYY-MM-DD.json`) and keeps the last 30. It never saves when the app is empty, so a wipe cannot push good backups out. An automatic backup also updates "Ultimo backup".
+- Missing-data alarm: Scoot remembers how many entries it had when it last left the screen. If it opens empty after having data, a card over everything says "I tuoi dati sembrano spariti" and offers the newest automatic backup in one tap ("Ripristina questo backup"), another file, or "Non ora".
+
 ## Build 20
 
 Version 1.4 (20).
