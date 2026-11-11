@@ -181,6 +181,16 @@
         }
       }
     },
+    "30 giorni": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 days"
+          }
+        }
+      }
+    },
     "30, 7 e 1 giorno prima, alle 9:00": {
       "localizations": {
         "en": {
@@ -227,6 +237,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "6M"
+          }
+        }
+      }
+    },
+    "7 giorni": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 days"
           }
         }
       }
@@ -2341,6 +2361,16 @@
         }
       }
     },
+    "Promemoria per esportare": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export reminder"
+          }
+        }
+      }
+    },
     "Prossima": {
       "localizations": {
         "en": {
@@ -3111,6 +3141,16 @@
         }
       }
     },
+    "Ti ricorda di salvare una copia su iCloud Drive con Esporta JSON. Serve se elimini l’app o perdi il telefono.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminds you to save a copy to iCloud Drive with Esporta JSON. It matters if you delete the app or lose the phone."
+          }
+        }
+      }
+    },
     "Tieni premuta una settimana per leggerla.": {
       "localizations": {
         "en": {
@@ -3451,12 +3491,12 @@
         }
       }
     },
-    "È passata una settimana dall’ultimo backup. Esportane uno su iCloud Drive.": {
+    "È ora di salvare una copia del backup su iCloud Drive.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It’s been a week since your last backup. Export one to iCloud Drive."
+            "value": "Time to save a copy of your backup to iCloud Drive."
           }
         }
       }

@@ -17,6 +17,7 @@ struct RootView: View {
     @AppStorage("language") private var language = "it"
     @AppStorage("alerts") private var alerts = true
     @AppStorage("lastBackup") private var lastBackup: Double = 0
+    @AppStorage("backupReminderDays") private var reminderDays = 30
     /// Month ("2026-10") whose recap pop-up has already been shown.
     @AppStorage("recapSeen") private var recapSeen = ""
     @State private var recapRef: RecapRef? = nil
@@ -115,6 +116,7 @@ struct RootView: View {
             }
         }
         .onChange(of: language) { _, _ in reschedule() }
+        .onChange(of: reminderDays) { _, _ in reschedule() }
         .onChange(of: alerts) { _, on in
             if on { Notifier.requestAuthorization() }
             reschedule()
@@ -223,9 +225,9 @@ struct RootView: View {
 
     private func reschedule() {
         var reminder: Date? = nil
-        if let first = vehicles.first {
+        if let first = vehicles.first, reminderDays > 0 {
             let base = lastBackup > 0 ? Date(timeIntervalSince1970: lastBackup) : first.createdAt
-            reminder = base.addingDays(7)
+            reminder = base.addingDays(reminderDays)
         }
         Notifier.reschedule(vehicles: vehicles, lang: language, enabled: alerts, backupReminder: reminder)
     }

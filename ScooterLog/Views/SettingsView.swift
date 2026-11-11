@@ -22,6 +22,8 @@ struct SettingsView: View {
     @AppStorage("lastBackup") private var lastBackup: Double = 0
     @AppStorage(AutoBackup.enabledKey) private var autoBackup = true
     @AppStorage(AutoBackup.lastKey) private var lastAuto: Double = 0
+    /// Days after the last export before the reminder to save a copy off the phone. 0 = never.
+    @AppStorage("backupReminderDays") private var reminderDays = 30
     @State private var autoFailed = false
 
     @State private var shareItem: ShareItem?
@@ -230,6 +232,17 @@ struct SettingsView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PressStyle())
+            }
+
+            VStack(alignment: .leading, spacing: Space.s1) {
+                Text("Promemoria per esportare").font(AppFont.sans(17)).foregroundStyle(Theme.ink)
+                Segmented(options: [
+                    SegmentOption(value: 0, label: "Mai"),
+                    SegmentOption(value: 7, label: "7 giorni"),
+                    SegmentOption(value: 30, label: "30 giorni")
+                ], selection: $reminderDays)
+                Text("Ti ricorda di salvare una copia su iCloud Drive con Esporta JSON. Serve se elimini l’app o perdi il telefono.")
+                    .eyebrow()
             }
         }
         .alert("Backup automatico non riuscito", isPresented: $autoFailed) {

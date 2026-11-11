@@ -2,6 +2,11 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 24
+
+Version 1.4 (24).
+- Settings > Backup dei dati: new "Promemoria per esportare" with Mai / 7 giorni / 30 giorni (default 30, like before build 23). It counts from the last "Esporta JSON"/"Esporta CSV". New notification text: "È ora di salvare una copia del backup su iCloud Drive." Automatic backups keep running whatever the choice.
+
 ## Build 23
 
 Version 1.4 (23).
