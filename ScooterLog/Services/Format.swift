@@ -29,6 +29,10 @@ extension Int {
 }
 
 extension Date {
+    /// "2026-11-19" in the phone's own time zone, for file names. The plain `.iso8601` style uses UTC, so
+    /// between midnight and 1 am (2 am in summer) Italian time it gave the previous day.
+    var fileDay: String { formatted(Date.ISO8601FormatStyle(timeZone: .current).year().month().day()) }
+
     func short(_ locale: Locale) -> String {
         self.formatted(.dateTime.day().month(.abbreviated).year().locale(locale))
     }

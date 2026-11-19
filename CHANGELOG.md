@@ -2,6 +2,15 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 27
+
+Version 1.4 (27). Fixes from a bug hunt of the recent changes (19 Nov 2026).
+- Database that can't be opened (e.g. a failed conversion after a future update): Scoot no longer crashes at every launch. The unreadable file is set aside as `Scoot-unreadable-<time>.store` (kept) and the app opens empty, so the "data vanished" alarm offers the newest automatic backup. Before, the only way out was reinstalling, which also deletes the automatic backups.
+- Automatic backup also when leaving the app after a change (any save, including SwiftData's own autosave, marks it out of date: `autoBackupDirty`). Before, it ran only at the first open of the day, so entries logged later that day were unprotected until the next day.
+- Consumption: a stretch counts as one of a month's (or range's) stretches only when most of its km fall inside it. Its km and litres still count either way. Before, the last few km of a stretch closing on the 1st counted as a whole stretch of the new month, which could turn on the month-to-month comparison with only one real stretch and showed "2 tratti" for about one.
+- Pop-up title "Ultimi due pieni" -> "Ultimi due tratti".
+- File names (automatic backups, exports) use the local date. Before, they used UTC, so between midnight and 1 am (2 am in summer) they got the previous day's date and the automatic backup replaced the previous day's file.
+
 ## Build 26
 
 Version 1.4 (26).

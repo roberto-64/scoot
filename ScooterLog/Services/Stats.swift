@@ -118,7 +118,8 @@ struct FuelSummary {
     var points: [ConsumptionPoint] = []
     var best: Double? = nil
     var worst: Double? = nil
-    /// Stretches that have km inside the range, and the km and litres they contribute to it.
+    /// Stretches with most of their km inside the range; and the km and litres that ALL stretches touching
+    /// the range contribute to it.
     var stretches: Int = 0
     var stretchKm: Double = 0
     var stretchLiters: Double = 0
@@ -345,7 +346,10 @@ enum FuelStats {
                 let k = km(of: s, start: iv.start, end: iv.end)
                 guard k >= 0.5 else { continue }
                 let l = k / s.kmPerL
-                out.stretches += 1
+                // Its km and litres always count, but it is counted as one of the range's stretches only when
+                // most of its km fall inside: the last few km of a stretch that closed on the 1st at 8:00 are not
+                // "a stretch" of the new month (that would turn on the month comparison too early).
+                if k >= Double(s.km) / 2 { out.stretches += 1 }
                 out.stretchKm += k
                 out.stretchLiters += l
                 cost += l * (s.cost / s.liters)

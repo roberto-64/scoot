@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Pop-up over everything (not a sheet): the last two tanks. Tap outside, the X or "Ok" closes it.
+/// Pop-up over everything (not a sheet): the last two light-to-light stretches. Tap outside, the X or "Ok" closes it.
 struct TankRecapCard: View {
     let recap: TankRecap
     let onClose: () -> Void
@@ -20,7 +20,7 @@ struct TankRecapCard: View {
     private var card: some View {
         let shape = RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
         return VStack(alignment: .leading, spacing: 0) {
-            Text("Ultimi due pieni").eyebrow()
+            Text("Ultimi due tratti").eyebrow()
             HStack(alignment: .firstTextBaseline, spacing: Space.s1) {
                 Text(verbatim: String(Int(recap.kmPerL.rounded())))
                     .font(AppFont.serif(56)).foregroundStyle(Theme.ink).monospacedDigit()

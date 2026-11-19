@@ -7,6 +7,9 @@ import SwiftData
 enum AutoBackup {
     static let enabledKey = "autoBackup"
     static let lastKey = "lastAutoBackup"       // time of the last automatic backup
+    /// Set whenever data is saved; today's backup is then rewritten the next time the app leaves the screen
+    /// (or opens), so what was logged today is protected today, not from tomorrow.
+    static let dirtyKey = "autoBackupDirty"
     static let keep = 30
     static let prefix = "scoot-auto-"
 
@@ -46,13 +49,17 @@ enum AutoBackup {
 
     // MARK: Writing
 
-    /// Writes today's backup if automatic backups are on and none was written today.
+    static func markDirty() { UserDefaults.standard.set(true, forKey: dirtyKey) }
+
+    /// Writes today's backup if automatic backups are on and either none was written today or something
+    /// changed since the last one.
     @discardableResult
     static func runIfDue(vehicles: [Vehicle], now: Date = Date()) -> Bool {
         let d = UserDefaults.standard
         guard isOn, entryCount(vehicles) > 0 else { return false }
         let last = d.double(forKey: lastKey)
-        if last > 0, Calendar.current.isDate(Date(timeIntervalSince1970: last), inSameDayAs: now) { return false }
+        let doneToday = last > 0 && Calendar.current.isDate(Date(timeIntervalSince1970: last), inSameDayAs: now)
+        if doneToday && !d.bool(forKey: dirtyKey) { return false }
         return write(vehicles: vehicles, now: now)
     }
 
@@ -62,7 +69,7 @@ enum AutoBackup {
         guard entryCount(vehicles) > 0, let folder = folderURL(), let json = BackupService.makeJSON(vehicles) else {
             return false
         }
-        let target = folder.appendingPathComponent(prefix + now.formatted(.iso8601.year().month().day()) + ".json")
+        let target = folder.appendingPathComponent(prefix + now.fileDay + ".json")
         var ok = false
         var coordError: NSError?
         NSFileCoordinator().coordinate(writingItemAt: target, options: .forReplacing, error: &coordError) { url in
@@ -71,6 +78,7 @@ enum AutoBackup {
         guard ok else { return false }
         // Not counted as "Ultimo backup": that one (and its weekly reminder) is for copies kept off the phone.
         UserDefaults.standard.set(now.timeIntervalSince1970, forKey: lastKey)
+        UserDefaults.standard.set(false, forKey: dirtyKey)
         prune(folder)
         return true
     }

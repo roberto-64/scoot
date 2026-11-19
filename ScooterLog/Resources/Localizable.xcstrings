@@ -3291,12 +3291,12 @@
         }
       }
     },
-    "Ultimi due pieni": {
+    "Ultimi due tratti": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last two fill-ups"
+            "value": "Last two stretches"
           }
         }
       }

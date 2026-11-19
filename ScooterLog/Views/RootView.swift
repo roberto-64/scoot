@@ -102,6 +102,8 @@ struct RootView: View {
                 reschedule(); checkWipe(); AutoBackup.runIfDue(vehicles: vehicles); checkRecap(); checkTank()
             } else if p == .background {
                 armTank()
+                // Protect what was logged today right away (only rewrites if something changed).
+                AutoBackup.runIfDue(vehicles: vehicles)
                 // While the alarm is up the app is empty on purpose: keep the old count so it can come back.
                 if wipeAlarm == nil { knownCount = AutoBackup.entryCount(vehicles) }
             }
@@ -121,7 +123,9 @@ struct RootView: View {
             if on { Notifier.requestAuthorization() }
             reschedule()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .dataChanged)) { _ in reschedule() }
+        .onReceive(NotificationCenter.default.publisher(for: .dataChanged)) { _ in reschedule(); AutoBackup.markDirty() }
+        // Every save, including SwiftData's own automatic ones, marks today's backup as out of date.
+        .onReceive(NotificationCenter.default.publisher(for: ModelContext.didSave)) { _ in AutoBackup.markDirty() }
     }
 
     private func tabScreen<Content: View>(_ t: AppTab, @ViewBuilder content: () -> Content) -> some View {

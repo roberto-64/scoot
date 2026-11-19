@@ -260,7 +260,7 @@ struct ProfileView: View {
     }
 
     private func exportNow() {
-        let day = Date().formatted(.iso8601.year().month().day())
+        let day = Date().fileDay
         if let data = BackupService.makeJSON(vehicles),
            let url = BackupService.tempFile(named: "scoot-\(day).json", data: data) {
             Haptics.tick()

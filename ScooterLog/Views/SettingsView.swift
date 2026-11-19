@@ -325,7 +325,7 @@ struct SettingsView: View {
     }
 
     private func export(json: Bool) {
-        let day = Date().formatted(.iso8601.year().month().day())
+        let day = Date().fileDay
         let data = json ? BackupService.makeJSON(vehicles) : BackupService.makeCSV(vehicles)
         let name = "scoot-\(day).\(json ? "json" : "csv")"
         if let data, let url = BackupService.tempFile(named: name, data: data) {

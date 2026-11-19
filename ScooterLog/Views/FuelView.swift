@@ -130,7 +130,9 @@ struct StretchLine: View {
         let km = Int(summary.stretchKm.rounded()).grouped(locale)
         let liters = summary.stretchLiters.decimal(2, locale)
         Group {
-            if summary.stretches == 1 {
+            if summary.stretches == 0 {
+                EmptyView()   // only parts of stretches in this period: nothing sensible to count
+            } else if summary.stretches == 1 {
                 Text("1 tratto da spia a spia: \(km) km con \(liters) L")
             } else {
                 Text("\(summary.stretches) tratti da spia a spia: \(km) km con \(liters) L")

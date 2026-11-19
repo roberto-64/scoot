@@ -303,7 +303,7 @@ struct SalesHistoryView: View {
     }
 
     private func share(_ data: Data, for v: Vehicle) {
-        let day = Date().formatted(.iso8601.year().month().day())
+        let day = Date().fileDay
         let base = [v.make, v.model].filter { !$0.isEmpty }.joined(separator: "-")
             .replacingOccurrences(of: " ", with: "-")
         if let url = BackupService.tempFile(named: "storico-\(base.isEmpty ? "veicolo" : base)-\(day).pdf", data: data) {

@@ -29,7 +29,7 @@ struct MonthRecap {
     var liters: Double = 0
     var fills: Int = 0
     var kmPerL: Double? = nil
-    /// Light-to-light stretches with km in this month (a stretch across the month edge counts in both).
+    /// Light-to-light stretches with most of their km in this month (a stretch across the edge counts where most of it is).
     var stretches: Int = 0
     var points: [ConsumptionPoint] = []
     var weeks: [RecapWeek] = []

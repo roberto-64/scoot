@@ -31,7 +31,23 @@ struct ScooterLogApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Impossibile creare il database: \(error)")
+            // The file exists but can't be opened (e.g. a future update changes the data format and the
+            // conversion fails). Crashing here would lock the user out for good, and reinstalling would also
+            // delete the automatic backups (they live in Scoot's own Documents folder). Instead, set the
+            // unreadable file aside (kept, never deleted) and start empty: RootView's "data vanished" alarm then
+            // sees an empty app that had entries and offers the newest automatic backup.
+            let fm = FileManager.default
+            let stamp = Int(Date().timeIntervalSince1970)
+            for suffix in ["", "-shm", "-wal"] {
+                let src = folder.appending(path: "Scoot.store" + suffix)
+                guard fm.fileExists(atPath: src.path) else { continue }
+                try? fm.moveItem(at: src, to: folder.appending(path: "Scoot-unreadable-\(stamp).store" + suffix))
+            }
+            do {
+                return try ModelContainer(for: schema, configurations: [config])
+            } catch {
+                fatalError("Impossibile creare il database: \(error)")
+            }
         }
     }()
 
