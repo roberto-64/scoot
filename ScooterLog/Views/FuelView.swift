@@ -79,9 +79,10 @@ struct FuelView: View {
                 }
                 .animation(Motion.spring, value: k)
                 if let m = f.margin { (Text(verbatim: "± \(Int((m * 100).rounded()))%, ") + Text("stima")).eyebrow() }
+                StretchLine(summary: f)
             } else {
                 Text(verbatim: "—").font(AppFont.serif(56)).foregroundStyle(Theme.muted)
-                Text("Servono almeno due rifornimenti.").eyebrow()
+                Text("Servono due pieni con la spia accesa.").eyebrow()
             }
         }
     }
@@ -91,13 +92,12 @@ struct FuelView: View {
         if mode == 0 {
             if f.points.count >= 2 {
                 ConsumptionChart(points: f.points, average: f.kmPerL)
-                Text(f.usesReserve
-                     ? LocalizedStringKey("Da una spia della riserva alla successiva. Trascina il dito per leggere. Linea tratteggiata: media.")
-                     : LocalizedStringKey("Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media."))
+                Text("Da una spia della riserva alla successiva. Trascina il dito per leggere. Linea tratteggiata: media.")
                     .eyebrow().padding(.top, Space.s1)
             } else {
-                ChartPlaceholder(title: "Il grafico arriva con più rifornimenti",
-                                 hint: "Servono almeno 400 km in totale tra i rifornimenti registrati. Aggiungili con il tasto +.")
+                ChartPlaceholder(title: f.points.count == 1 ? LocalizedStringKey("Il grafico arriva col prossimo pieno con la spia accesa")
+                                                            : LocalizedStringKey("Il grafico arriva con i pieni con la spia accesa"),
+                                 hint: "Il consumo si misura da una spia della riserva alla successiva.")
             }
         } else {
             if f.pricePoints.count >= 2 {
@@ -118,5 +118,24 @@ extension HistoryEntry {
             for f in v.fuelEntries where range.contains(f.date) { out.append(.fuel(f)) }
         }
         return out.sorted { $0.date > $1.date }
+    }
+}
+
+/// "1 tratto da spia a spia: 181 km con 4,50 L" under the average consumption: what the figure is made of.
+struct StretchLine: View {
+    @Environment(\.locale) private var locale
+    let summary: FuelSummary
+
+    var body: some View {
+        let km = Int(summary.stretchKm.rounded()).grouped(locale)
+        let liters = summary.stretchLiters.decimal(2, locale)
+        Group {
+            if summary.stretches == 1 {
+                Text("1 tratto da spia a spia: \(km) km con \(liters) L")
+            } else {
+                Text("\(summary.stretches) tratti da spia a spia: \(km) km con \(liters) L")
+            }
+        }
+        .eyebrow()
     }
 }

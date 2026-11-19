@@ -111,24 +111,27 @@ struct StatsSummary {
 }
 
 struct FuelSummary {
+    /// Consumption: always measured over light-to-light stretches (see FuelStats).
     var kmPerL: Double? = nil
     var margin: Double? = nil
+    /// One point per stretch that closes inside the range, dated at its closing fill-up.
     var points: [ConsumptionPoint] = []
     var best: Double? = nil
     var worst: Double? = nil
-    var avgPrice: Double? = nil
+    /// Stretches that have km inside the range, and the km and litres they contribute to it.
+    var stretches: Int = 0
+    var stretchKm: Double = 0
+    var stretchLiters: Double = 0
     var fuelCostPerKm: Double? = nil
+    // Totals and counts: from every fill-up in the range, as logged.
+    var avgPrice: Double? = nil
     var litersPerStop: Double? = nil
     var kmBetweenStops: Double? = nil
     var pricePoints: [PricePoint] = []
     var fillsInRange: Int = 0
-    /// True when the consumption figures come from reserve-light to reserve-light stretches.
-    var usesReserve: Bool = false
 }
 
 enum StatsEngine {
-    static let windowKm = 400
-
     static func items(_ vs: [Vehicle]) -> [CostItem] {
         var out: [CostItem] = []
         for v in vs {
@@ -266,62 +269,90 @@ enum StatsEngine {
     }
 }
 
+/// THE RULE (build 26): anything that compares km with litres uses light-to-light STRETCHES; anything that
+/// only adds up or counts (money, litres bought, price per litre, number of fill-ups, litres per stop,
+/// km between fill-ups) uses every fill-up as logged.
+///
+/// A stretch runs from one fill-up made with the reserve light on to the next one. Both times the tank held
+/// about the same fuel when the scooter reached the pump, so the fuel burned over the stretch is the litres
+/// of the opening fill-up plus every fill-up in between (light off), but NOT the closing one, whose litres
+/// start the next stretch. Where the pump clicks off doesn't matter.
+///
+/// A stretch can straddle the edge of a range (e.g. 28 Nov to 2 Dec). Its km are split across the range by
+/// date, between each pair of consecutive fill-ups inside it, and each part burns fuel at the stretch's rate.
+/// So November counts only its own km of that stretch, and December the rest.
 enum FuelStats {
+    struct Stretch {
+        let closeDate: Date
+        let km: Int
+        let liters: Double
+        let cost: Double
+        /// Consecutive fill-ups from the opening to the closing one: (date, odometer).
+        let path: [(Date, Int)]
+        var kmPerL: Double { Double(km) / liters }
+    }
+
+    /// Every complete stretch of one vehicle, in odometer order.
+    static func stretches(of v: Vehicle) -> [Stretch] {
+        let fills = v.fuelEntries.sorted { $0.odometer < $1.odometer }
+        let marked = fills.indices.filter { fills[$0].reserveLight }
+        guard marked.count >= 2 else { return [] }
+        var out: [Stretch] = []
+        for m in 1..<marked.count {
+            let a = marked[m - 1], b = marked[m]
+            var liters = 0.0, cost = 0.0
+            for k in a..<b { liters += fills[k].liters; cost += fills[k].total }
+            let km = fills[b].odometer - fills[a].odometer
+            guard liters > 0, km > 0 else { continue }
+            out.append(Stretch(closeDate: fills[b].date, km: km, liters: liters, cost: cost,
+                               path: (a...b).map { (fills[$0].date, fills[$0].odometer) }))
+        }
+        return out
+    }
+
+    /// Km of a stretch that fall inside [start, end). Between two consecutive fill-ups the km are spread
+    /// evenly over the time between them (the same estimate the recap uses for km per week).
+    static func km(of s: Stretch, start: Date?, end: Date) -> Double {
+        var total = 0.0
+        for i in 1..<s.path.count {
+            let (d0, o0) = s.path[i - 1], (d1, o1) = s.path[i]
+            let km = Double(o1 - o0)
+            guard km > 0 else { continue }
+            if d1 <= d0 {
+                // Same moment (or dates out of order): all of it belongs where the later fill-up is.
+                if (start == nil || d1 >= start!) && d1 < end { total += km }
+                continue
+            }
+            let lo = max(d0, start ?? d0), hi = min(d1, end)
+            if hi > lo { total += km * hi.timeIntervalSince(lo) / d1.timeIntervalSince(d0) }
+        }
+        return total
+    }
+
     static func summary(vehicles: [Vehicle], range: StatRange, marginLiters: Double, now: Date = Date()) -> FuelSummary {
         var out = FuelSummary()
-        var totalDist = 0
-        var totalLiters = 0.0
-        var costAfterFirst = 0.0
-        var gaps = 0
-        var gapDist = 0
-        var allLiters = 0.0
-        var allCost = 0.0
-        var stops = 0
-        var reservePoints: [ConsumptionPoint] = []
-        var reserveDist = 0
-        var reserveLiters = 0.0
+        let iv = range.interval(now: now)
+        var cost = 0.0
+        var gaps = 0, gapDist = 0
+        var allLiters = 0.0, allCost = 0.0, stops = 0
 
         for v in vehicles {
+            // Consumption: stretches.
+            for s in stretches(of: v) {
+                if range.contains(s.closeDate, now: now) {
+                    out.points.append(ConsumptionPoint(date: s.closeDate, kmPerL: s.kmPerL))
+                }
+                let k = km(of: s, start: iv.start, end: iv.end)
+                guard k >= 0.5 else { continue }
+                let l = k / s.kmPerL
+                out.stretches += 1
+                out.stretchKm += k
+                out.stretchLiters += l
+                cost += l * (s.cost / s.liters)
+            }
+
+            // Totals and counts: every fill-up in the range.
             let fills = v.fuelEntries.sorted { $0.odometer < $1.odometer }
-
-            // Reserve-light stretches: from one fill-up made with the light on to the next one.
-            // Litres = the first marked fill-up plus every fill-up in between, not the closing one
-            // (the tank was back at reserve level just before the closing fill-up).
-            let marked = fills.indices.filter { fills[$0].reserveLight }
-            if marked.count >= 2 {
-                for m in 1..<marked.count {
-                    let a = marked[m - 1], b = marked[m]
-                    guard range.contains(fills[b].date, now: now) else { continue }
-                    var liters = 0.0
-                    for k in a..<b { liters += fills[k].liters }
-                    let dist = fills[b].odometer - fills[a].odometer
-                    if liters > 0 && dist > 0 {
-                        reservePoints.append(ConsumptionPoint(date: fills[b].date, kmPerL: Double(dist) / liters))
-                        reserveDist += dist
-                        reserveLiters += liters
-                    }
-                }
-            }
-
-            // Rolling windows of at least `windowKm`, ending at each fill.
-            if fills.count >= 2 {
-                for j in 1..<fills.count {
-                    var i = j - 1
-                    var found = false
-                    while i >= 0 {
-                        if fills[j].odometer - fills[i].odometer >= StatsEngine.windowKm { found = true; break }
-                        i -= 1
-                    }
-                    guard found, range.contains(fills[j].date, now: now) else { continue }
-                    var liters = 0.0
-                    for k in (i + 1)...j { liters += fills[k].liters }
-                    let dist = fills[j].odometer - fills[i].odometer
-                    if liters > 0 && dist > 0 {
-                        out.points.append(ConsumptionPoint(date: fills[j].date, kmPerL: Double(dist) / liters))
-                    }
-                }
-            }
-
             let inside = fills.filter { range.contains($0.date, now: now) }
             for f in inside {
                 allLiters += f.liters
@@ -329,35 +360,19 @@ enum FuelStats {
                 stops += 1
                 out.pricePoints.append(PricePoint(date: f.date, price: f.pricePerLiter))
             }
-            if inside.count >= 2, let first = inside.first, let last = inside.last {
-                let dist = last.odometer - first.odometer
-                let liters = inside.dropFirst().reduce(0.0) { $0 + $1.liters }
-                if dist > 0 && liters > 0 {
-                    totalDist += dist
-                    totalLiters += liters
-                    costAfterFirst += inside.dropFirst().reduce(0.0) { $0 + $1.total }
-                    gaps += inside.count - 1
-                    gapDist += dist
-                }
+            if inside.count >= 2, let first = inside.first, let last = inside.last, last.odometer > first.odometer {
+                gaps += inside.count - 1
+                gapDist += last.odometer - first.odometer
             }
         }
 
-        // With at least one reserve-light stretch in range, those replace the 400 km windows.
-        if !reservePoints.isEmpty && reserveLiters > 0 {
-            out.points = reservePoints
-            out.usesReserve = true
-        }
         out.points.sort { $0.date < $1.date }
         out.pricePoints.sort { $0.date < $1.date }
         out.fillsInRange = stops
-        if totalLiters > 0 {
-            out.kmPerL = Double(totalDist) / totalLiters
-            out.margin = min(marginLiters / totalLiters, 0.99)
-            if totalDist > 0 { out.fuelCostPerKm = costAfterFirst / Double(totalDist) }
-        }
-        if out.usesReserve {
-            out.kmPerL = Double(reserveDist) / reserveLiters
-            out.margin = min(marginLiters / reserveLiters, 0.99)
+        if out.stretchLiters > 0 && out.stretchKm > 0 {
+            out.kmPerL = out.stretchKm / out.stretchLiters
+            out.margin = min(marginLiters / out.stretchLiters, 0.99)
+            out.fuelCostPerKm = cost / out.stretchKm
         }
         if allLiters > 0 { out.avgPrice = allCost / allLiters }
         if stops > 0 { out.litersPerStop = allLiters / Double(stops) }

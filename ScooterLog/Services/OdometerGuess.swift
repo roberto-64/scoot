@@ -28,4 +28,23 @@ enum OdometerGuess {
         }
         return out
     }
+
+    /// True when another dated reading of this vehicle makes `km` on `date` physically impossible: an entry
+    /// on an earlier day with MORE km, or on a later day with FEWER km. Fuel, maintenance and odometer
+    /// readings count; expenses don't (their km is often just "the current reading" stamped on an old
+    /// date) and neither does the vehicle's start value. Same-day entries never conflict.
+    static func conflicts(km: Int, date: Date, vehicle: Vehicle, ignoring: FuelEntry?) -> Bool {
+        guard km > 0 else { return false }
+        let cal = Calendar.current
+        let day = cal.startOfDay(for: date)
+        var points: [(Date, Int)] = []
+        for f in vehicle.fuelEntries where f !== ignoring { points.append((f.date, f.odometer)) }
+        for m in vehicle.maintenance { points.append((m.date, m.odometer)) }
+        for r in vehicle.readings { points.append((r.date, r.odometer)) }
+        for (d, k) in points where k > 0 {
+            let other = cal.startOfDay(for: d)
+            if (other < day && k > km) || (other > day && k < km) { return true }
+        }
+        return false
+    }
 }

@@ -2,6 +2,13 @@
 
 Newest first. Dates are 2 and 3 November 2026.
 
+## Build 26
+
+Version 1.4 (26).
+- Segmented switches: build 25's pill disappeared after a tap and then reappeared and slid. It is now a single pill that is always on screen and moves by position (animated by the selected index), so it slides smoothly every time, like the tab bar's pill.
+- Fill-up form: new warning "Il contachilometri non torna con le altre registrazioni: controlla il valore e la data." when the odometer and date are physically impossible next to another entry (an earlier-dated entry with more km, or a later-dated one with fewer). Counts fuel, maintenance and odometer-reading entries only (not expenses, whose km is often the current reading stamped on an old date). Warning only: Salva stays on, so back-adding old entries still works. Also applies when editing a fill-up. Appears once the number is as long as the last reading.
+- Consumption, one method only: light to light. The 400 km rolling window and the switching between methods are gone (the switch also caused a bug: with exactly one light-to-light stretch the chart showed the "servono almeno 400 km" message). Rule: anything comparing km with litres uses stretches (average, chart, best/worst, pop-up, monthly consumption, fuel cost per km); totals and counts use every fill-up. A stretch across a month edge has its km split by date between its fill-ups, at the stretch's rate. New line under the average: "1 tratto da spia a spia: 181 km con 4,50 L". New empty-state texts. Monthly recap compares consumption only when both months have at least two stretches. Pop-up rows renamed "Ultimo tratto" / "Tratto precedente". Verified with the user's data: 40,2 km/L ± 11% (181 km, 4,50 L).
+
 ## Build 25
 
 Version 1.4 (25).

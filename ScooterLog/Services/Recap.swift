@@ -29,6 +29,8 @@ struct MonthRecap {
     var liters: Double = 0
     var fills: Int = 0
     var kmPerL: Double? = nil
+    /// Light-to-light stretches with km in this month (a stretch across the month edge counts in both).
+    var stretches: Int = 0
     var points: [ConsumptionPoint] = []
     var weeks: [RecapWeek] = []
     var split: [SplitSlice] = []
@@ -36,6 +38,7 @@ struct MonthRecap {
     var prevKm: Double? = nil
     var prevSpent: Double? = nil
     var prevKmPerL: Double? = nil
+    var prevStretches: Int = 0
 
     var hasData: Bool { entryCount > 0 || km > 0 }
     var bestWeekIndex: Int? {
@@ -63,12 +66,15 @@ struct MonthRecap {
         guard let p = prevSpent, p > 0 else { return nil }
         return Int(((spent - p) / p * 100).rounded())
     }
+    /// Consumption is compared only when both months have at least two stretches; one stretch is too
+    /// little to say the month went better or worse.
+    private var consumptionComparable: Bool { stretches >= 2 && prevStretches >= 2 }
     var kmPerLDelta: Double? {
-        guard let a = kmPerL, let b = prevKmPerL else { return nil }
+        guard consumptionComparable, let a = kmPerL, let b = prevKmPerL else { return nil }
         return (a * 10).rounded() / 10 - (b * 10).rounded() / 10
     }
     var kmPerLPercent: Int? {
-        guard let a = kmPerL, let b = prevKmPerL, b > 0 else { return nil }
+        guard consumptionComparable, let a = kmPerL, let b = prevKmPerL, b > 0 else { return nil }
         return Int(((a - b) / b * 100).rounded())
     }
     var hasComparison: Bool { kmDelta != nil || spentDelta != nil || kmPerLDelta != nil }
@@ -123,6 +129,7 @@ struct MonthRecap {
         }
         let fuel = FuelStats.summary(vehicles: vehicles, range: .month(start), marginLiters: margin, now: now)
         r.kmPerL = fuel.kmPerL
+        r.stretches = fuel.stretches
         r.points = fuel.points
 
         // Km, week by week (the estimate spreads the km between two readings over the days between them).
@@ -179,6 +186,7 @@ struct MonthRecap {
                 r.prevKm = prev.km
                 r.prevSpent = prev.spent
                 r.prevKmPerL = prev.kmPerL
+                r.prevStretches = prev.stretches
             }
         }
         return r

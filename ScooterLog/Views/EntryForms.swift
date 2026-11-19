@@ -118,6 +118,14 @@ struct FuelFormView: View {
         return date > latest
     }
     private var canSave: Bool { liters > 0 && price > 0 && odo > 0 && !odoBlocksSave }
+    /// Shown for a new fill-up that is below the last reading and dated after it (Salva is off).
+    private var odoShowsBlock: Bool { odoWarns && odoBlocksSave }
+    /// Warning only (Salva stays on): the number and date don't fit the other entries, e.g. a back-added
+    /// fill-up whose odometer is higher than a later one. Waits for a full-length number.
+    private var odoShowsConflict: Bool {
+        !odoShowsBlock && odoText.count >= String(lastOdo).count
+            && OdometerGuess.conflicts(km: odo, date: date, vehicle: vehicle, ignoring: editing)
+    }
 
     var body: some View {
         FormScaffold(title: "Rifornimento", saveTitle: editing == nil ? "Salva registrazione" : "Salva modifiche",
@@ -152,8 +160,11 @@ struct FuelFormView: View {
                     guard focused, editing == nil, odoText.isEmpty else { return }
                     odoText = OdometerGuess.sharedPrefix(last: lastOdo, fills: vehicle.fuelEntries)
                 })
-                if odoWarns {
+                if odoShowsBlock {
                     Text("Il valore è inferiore all’ultima lettura.").font(AppFont.sans(13, .semibold)).foregroundStyle(Theme.ink)
+                } else if odoShowsConflict {
+                    Text("Il contachilometri non torna con le altre registrazioni: controlla il valore e la data.")
+                        .font(AppFont.sans(13, .semibold)).foregroundStyle(Theme.ink)
                 } else if editing == nil {
                     Text("Ultima lettura: \(lastOdo.grouped(locale)) km").eyebrow()
                 }
@@ -187,7 +198,7 @@ struct FuelFormView: View {
                 priceText = last.pricePerLiter.decimal(3, locale)
             }
         }
-        .onChange(of: odoWarns) { _, bad in if bad { Haptics.warning() } }
+        .onChange(of: odoShowsBlock || odoShowsConflict) { _, bad in if bad { Haptics.warning() } }
     }
 
     private func save() {

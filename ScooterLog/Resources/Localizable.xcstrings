@@ -101,6 +101,16 @@
         }
       }
     },
+    "%lld tratti da spia a spia: %@ km con %@ L": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld stretches from light to light: %@ km on %@ L"
+          }
+        }
+      }
+    },
     ", quale arriva prima": {
       "localizations": {
         "en": {
@@ -157,6 +167,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 overdue"
+          }
+        }
+      }
+    },
+    "1 tratto da spia a spia: %@ km con %@ L": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 stretch from light to light: %@ km on %@ L"
           }
         }
       }
@@ -1391,6 +1411,36 @@
         }
       }
     },
+    "Il consumo si misura da una spia della riserva alla successiva.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consumption is measured from one reserve light to the next."
+          }
+        }
+      }
+    },
+    "Il contachilometri non torna con le altre registrazioni: controlla il valore e la data.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The odometer doesn't match your other entries: check the value and the date."
+          }
+        }
+      }
+    },
+    "Il grafico arriva col prossimo pieno con la spia accesa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The chart appears with your next fill-up with the reserve light on"
+          }
+        }
+      }
+    },
     "Il grafico arriva col secondo rifornimento": {
       "localizations": {
         "en": {
@@ -1401,22 +1451,22 @@
         }
       }
     },
+    "Il grafico arriva con i pieni con la spia accesa": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The chart appears with fill-ups made with the reserve light on"
+          }
+        }
+      }
+    },
     "Il grafico arriva con più letture": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The chart needs more readings"
-          }
-        }
-      }
-    },
-    "Il grafico arriva con più rifornimenti": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The chart appears with more fill-ups"
           }
         }
       }
@@ -1861,16 +1911,6 @@
         }
       }
     },
-    "Media mobile su almeno 400 km. Trascina il dito per leggere. Linea tratteggiata: media.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rolling average over at least 400 km. Drag your finger to read values. Dashed line: average."
-          }
-        }
-      }
-    },
     "Mese": {
       "localizations": {
         "en": {
@@ -2247,16 +2287,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Piaggio"
-          }
-        }
-      }
-    },
-    "Pieno precedente": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Previous fill-up"
           }
         }
       }
@@ -2901,26 +2931,6 @@
         }
       }
     },
-    "Servono almeno 400 km in totale tra i rifornimenti registrati.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You need at least 400 km in total across your logged fill-ups."
-          }
-        }
-      }
-    },
-    "Servono almeno 400 km in totale tra i rifornimenti registrati. Aggiungili con il tasto +.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You need at least 400 km in total across your logged fill-ups. Add them with the + button."
-          }
-        }
-      }
-    },
     "Servono almeno due letture del contachilometri.": {
       "localizations": {
         "en": {
@@ -2931,12 +2941,12 @@
         }
       }
     },
-    "Servono almeno due rifornimenti.": {
+    "Servono due pieni con la spia accesa.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You need at least two fill-ups."
+            "value": "You need two fill-ups made with the reserve light on."
           }
         }
       }
@@ -3201,6 +3211,16 @@
         }
       }
     },
+    "Tratto precedente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous stretch"
+          }
+        }
+      }
+    },
     "Tutte le manutenzioni": {
       "localizations": {
         "en": {
@@ -3301,12 +3321,12 @@
         }
       }
     },
-    "Ultimo pieno": {
+    "Ultimo tratto": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last fill-up"
+            "value": "Last stretch"
           }
         }
       }

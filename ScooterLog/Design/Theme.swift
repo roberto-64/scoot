@@ -380,11 +380,10 @@ struct Segmented<T: Hashable>: View {
     @Environment(\.appAccent) private var accent
     let options: [SegmentOption<T>]
     @Binding var selection: T
-    /// Shared by every segment so the selected pill slides from one to the next, like the tab bar's pill.
-    @Namespace private var pillSpace
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: Radius.base, style: .continuous)
+        let index = options.firstIndex(where: { $0.value == selection })
         HStack(spacing: 0) {
             ForEach(options) { o in
                 let on = o.value == selection
@@ -397,17 +396,23 @@ struct Segmented<T: Hashable>: View {
                         .foregroundStyle(on ? Theme.ink : Theme.muted)
                         .frame(maxWidth: .infinity)
                         .frame(height: Space.s5)
-                        .background {
-                            // Only the selected segment draws the pill; matchedGeometryEffect makes it
-                            // glide to the newly selected segment instead of fading out and in.
-                            if on {
-                                shape.fill(Theme.surface)
-                                    .overlay(shape.stroke(Theme.line, lineWidth: 1))
-                                    .matchedGeometryEffect(id: "segmentPill", in: pillSpace)
-                            }
-                        }
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+            }
+        }
+        // The pill is ONE view that is always present and only moves, so it can never disappear and
+        // reappear. Its position is animated by the selected index itself (.animation(value:)), which works
+        // however the binding is written (plain state, @AppStorage, with or without withAnimation).
+        .background {
+            GeometryReader { geo in
+                let w = geo.size.width / CGFloat(max(options.count, 1))
+                shape.fill(Theme.surface)
+                    .overlay(shape.stroke(Theme.line, lineWidth: 1))
+                    .frame(width: w, height: geo.size.height)
+                    .offset(x: w * CGFloat(index ?? 0))
+                    .opacity(index == nil ? 0 : 1)
+                    .animation(Motion.spring, value: index)
             }
         }
         .background(Theme.ink.opacity(0.06), in: shape)
